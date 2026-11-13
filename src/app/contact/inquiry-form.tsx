@@ -133,12 +133,13 @@ export function InquiryForm() {
     // 사람은 볼 수 없는 스팸 방지 칸. 자동 입력 봇이 체크하면 Web3Forms 가 걸러 냅니다.
     const botcheck = formRef.current?.elements.namedItem("botcheck");
     if (botcheck instanceof HTMLInputElement && botcheck.checked) data.append("botcheck", "on");
-    // 메일에 화면과 같은 순서·이름으로 보이게 합니다. name·email 은 Web3Forms 가 보낸 사람·답장 주소로 쓰는 예약 이름입니다.
-    data.append("문의 유형", kindLabel);
+    // 메일에 화면과 같은 순서로 보이게 합니다. name·email 은 Web3Forms 가 보낸 사람·답장 주소로 쓰는 예약 이름입니다.
+    // 칸 이름(키)은 영어로 둡니다. Web3Forms 가 한글 칸 이름을 메일에서 깨뜨려 보여 주기 때문입니다(값의 한글은 괜찮습니다).
+    data.append("Inquiry Type", kindLabel);
     data.append("name", values.name);
-    data.append("회사", values.company);
+    data.append("Company", values.company);
     data.append("email", values.email);
-    data.append("문의 내용", values.message);
+    data.append("Message", values.message);
 
     setStatus("sending");
     try {
