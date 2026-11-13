@@ -254,23 +254,6 @@ export const BRANDS: Brand[] = [
     status: "2026년 12월 미국 출시 예정",
     images: [{ src: "/images/business/yorien.webp", alt: "YORIEN 정수기" }],
   },
-  {
-    name: "제오니스",
-    category: "뷰티 디바이스",
-    tagline: "집에서 이어 가는 K-뷰티 관리",
-    description: "제오니스와 제오니스3, 한국의 뷰티 디바이스를 미국 소비자의 일상 루틴에 더합니다.",
-    images: [
-      { src: "/images/business/zeonis.webp", alt: "제오니스" },
-      { src: "/images/business/zeonis3.webp", alt: "제오니스3" },
-    ],
-  },
-  {
-    name: "고네트",
-    category: "식기",
-    tagline: "한국의 식탁을 미국의 테이블로",
-    description: "한식의 멋을 담은 고네트 식기로 미국의 식탁에 한국의 손님맞이를 전합니다.",
-    images: [{ src: "/images/business/hankook-sikgi.webp", alt: "고네트 식기 세트" }],
-  },
 ];
 
 /* ──────────────────────────── 보도·소식 ──────────────────────────── */

@@ -82,7 +82,7 @@ export default function BusinessPage() {
         </Container>
       </section>
 
-      {/* 독점 판권 브랜드: 가로 전체 이미지 위에 반투명 카피 박스를 좌·우·좌로 둡니다 */}
+      {/* 독점 판권 브랜드: 가로 전체 이미지 위에 반투명 카피 박스를 좌·우 번갈아 둡니다 */}
       <section aria-label="독점 판권 브랜드">
         <div className="bg-secondary">
           <Container className="py-16 md:py-24">
