@@ -1,0 +1,13 @@
+{
+  "library": "iconoir",
+  "prefix": "iconoir",
+  "source": "iconify",
+  "installedAt": "2026-11-05T06:37:12.753Z",
+  "icons": [
+    "arrow-left",
+    "arrow-up-right",
+    "camera",
+    "mail",
+    "map-pin"
+  ]
+}

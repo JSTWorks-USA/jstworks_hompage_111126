@@ -1,0 +1,304 @@
+@import "tailwindcss";
+
+/* 라이트 테마 전용 브랜드입니다. dark: 변형은 .dark 클래스가 있을 때만 적용되며, 사이트에서는 쓰지 않습니다. */
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Gmarket Sans — Medium (전체 + 라틴 서브셋), Bold (라틴 서브셋)
+ * 디자인 시스템 키트가 넣은 외부 폰트 @import(fonts.bunny.net)는 Gmarket Sans를 제공하지 않아 빼고,
+ * 프로젝트의 로컬 폰트 파일을 그대로 씁니다.
+ */
+@font-face {
+  font-family: "Gmarket Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/GmarketSans-Medium-KR.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Gmarket Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/GmarketSans-Medium-Latin.woff2") format("woff2");
+  unicode-range: U+0020-005E, U+0061-007E, U+00A9-00AA, U+00AD, U+00B2-00B3,
+    U+00B7, U+00B9-00BE, U+013F-0140, U+2013, U+2074, U+2081-2084, U+2116,
+    U+2153-2154, U+215B-215E, U+2192, U+223C, U+300C-300D, U+301C, U+FF01-FF3E,
+    U+FF41-FF5E;
+}
+@font-face {
+  font-family: "Gmarket Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/GmarketSans-Bold-Latin.woff2") format("woff2");
+  unicode-range: U+0020-005E, U+0061-007E, U+00A9-00AA, U+00AD, U+00B2-00B3,
+    U+00B7, U+00B9-00BE, U+013F-0140, U+2013, U+2074, U+2081-2084, U+2116,
+    U+2153-2154, U+215B-215E, U+2192, U+223C, U+300C-300D, U+301C, U+FF01-FF3E,
+    U+FF41-FF5E;
+}
+
+/*
+ * Better Design 커스텀 시스템 "bright-eye" 토큰 (JSTWorks 브랜드 기반)
+ * https://better-design.com/projects/1d571de3-1e8e-4d21-90c8-3c56a03dee3c
+ */
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0 0 0);
+  --primary: oklch(0.3385 0.0899 151.57);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.95 0.0116 162.04);
+  --secondary-foreground: oklch(0.3385 0.0899 151.57);
+  --muted: oklch(0.9642 0 0);
+  --muted-foreground: oklch(0.4748 0 0);
+  --accent: oklch(0.95 0.0116 162.04);
+  --accent-foreground: oklch(0.3385 0.0899 151.57);
+  /* 오류 문구가 흰 바탕에서 4.5:1 이상 읽히도록 키트 값보다 조금 어둡게 둡니다. */
+  --destructive: oklch(0.53 0.2 25.38);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.8945 0 0);
+  /* 키트의 Input·Textarea는 --input을 배경(입력 우물)으로 씁니다. 브랜드의 회색 테두리 값 대신 옅은 면(--muted와 같은 값)으로 둡니다. */
+  --input: oklch(0.9642 0 0);
+  --ring: oklch(0.3385 0.0899 151.57);
+  --radius: 1rem;
+
+  --shadow-2xs: 0 0.0625rem 0.125rem 0 rgba(0, 0, 0, 0.03);
+  --shadow-xs: 0 0.0625rem 0.125rem 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 0.0625rem 0.1875rem 0 rgba(0, 0, 0, 0.06),
+    0 0.0625rem 0.125rem -0.0625rem rgba(0, 0, 0, 0.04);
+  --shadow: 0 0.0625rem 0.1875rem 0 rgba(0, 0, 0, 0.08),
+    0 0.0625rem 0.125rem -0.0625rem rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 0.25rem 0.375rem -0.0625rem oklch(0 0 0 / 0.08),
+    0 0.125rem 0.25rem -0.125rem oklch(0 0 0 / 0.06), 0 0 0 0.0625rem oklch(0 0 0 / 0.04);
+  --shadow-lg: 0 0.5rem 1rem -0.125rem rgba(0, 0, 0, 0.08), 0 0 0 0.0625rem rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 1rem 1.5rem -0.25rem rgba(0, 0, 0, 0.1), 0 0 0 0.0625rem rgba(0, 0, 0, 0.04);
+
+  --transition-duration-fast: 180ms;
+  --transition-duration-base: 240ms;
+  --transition-duration-slow: 300ms;
+  --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-in: cubic-bezier(0.895, 0.03, 0.685, 0.22);
+
+  --font-sans: "Gmarket Sans", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+
+  /* 브랜드 보조 색 */
+  --brand: oklch(0.3385 0.0899 151.57);
+  --mint-line: oklch(0.8769 0.0261 158.14);
+  --night: oklch(0.1071 0.0194 262.03);
+  --night-foreground: oklch(1 0 0);
+  /* 땅속(연혁 장면) */
+  --soil: oklch(0.17 0.03 155);
+  --soil-deep: oklch(0.1 0.015 155);
+  --glow: oklch(0.86 0.09 158);
+  /* 지평선 가까운 밤하늘, 조슈아 트리 실루엣 */
+  --horizon: oklch(0.2 0.04 230);
+  --tree: oklch(0.16 0.03 155);
+  --subtle: oklch(0.6334 0 0);
+  --footer: var(--night);
+  --footer-foreground: oklch(1 0 0);
+  --footer-line: oklch(0.3211 0 0);
+  --footer-muted: oklch(0.7155 0 0);
+
+  /* 헤더 높이(아래 테두리 1px 포함). 모바일은 로고·메뉴 두 줄, md 이상은 한 줄 */
+  --header-height: 7.5625rem;
+
+  /* 레이아웃 밀도: spacious */
+  --layout-density: spacious;
+  --layout-density-source: design-system;
+  --layout-inset: calc(var(--spacing, 0.25rem) * 10);
+  --layout-section-gap: calc(var(--spacing, 0.25rem) * 12);
+  --layout-column-gap: calc(var(--spacing, 0.25rem) * 4);
+  --layout-card-padding: calc(var(--spacing, 0.25rem) * 6);
+}
+
+@media (width >= 48rem) {
+  :root {
+    --header-height: 4.5625rem;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-brand: var(--brand);
+  --color-mint-line: var(--mint-line);
+  --color-night: var(--night);
+  --color-night-foreground: var(--night-foreground);
+  --color-soil: var(--soil);
+  --color-soil-deep: var(--soil-deep);
+  --color-glow: var(--glow);
+  --color-subtle: var(--subtle);
+  --color-footer: var(--footer);
+  --color-footer-foreground: var(--footer-foreground);
+  --color-footer-line: var(--footer-line);
+  --color-footer-muted: var(--footer-muted);
+
+  --radius-sm: calc(var(--radius) - 0.25rem);
+  --radius-md: calc(var(--radius) - 0.125rem);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 0.25rem);
+  --radius-2xl: calc(var(--radius) + 0.5rem);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+
+  --transition-duration-fast: var(--transition-duration-fast);
+  --transition-duration-base: var(--transition-duration-base);
+  --transition-duration-slow: var(--transition-duration-slow);
+  --ease-out: var(--ease-out);
+  --ease-in-out: var(--ease-in-out);
+  --ease-in: var(--ease-in);
+  --default-transition-duration: var(--transition-duration-fast);
+  --default-transition-timing-function: var(--ease-out);
+
+  --font-sans: var(--font-sans);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    /* Gmarket Sans 한글은 500 한 굵기뿐이라 가짜 굵기를 만들지 않습니다. */
+    font-synthesis-weight: none;
+    text-underline-position: from-font;
+    text-decoration-skip-ink: auto;
+    /* 스크롤바가 생기고 사라질 때 폭이 흔들리지 않게 자리를 둡니다. */
+    scrollbar-gutter: stable;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    margin: 0;
+    word-break: keep-all;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p,
+  li,
+  dd {
+    text-wrap: pretty;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  ::selection {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+  }
+
+  /* 내용에 맞춰 늘어나는 textarea, 지원하지 않는 브라우저는 세로 크기 조절 */
+  textarea {
+    resize: vertical;
+  }
+  @supports (field-sizing: content) {
+    textarea {
+      field-sizing: content;
+      max-height: 20lh;
+      overflow-y: auto;
+    }
+  }
+
+  @supports (scrollbar-gutter: stable) {
+    html body[data-scroll-locked] {
+      margin-right: 0 !important;
+    }
+  }
+}
+
+/* 움직임은 사용자가 허용한 경우에만 둡니다. */
+@media (prefers-reduced-motion: no-preference) {
+  /* 히어로 사진: 아주 느린 카메라 줌 */
+  .hero-drift {
+    animation: hero-drift 28s var(--ease-in-out) infinite alternate;
+  }
+  /* 연혁 장면의 별 */
+  .star-twinkle {
+    animation: star-twinkle 3.2s var(--ease-in-out) infinite alternate;
+  }
+  /* 매출 지점 고리 */
+  .root-pulse {
+    animation: root-pulse 2.4s var(--ease-out) infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+}
+
+@keyframes hero-drift {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08) translateY(-1.5%);
+  }
+}
+
+@keyframes star-twinkle {
+  from {
+    opacity: 0.25;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes root-pulse {
+  from {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(3);
+  }
+}
+
+@layer utilities {
+  /* 잘못 입력한 필드는 메시지뿐 아니라 필드 자체로도 표시합니다. */
+  [aria-invalid="true"]:is(input, textarea, select, [role="combobox"], [role="checkbox"], [role="radio"]),
+  [role="radiogroup"][aria-invalid="true"] [role="radio"] {
+    border-color: var(--destructive);
+  }
+  [aria-invalid="true"]:is(input, textarea, select, [role="combobox"], [role="checkbox"], [role="radio"]):focus-visible,
+  [role="radiogroup"][aria-invalid="true"] [role="radio"]:focus-visible {
+    border-color: var(--destructive);
+    --tw-ring-color: color-mix(in oklch, var(--destructive) 35%, transparent);
+  }
+}
