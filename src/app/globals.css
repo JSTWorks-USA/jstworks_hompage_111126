@@ -243,15 +243,28 @@
   }
 }
 
+/* 별똥별은 지나가는 순간에만 보이는 효과라, 움직임을 줄인 경우에는 아예 보이지 않습니다. */
+.shooting-star {
+  opacity: 0;
+}
+
 /* 움직임은 사용자가 허용한 경우에만 둡니다. */
 @media (prefers-reduced-motion: no-preference) {
   /* 히어로 사진: 아주 느린 카메라 줌 */
   .hero-drift {
     animation: hero-drift 28s var(--ease-in-out) infinite alternate;
   }
-  /* 연혁 장면의 별 */
+  /* 연혁 장면의 별: 묶음마다 다른 박자(--twinkle-dur)와 어긋남(--twinkle-delay)으로 반짝입니다 */
   .star-twinkle {
-    animation: star-twinkle 3.2s var(--ease-in-out) infinite alternate;
+    animation: star-twinkle var(--twinkle-dur, 3.2s) var(--ease-in-out) var(--twinkle-delay, 0s) infinite alternate;
+  }
+  /* 밝은 별: 번짐과 십자 빛이 함께 커졌다 작아지며 반짝입니다(별 중심 기준) */
+  .star-flare {
+    animation: star-flare var(--twinkle-dur, 3.6s) var(--ease-in-out) var(--twinkle-delay, 0s) infinite alternate;
+  }
+  /* 별똥별: 주기마다 한 번, 1초 안쪽으로 빠르게 지나갑니다 */
+  .shooting-star {
+    animation: shooting-star var(--meteor-dur, 11s) linear var(--meteor-delay, 0s) infinite;
   }
   /* 매출 지점 고리 */
   .root-pulse {
@@ -276,6 +289,35 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes star-flare {
+  from {
+    opacity: 0.45;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes shooting-star {
+  0% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  1.5% {
+    opacity: 1;
+  }
+  7% {
+    opacity: 0;
+    transform: translateX(16rem);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(16rem);
   }
 }
 

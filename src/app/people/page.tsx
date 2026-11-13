@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Container, KeepTogether, PageHeader } from "@/components/site-ui";
-import { PEOPLE, PEOPLE_INTRO } from "@/content/site";
+import { PEOPLE_DIVISIONS, PEOPLE_INTRO } from "@/content/site";
 import { PeopleRows } from "./people-rows";
 
 export const metadata: Metadata = { title: "People" };
@@ -16,7 +16,7 @@ export default function PeoplePage() {
             <KeepTogether text={PEOPLE_INTRO} />
           </p>
         </Container>
-        <PeopleRows people={PEOPLE} />
+        <PeopleRows divisions={PEOPLE_DIVISIONS} />
       </section>
     </>
   );

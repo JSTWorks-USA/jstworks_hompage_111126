@@ -10,7 +10,7 @@ import {
   useTransform,
   type MotionValue,
 } from "motion/react";
-import { useRef, useState } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import { TREE_PATH } from "@/components/logo";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -136,18 +136,76 @@ const BRANCH_LABELS = [
   { left: 68, top: 21.5 },
 ];
 
+/* ─────────────── 별 ───────────────
+ * 장면 폭은 600이지만 넓은 화면에서는 좌우로 더 보이므로(배경은 -600 ~ 1200),
+ * 별은 -350 ~ 950 에 흩뿌립니다. 위로 갈수록 촘촘하게 둡니다.
+ * 별마다 애니메이션을 걸면 무거워서, 같은 박자로 반짝이는 묶음(그룹) 단위로 반짝입니다. */
+
 const rand = seeded(7);
-const STARS = Array.from({ length: 70 }, () => ({
-  x: rand() * SCENE_W,
-  y: 20 + rand() * (GROUND_Y - 260),
-  r: 0.8 + rand() * 1.6,
-  delay: rand() * 3,
+const SKY_X = { min: -350, max: 950 };
+const skyX = () => SKY_X.min + rand() * (SKY_X.max - SKY_X.min);
+/** 하늘 위쪽이 더 촘촘하도록 0~1 값을 위로 몰아 줍니다 */
+const skyY = () => 8 + Math.pow(rand(), 1.6) * (GROUND_Y - 60);
+
+type Dot = { x: number; y: number; r: number; o: number };
+/** 반짝임 박자(초)와 시작 어긋남(초). 서로 다른 박자의 묶음이 겹쳐 무작위로 반짝이는 것처럼 보입니다 */
+const TWINKLE = [
+  { dur: 3.1, delay: -0.4 },
+  { dur: 4.3, delay: -2.1 },
+  { dur: 5.7, delay: -1.2 },
+  { dur: 3.7, delay: -3.3 },
+  { dur: 6.4, delay: -0.9 },
+  { dur: 4.9, delay: -4.0 },
+];
+
+function groupsOf(count: number, groups: number, make: () => Dot): Dot[][] {
+  const out: Dot[][] = Array.from({ length: groups }, () => []);
+  for (let i = 0; i < count; i++) out[i % groups].push(make());
+  return out;
+}
+
+/** 아주 작은 별가루 */
+const STAR_DUST = groupsOf(180, 6, () => ({
+  x: skyX(), y: skyY(), r: 0.35 + rand() * 0.55, o: 0.35 + rand() * 0.45,
+}));
+/** 또렷한 별 */
+const STARS = groupsOf(70, 6, () => ({
+  x: skyX(), y: skyY(), r: 0.9 + rand() * 1.1, o: 0.7 + rand() * 0.3,
+}));
+/** 십자 빛과 번짐이 있는 밝은 별(하나씩 따로 반짝임) */
+const BRIGHT_STARS = Array.from({ length: 16 }, () => ({
+  x: skyX(),
+  y: 12 + Math.pow(rand(), 1.3) * (GROUND_Y - 220),
+  r: 1.5 + rand() * 1.1,
+  dur: 2.6 + rand() * 2.4,
+  delay: -rand() * 4,
+}));
+/** 별똥별: 시작 위치(하늘 위쪽, 왼쪽 아래로 떨어짐)와 주기·시작 지연(초) */
+const SHOOTING_STARS = [
+  { x: 560, y: 60, dur: 9, delay: 2.5 },
+  { x: 260, y: 150, dur: 11, delay: 6 },
+  { x: 900, y: 30, dur: 13, delay: 9.5 },
+  { x: 60, y: 90, dur: 15, delay: 4 },
+];
+/** 땅속에서 반짝이는 양분 알갱이(별의 기운이 흙까지 이어지는 느낌) */
+const SOIL_MOTES = groupsOf(150, 6, () => ({
+  x: skyX(),
+  y: GROUND_Y + 30 + rand() * (SCENE_H - GROUND_Y - 40),
+  r: 0.6 + rand() * 1.4,
+  o: 0.4 + rand() * 0.45,
 }));
 const PEBBLES = Array.from({ length: 60 }, () => ({
   x: rand() * SCENE_W,
   y: GROUND_Y + 40 + rand() * (SCENE_H - GROUND_Y - 60),
   r: 1 + rand() * 2.5,
 }));
+
+/** 묶음별 반짝임 박자를 CSS 변수로 넘깁니다 */
+const twinkleStyle = (i: number, slow = 1) =>
+  ({
+    "--twinkle-dur": `${TWINKLE[i % TWINKLE.length].dur * slow}s`,
+    "--twinkle-delay": `${TWINKLE[i % TWINKLE.length].delay}s`,
+  }) as CSSProperties;
 
 /* ─────────────── 장면 조각 ─────────────── */
 
@@ -298,24 +356,89 @@ function Scene({
             <stop offset="0" stopColor="var(--soil)" />
             <stop offset="1" stopColor="var(--soil-deep)" />
           </linearGradient>
+          {/* 밝은 별 둘레의 번짐 */}
+          <radialGradient id="history-star-glow">
+            <stop offset="0" stopColor="var(--night-foreground)" stopOpacity={0.55} />
+            <stop offset="0.35" stopColor="var(--glow)" stopOpacity={0.18} />
+            <stop offset="1" stopColor="var(--glow)" stopOpacity={0} />
+          </radialGradient>
+          {/* 은하수처럼 옅게 번지는 빛 */}
+          <radialGradient id="history-nebula">
+            <stop offset="0" stopColor="var(--glow)" stopOpacity={0.16} />
+            <stop offset="0.5" stopColor="var(--mint-line)" stopOpacity={0.06} />
+            <stop offset="1" stopColor="var(--mint-line)" stopOpacity={0} />
+          </radialGradient>
+          {/* 별똥별 꼬리: 머리(오른쪽 위)는 밝고 꼬리로 갈수록 사라짐 */}
+          <linearGradient id="history-meteor" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor="var(--night-foreground)" stopOpacity={0} />
+            <stop offset="1" stopColor="var(--night-foreground)" stopOpacity={0.95} />
+          </linearGradient>
         </defs>
 
         <rect x={-600} y={0} width={1800} height={GROUND_Y} fill="url(#history-sky)" />
         <rect x={-600} y={GROUND_Y} width={1800} height={SCENE_H - GROUND_Y} fill="url(#history-soil)" />
 
-        {STARS.map((s, i) => (
-          <circle
-            key={i}
-            cx={s.x}
-            cy={s.y}
-            r={s.r}
-            fill="var(--night-foreground)"
-            className="star-twinkle"
-            style={{ animationDelay: `${s.delay}s` }}
-          />
+        {/* 은하수 띠: 하늘을 비스듬히 가로지르는 옅은 빛 */}
+        <g transform="rotate(-24 300 330)">
+          <ellipse cx={300} cy={330} rx={720} ry={120} fill="url(#history-nebula)" />
+          <ellipse cx={120} cy={300} rx={300} ry={70} fill="url(#history-nebula)" />
+          <ellipse cx={520} cy={360} rx={260} ry={60} fill="url(#history-nebula)" />
+        </g>
+
+        {/* 별가루 → 또렷한 별 → 밝은 별 순으로 겹칩니다. 반짝임은 묶음(g) 단위 */}
+        {STAR_DUST.map((group, gi) => (
+          <g key={`dust-${gi}`} className="star-twinkle" style={twinkleStyle(gi, 1.3)}>
+            {group.map((s, i) => (
+              <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="var(--night-foreground)" fillOpacity={s.o} />
+            ))}
+          </g>
         ))}
+        {STARS.map((group, gi) => (
+          <g key={`star-${gi}`} className="star-twinkle" style={twinkleStyle(gi + 2)}>
+            {group.map((s, i) => (
+              <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="var(--night-foreground)" fillOpacity={s.o} />
+            ))}
+          </g>
+        ))}
+        {BRIGHT_STARS.map((s, i) => (
+          // 바깥 g 는 자리, 안쪽 g 는 반짝임만 맡습니다(둘의 transform 이 섞이지 않게)
+          <g key={`bright-${i}`} transform={`translate(${s.x} ${s.y})`}>
+            <g
+              className="star-flare"
+              style={{ "--twinkle-dur": `${s.dur}s`, "--twinkle-delay": `${s.delay}s` } as CSSProperties}
+            >
+              <circle r={s.r * 7} fill="url(#history-star-glow)" />
+              <rect x={-s.r * 5} y={-0.35} width={s.r * 10} height={0.7} fill="var(--night-foreground)" fillOpacity={0.55} />
+              <rect x={-0.35} y={-s.r * 5} width={0.7} height={s.r * 10} fill="var(--night-foreground)" fillOpacity={0.55} />
+              <circle r={s.r} fill="var(--night-foreground)" />
+            </g>
+          </g>
+        ))}
+        {SHOOTING_STARS.map((m, i) => (
+          <g key={`meteor-${i}`} transform={`translate(${m.x} ${m.y}) rotate(152)`}>
+            <rect
+              x={-90}
+              y={-0.6}
+              width={90}
+              height={1.2}
+              rx={0.6}
+              fill="url(#history-meteor)"
+              className="shooting-star"
+              style={{ "--meteor-dur": `${m.dur}s`, "--meteor-delay": `${m.delay}s` } as CSSProperties}
+            />
+          </g>
+        ))}
+
         {PEBBLES.map((p, i) => (
           <circle key={i} cx={p.x} cy={p.y} r={p.r} fill="var(--mint-line)" fillOpacity={0.06} />
+        ))}
+        {/* 땅속 양분 알갱이: 별보다 느리게, 민트빛으로 반짝입니다 */}
+        {SOIL_MOTES.map((group, gi) => (
+          <g key={`mote-${gi}`} className="star-twinkle" style={twinkleStyle(gi + 1, 1.6)}>
+            {group.map((s, i) => (
+              <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="var(--glow)" fillOpacity={s.o} />
+            ))}
+          </g>
         ))}
 
         {/* 땅 */}
@@ -465,6 +588,9 @@ function StaticHistory() {
 
 /* ─────────────── 연혁 섹션 ─────────────── */
 
+/** 트랙 스크롤 진행도 중 이야기가 끝나는 지점. 600vh 트랙(스크롤 약 5화면)에서 0.8 이면 마지막 약 1화면이 붙잡기 구간 */
+const STORY_END = 0.8;
+
 /**
  * 스크롤하면 카메라가 땅속 뿌리에서 줄기, 가지 끝으로 서서히 올라갑니다.
  * 뿌리 끝에서 모은 자산(특허·상표·법인·영업권)이 뿌리 중심으로 흘러들고,
@@ -479,10 +605,13 @@ export function HistoryRoots() {
     target: trackRef,
     offset: ["start start", "end end"],
   });
-  const smooth = useSpring(scrollYProgress, { stiffness: 140, damping: 32, mass: 0.6 });
+  // 이야기는 트랙 스크롤의 앞 STORY_END 안에서 끝나고, 나머지(약 한 화면, 마우스 휠 10칸 안팎)는
+  // 완성된 장면(가지 라벨 5개 + 비전)을 붙잡아 둡니다. 그 뒤에야 다음 섹션으로 넘어갑니다.
+  const story = useTransform(scrollYProgress, [0, STORY_END], [0, 1]);
+  const smooth = useSpring(story, { stiffness: 140, damping: 32, mass: 0.6 });
   const camera = useTransform(smooth, [0, 1], ["-65%", "0%"]);
 
-  useMotionValueEvent(scrollYProgress, "change", (p) => {
+  useMotionValueEvent(story, "change", (p) => {
     const next = stepAt(p);
     setActive((current) => (current === next ? current : next));
   });
@@ -511,7 +640,8 @@ export function HistoryRoots() {
           <StaticHistory />
         </>
       ) : (
-        <div ref={trackRef} className="relative h-[500vh] bg-soil-deep">
+        // 600vh = 이야기 약 5화면 + 마지막 장면 붙잡기 약 1화면
+        <div ref={trackRef} className="relative h-[600vh] bg-soil-deep">
           <div className="sticky top-0 h-svh overflow-hidden text-night-foreground md:top-18 md:h-[calc(100svh-4.5rem)]">
             <div aria-hidden="true">
               <Scene progress={smooth} camera={camera} />

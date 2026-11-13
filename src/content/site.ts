@@ -134,36 +134,101 @@ export const PEOPLE_INTRO =
 export type Person = {
   name: string;
   role: string;
-  /** 팀명은 작게 표시합니다 */
-  team: string;
+  /** 부문 아래 소속 팀. 있을 때만 이름 위에 작게 표시합니다 (예: 젠틀복스) */
+  unit?: string;
   /**
    * 인물 사진. 배경을 오려 낸 세로 4:5 투명 이미지(예: 800×1000 WebP/PNG)로 교체할 예정입니다.
    * 줄 아래 끝에 붙여 보여 주므로, 사진 아래쪽(가슴·허리선)이 잘린 상태로 오리면 자연스럽습니다.
+   * 사진이 아직 없으면 비워 두세요. 그 자리에 실루엣이 보입니다.
    */
-  photo: string;
+  photo?: string;
   alt: string;
   /** 주요 경력. 위에서부터 최근 순 */
   career: string[];
-  /** 사진 반대편에 크게 보이는 한 줄 문구 */
+  /** 사진 반대편에 크게 보이는 인물별 헤드라인. 줄바꿈(\n) 위치 그대로 보여 줍니다. */
   quote: string;
-  /** 확정 전 자리 표시 인원 */
-  placeholder?: boolean;
 };
 
-/** 경력·한 줄 문구는 확정 전 자리 표시입니다. 실제 내용으로 바꿔 주세요. */
-const CAREER_TBD = ["[경력 1]", "[경력 2]", "[경력 3]"];
-const QUOTE_TBD = "[한 줄 문구를 입력하세요]";
+export type Division = {
+  name: string;
+  /** 조직도 순서: 부문장 → 부문 구성원 */
+  people: Person[];
+};
 
-export const PEOPLE: Person[] = [
-  { name: "이우용", role: "대표이사 (CEO)", team: "경영", photo: "/images/people/lee-wooyong.webp", alt: "이우용 대표이사", career: CAREER_TBD, quote: QUOTE_TBD },
-  { name: "박재모", role: "부사장 (Co-founder)", team: "경영", photo: "/images/people/park-jaemo.webp", alt: "박재모 부사장", career: CAREER_TBD, quote: QUOTE_TBD },
-  { name: "김종효", role: "COO", team: "운영", photo: "/images/people/kim-jonghyo.webp", alt: "김종효 COO", career: CAREER_TBD, quote: QUOTE_TBD },
-  { name: "이주황", role: "CTO", team: "기술", photo: "/images/people/lee-juhwang.webp", alt: "이주황 CTO", career: CAREER_TBD, quote: QUOTE_TBD },
-  { name: "길용준", role: "CIPO (지식재산)", team: "지식재산", photo: "/images/people/gil-yongjun.webp", alt: "길용준 CIPO", career: CAREER_TBD, quote: QUOTE_TBD },
-  { name: "김진욱", role: "상품개발 부장", team: "상품개발", photo: "/images/people/kim-jinwook.webp", alt: "김진욱 상품개발 부장", career: CAREER_TBD, quote: QUOTE_TBD },
-  // 추가 인원 2명: 사진·이름은 확정 전까지 기존 사진으로 대신합니다.
-  { name: "[이름]", role: "[직책]", team: "[팀명]", photo: "/images/people/lee-juhwang.webp", alt: "임시 사진", career: CAREER_TBD, quote: QUOTE_TBD, placeholder: true },
-  { name: "[이름]", role: "[직책]", team: "[팀명]", photo: "/images/people/kim-jonghyo.webp", alt: "임시 사진", career: CAREER_TBD, quote: QUOTE_TBD, placeholder: true },
+/** 조직도 순서대로 묶은 구성원. 부문 이름이 People 페이지의 구분 제목이 됩니다. */
+export const PEOPLE_DIVISIONS: Division[] = [
+  {
+    name: "경영",
+    people: [
+      {
+        name: "이우용",
+        role: "대표이사 (CEO)",
+        photo: "/images/people/lee-wooyong.webp",
+        alt: "이우용 대표이사",
+        career: ["덕우전자 미국법인장", "LG전자 해외영업", "미국공인회계사"],
+        quote: "좋은 한국 제품이\n미국에서 다시 찾는 제품이 되도록.",
+      },
+      {
+        name: "길용준",
+        role: "CIPO (지식재산)",
+        photo: "/images/people/gil-yongjun.webp",
+        alt: "길용준 CIPO",
+        career: ["AMD, LG전자, 삼성에버랜드 특허"],
+        quote: "아이디어가 자산이 되는 순간까지\n권리로 완성합니다.",
+      },
+    ],
+  },
+  {
+    name: "브랜드부문",
+    people: [
+      {
+        name: "박재모",
+        role: "Co-founder & Creative",
+        photo: "/images/people/park-jaemo.webp",
+        alt: "박재모 Co-founder & Creative",
+        career: ["상암커뮤니케이션즈", "머큐리프로젝트 E.CD"],
+        quote: "한 번의 시선이\n한 번의 선택이 되도록.",
+      },
+      {
+        name: "이주황",
+        role: "CTO",
+        photo: "/images/people/lee-juhwang.webp",
+        alt: "이주황 CTO",
+        career: ["현대자동차 R&D", "서울대 기계항공 졸업"],
+        quote: "기술은 앞에 서지 않아도\n경험을 바꿀 수 있습니다.",
+      },
+      {
+        // 사진 준비 전
+        name: "윤정원",
+        role: "책임연구원",
+        unit: "젠틀복스",
+        alt: "윤정원 책임연구원",
+        career: ["브라이트랩", "유즈브레인넷"],
+        quote: "될 때까지 실험하는 일이\n기술을 현실로 만듭니다.",
+      },
+    ],
+  },
+  {
+    name: "해외영업부문",
+    people: [
+      {
+        name: "김종효",
+        role: "COO",
+        photo: "/images/people/kim-jonghyo.webp",
+        alt: "김종효 COO",
+        career: ["LG전자 두바이 법인장", "LG전자 호주 주재원"],
+        quote: "시장과 실행 사이에\n빈칸을 남기지 않습니다.",
+      },
+      {
+        name: "김진욱",
+        role: "상품개발 부장",
+        photo: "/images/people/kim-jinwook.webp",
+        alt: "김진욱 상품개발 부장",
+        career: ["플랫코퍼레이션", "키세스"],
+        quote: "좋은 제품은 결국\n디테일에서 차이가 납니다.",
+      },
+    ],
+  },
 ];
 
 /* ──────────────────────────── 독점 판권 브랜드 ──────────────────────────── */
