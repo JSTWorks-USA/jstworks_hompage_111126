@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# 값 없이 변수 이름만 적은 안내 파일은 올립니다
+!.env.example
 
 # vercel
 .vercel
@@ -42,6 +44,13 @@ next-env.d.ts
 
 # 인증서 원본(고해상도)은 저장소에 올리지 않습니다. 사이트에는 public/의 저해상도본만 씁니다.
 /assets/originals/
+
+# After Effects 빌드 산출물: 스크립트·로그·렌더 원본은 다시 만들 수 있어 올리지 않습니다(.aep 는 올립니다).
+/assets/motion/*.jsx
+/assets/motion/*.log.txt
+/assets/motion/ae-error.txt
+/assets/motion/*-master.*
+/assets/motion/*로그/
 
 # bkit 플러그인의 로컬 감사 로그·실행 상태
 /.bkit/

@@ -155,9 +155,9 @@ export function HeroNightSky() {
   return (
     <section
       aria-labelledby="hero-title"
-      // 헤더를 뺀 화면 높이를 정확히 채워 첫 화면에는 히어로만 보이게 합니다.
+      // 투명 헤더 밑으로 헤더 높이만큼 끌어올려 화면 높이를 정확히 채웁니다. 첫 화면에는 히어로만 보입니다.
       // 가로로 눕힌 휴대폰처럼 아주 낮은 화면에서는 문구가 잘리지 않게 최소 높이를 둡니다.
-      className="relative isolate h-[calc(100svh-var(--header-height))] min-h-56 overflow-hidden bg-night text-night-foreground"
+      className="relative isolate -mt-[var(--header-height)] h-svh min-h-80 overflow-hidden bg-night text-night-foreground"
     >
       <Image
         src="/images/hero-joshua-tree.jpg"
@@ -174,7 +174,8 @@ export function HeroNightSky() {
       />
 
       {/* 문구는 사진의 빈 밤하늘에만 둡니다 */}
-      <div className="relative flex h-full flex-col items-center px-6 pt-24 text-center md:pt-[16vh]">
+      {/* 헤더가 겹치는 높이만큼 위쪽 여백을 더해 문구 위치는 그대로 둡니다 */}
+      <div className="relative flex h-full flex-col items-center px-6 pt-[calc(var(--header-height)+6rem)] text-center md:pt-[calc(var(--header-height)+16vh)]">
         <h1
           id="hero-title"
           className="m-0 flex flex-col items-center gap-4 md:gap-5"

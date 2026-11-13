@@ -20,6 +20,18 @@ type Errors = Partial<Record<Field, string>>;
 /** 검사 순서 = 화면 순서 (첫 오류로 포커스를 옮길 때 씁니다) */
 const FIELD_ORDER: Field[] = ["kind", "name", "company", "email", "message"];
 const MIN_MESSAGE = 30;
+
+/**
+ * Web3Forms 로 보냅니다. 받은 문의는 Web3Forms 계정(info@jstworks.com)으로 메일이 갑니다.
+ * 접근 키는 환경변수(.env.local, 배포는 Vercel 환경변수)에서 읽습니다. 브라우저에서 쓰므로 NEXT_PUBLIC_ 이 붙고,
+ * Web3Forms 가 공개용으로 만든 키라 브라우저에 보여도 됩니다.
+ */
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
+const WEB3FORMS_ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY ?? "";
+const MAIL_SUBJECT = "[JSTWorks 홈페이지 문의]";
+const CONTACT_EMAIL = "info@jstworks.com";
+
+type Status = "idle" | "sending" | "sent" | "failed";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const MESSAGES = {
@@ -58,7 +70,8 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 
 /**
  * 문의 폼. 모든 항목을 채워야 보낼 수 있고, 오류 문구는 보내기를 누른 뒤에만 보입니다.
- * 서버 연동 전까지는 입력 내용을 담아 메일 앱을 엽니다.
+ * 새로고침 없이 Web3Forms 로 보내고, 보내는 동안 버튼을 잠그며, 결과를 폼 아래에 알립니다.
+ * 실패하면 입력한 내용을 그대로 두어 다시 보낼 수 있게 합니다.
  */
 export function InquiryForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -66,6 +79,7 @@ export function InquiryForm() {
   const [messageLength, setMessageLength] = useState(0);
   const [errors, setErrors] = useState<Errors>({});
   const [attempted, setAttempted] = useState(false);
+  const [status, setStatus] = useState<Status>("idle");
 
   function readValues(nextKind = kind): Values {
     const data = new FormData(formRef.current ?? undefined);
@@ -95,8 +109,10 @@ export function InquiryForm() {
     if (element instanceof HTMLElement) element.focus();
   }
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    // 보내는 중에 다시 누르거나 ⌘/Ctrl+Enter 를 눌러도 두 번 보내지 않습니다.
+    if (status === "sending") return;
     setAttempted(true);
 
     const values = readValues();
@@ -110,19 +126,45 @@ export function InquiryForm() {
     }
 
     const kindLabel = KINDS.find((k) => k.value === values.kind)?.label ?? "문의";
-    const subject = `[${kindLabel}] ${values.name} (${values.company})`;
-    const body = [
-      `문의 유형: ${kindLabel}`,
-      `이름: ${values.name}`,
-      `회사: ${values.company}`,
-      `이메일: ${values.email}`,
-      "",
-      values.message,
-    ].join("\n");
+    const data = new FormData();
+    data.append("access_key", WEB3FORMS_ACCESS_KEY);
+    data.append("subject", `${MAIL_SUBJECT} ${kindLabel} · ${values.name} (${values.company})`);
+    data.append("from_name", "JSTWorks 홈페이지");
+    // 사람은 볼 수 없는 스팸 방지 칸. 자동 입력 봇이 체크하면 Web3Forms 가 걸러 냅니다.
+    const botcheck = formRef.current?.elements.namedItem("botcheck");
+    if (botcheck instanceof HTMLInputElement && botcheck.checked) data.append("botcheck", "on");
+    // 메일에 화면과 같은 순서·이름으로 보이게 합니다. name·email 은 Web3Forms 가 보낸 사람·답장 주소로 쓰는 예약 이름입니다.
+    data.append("문의 유형", kindLabel);
+    data.append("name", values.name);
+    data.append("회사", values.company);
+    data.append("email", values.email);
+    data.append("문의 내용", values.message);
 
-    window.location.href = `mailto:info@jstworks.com?subject=${encodeURIComponent(
-      subject,
-    )}&body=${encodeURIComponent(body)}`;
+    setStatus("sending");
+    try {
+      if (!WEB3FORMS_ACCESS_KEY) {
+        throw new Error("NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY 환경변수가 없습니다 (.env.local 또는 Vercel 환경변수 확인)");
+      }
+      const response = await fetch(WEB3FORMS_ENDPOINT, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: data,
+      });
+      const result = (await response.json().catch(() => null)) as { success?: boolean; message?: string } | null;
+      if (!response.ok || !result?.success) {
+        throw new Error(result?.message ?? `HTTP ${response.status}`);
+      }
+      setStatus("sent");
+      formRef.current?.reset();
+      setKind("");
+      setMessageLength(0);
+      setAttempted(false);
+      setErrors({});
+    } catch (error) {
+      // 원인은 개발자 도구에 남기고, 화면에는 다시 시도할 방법을 알립니다.
+      console.error("문의 전송 실패:", error);
+      setStatus("failed");
+    }
   }
 
   // textarea에서는 Enter가 줄바꿈이므로 ⌘/Ctrl + Enter로 보냅니다.
@@ -246,13 +288,55 @@ export function InquiryForm() {
         </div>
       </div>
 
+      {/* 스팸 방지용 숨김 체크박스(Web3Forms botcheck). 화면·키보드·화면 낭독기 모두에서 숨깁니다.
+          봇이 실제 체크박스로 인식하도록 키트의 Input 을 체크박스로 씁니다(키트에 Checkbox 컴포넌트가 없음). */}
+      <Input
+        type="checkbox"
+        name="botcheck"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="hidden"
+      />
+
       <div className="flex flex-col items-start gap-3">
-        <Button type="submit" size="lg" aria-describedby="inquiry-note">
+        <Button
+          type="submit"
+          size="lg"
+          disabled={status === "sending"}
+          aria-describedby="inquiry-note"
+        >
+          {status === "sending" && (
+            <span
+              aria-hidden="true"
+              className="size-4 rounded-full border-2 border-current border-t-transparent motion-safe:animate-spin"
+            />
+          )}
           문의 보내기
         </Button>
         <p id="inquiry-note" className="m-0 text-sm text-muted-foreground">
-          메일 앱이 열리고 입력한 내용이 채워집니다.
+          보내 주신 문의는 {CONTACT_EMAIL}으로 전달됩니다.
         </p>
+        {/* 결과 알림: 보내는 중·성공은 늘 있는 한 영역에서 차분히(polite), 실패는 바로(alert) 읽어 줍니다 */}
+        <div role="status" className="contents">
+          {status === "sending" && (
+            <p className="m-0 text-sm text-muted-foreground">보내는 중입니다…</p>
+          )}
+          {status === "sent" && (
+            <p className="m-0 rounded-lg bg-secondary px-4 py-3 text-base text-secondary-foreground">
+              문의를 보냈습니다. 감사합니다.
+            </p>
+          )}
+        </div>
+        {status === "failed" && (
+          <p role="alert" className="m-0 rounded-lg border border-destructive px-4 py-3 text-base text-destructive">
+            문의를 보내지 못했습니다. 입력한 내용은 그대로 있으니 다시 보내 주시거나,{" "}
+            <a href={`mailto:${CONTACT_EMAIL}`} className="underline underline-offset-4">
+              {CONTACT_EMAIL}
+            </a>
+            으로 메일을 보내 주세요.
+          </p>
+        )}
       </div>
     </form>
   );

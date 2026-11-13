@@ -56,6 +56,11 @@ const buttonVariants = cva(
         muted:
           "rounded-xl bg-muted text-muted-foreground " +
           "hover:bg-accent hover:text-foreground",
+
+        // Switch: a bare hit area around a track the child draws itself (e.g. the KO/EN
+        // language switch). Press feedback belongs to the child, so the button does not scale.
+        switch:
+          "rounded-full bg-transparent active:scale-100 focus-visible:ring-offset-0",
       },
       size: {
         sm:      "h-8 px-4 text-xs rounded-lg",
@@ -63,6 +68,9 @@ const buttonVariants = cva(
         lg:      "h-[2.75rem] px-4 text-base",
         xl:      "h-14 px-10 text-base",
         icon:    "h-[2.375rem] w-[2.375rem] rounded-xl",
+        // 44px tall target with an even ring gap around a 30px track; the negative margin
+        // cancels the side padding so the visible track keeps its place in the layout
+        switch:  "-mx-2 h-11 px-2",
       },
     },
     defaultVariants: {

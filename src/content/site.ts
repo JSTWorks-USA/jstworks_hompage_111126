@@ -83,7 +83,7 @@ export const IP_ITEMS: IpItem[] = [
     date: "2026.08.26",
     document: "한국 특허증 이미지 자리",
     image: "/images/certificates/patent-10-3012294.webp",
-    note: ["특허 제10-3012294호"],
+    note: [""],
   },
   {
     status: "filed",
@@ -98,7 +98,7 @@ export const IP_ITEMS: IpItem[] = [
     title: "K-GANADA™ 4건",
     date: "2026.06.08",
     document: "상표 출원서 이미지 자리",
-    note: ["99870826, 99870856", "99870920, 99870958"],
+    note: [""],
   },
   {
     status: "planned",
@@ -114,7 +114,7 @@ export const IP_ITEMS: IpItem[] = [
     date: "2026.09.23",
     document: "벤처확인기업 명판 이미지 자리",
     image: "/images/certificates/venture-confirmation-plaque.webp",
-    note: ["유효기간 2029.09.22까지"],
+    note: [""],
   },
   {
     status: "certified",
@@ -136,22 +136,34 @@ export type Person = {
   role: string;
   /** 팀명은 작게 표시합니다 */
   team: string;
+  /**
+   * 인물 사진. 배경을 오려 낸 세로 4:5 투명 이미지(예: 800×1000 WebP/PNG)로 교체할 예정입니다.
+   * 줄 아래 끝에 붙여 보여 주므로, 사진 아래쪽(가슴·허리선)이 잘린 상태로 오리면 자연스럽습니다.
+   */
   photo: string;
   alt: string;
+  /** 주요 경력. 위에서부터 최근 순 */
+  career: string[];
+  /** 사진 반대편에 크게 보이는 한 줄 문구 */
+  quote: string;
   /** 확정 전 자리 표시 인원 */
   placeholder?: boolean;
 };
 
+/** 경력·한 줄 문구는 확정 전 자리 표시입니다. 실제 내용으로 바꿔 주세요. */
+const CAREER_TBD = ["[경력 1]", "[경력 2]", "[경력 3]"];
+const QUOTE_TBD = "[한 줄 문구를 입력하세요]";
+
 export const PEOPLE: Person[] = [
-  { name: "이우용", role: "대표이사 (CEO)", team: "경영", photo: "/images/people/lee-wooyong.webp", alt: "이우용 대표이사" },
-  { name: "박재모", role: "부사장 (Co-founder)", team: "경영", photo: "/images/people/park-jaemo.webp", alt: "박재모 부사장" },
-  { name: "김종효", role: "COO", team: "운영", photo: "/images/people/kim-jonghyo.webp", alt: "김종효 COO" },
-  { name: "이주황", role: "CTO", team: "기술", photo: "/images/people/lee-juhwang.webp", alt: "이주황 CTO" },
-  { name: "길용준", role: "CIPO (지식재산)", team: "지식재산", photo: "/images/people/gil-yongjun.webp", alt: "길용준 CIPO" },
-  { name: "김진욱", role: "상품개발 부장", team: "상품개발", photo: "/images/people/kim-jinwook.webp", alt: "김진욱 상품개발 부장" },
+  { name: "이우용", role: "대표이사 (CEO)", team: "경영", photo: "/images/people/lee-wooyong.webp", alt: "이우용 대표이사", career: CAREER_TBD, quote: QUOTE_TBD },
+  { name: "박재모", role: "부사장 (Co-founder)", team: "경영", photo: "/images/people/park-jaemo.webp", alt: "박재모 부사장", career: CAREER_TBD, quote: QUOTE_TBD },
+  { name: "김종효", role: "COO", team: "운영", photo: "/images/people/kim-jonghyo.webp", alt: "김종효 COO", career: CAREER_TBD, quote: QUOTE_TBD },
+  { name: "이주황", role: "CTO", team: "기술", photo: "/images/people/lee-juhwang.webp", alt: "이주황 CTO", career: CAREER_TBD, quote: QUOTE_TBD },
+  { name: "길용준", role: "CIPO (지식재산)", team: "지식재산", photo: "/images/people/gil-yongjun.webp", alt: "길용준 CIPO", career: CAREER_TBD, quote: QUOTE_TBD },
+  { name: "김진욱", role: "상품개발 부장", team: "상품개발", photo: "/images/people/kim-jinwook.webp", alt: "김진욱 상품개발 부장", career: CAREER_TBD, quote: QUOTE_TBD },
   // 추가 인원 2명: 사진·이름은 확정 전까지 기존 사진으로 대신합니다.
-  { name: "[이름]", role: "[직책]", team: "[팀명]", photo: "/images/people/lee-juhwang.webp", alt: "임시 사진", placeholder: true },
-  { name: "[이름]", role: "[직책]", team: "[팀명]", photo: "/images/people/kim-jonghyo.webp", alt: "임시 사진", placeholder: true },
+  { name: "[이름]", role: "[직책]", team: "[팀명]", photo: "/images/people/lee-juhwang.webp", alt: "임시 사진", career: CAREER_TBD, quote: QUOTE_TBD, placeholder: true },
+  { name: "[이름]", role: "[직책]", team: "[팀명]", photo: "/images/people/kim-jonghyo.webp", alt: "임시 사진", career: CAREER_TBD, quote: QUOTE_TBD, placeholder: true },
 ];
 
 /* ──────────────────────────── 독점 판권 브랜드 ──────────────────────────── */
@@ -290,17 +302,14 @@ export const OFFICE_LOCATIONS = [
     name: "조슈아트리웍스 주식회사",
     address: "3F Joshuatree Building, Yeoksam-ro 26-gil 5, Gangnam-Gu, Seoul, Republic of Korea",
     localAddress: "서울 강남구 역삼로26길 5, 조슈아트리빌딩 3층",
-    mapCaption: "Google 지도 자리",
-    mapUrl:
-      "https://www.google.com/maps/search/?api=1&query=Yeoksam-ro%2026-gil%205%2C%20Gangnam-gu%2C%20Seoul",
+    /** Google 지도에서 찾을 주소 */
+    mapQuery: "서울 강남구 역삼로26길 5",
   },
   {
     eyebrow: "미국 법인",
     name: "H&H USA LLC",
     address: "17595 Harvard Ave, Suite C, Irvine, CA 92614",
     localAddress: "캘리포니아 얼바인",
-    mapCaption: "Google 지도 자리",
-    mapUrl:
-      "https://www.google.com/maps/search/?api=1&query=17595%20Harvard%20Ave%2C%20Suite%20C%2C%20Irvine%2C%20CA%2092614",
+    mapQuery: "17595 Harvard Ave, Suite C, Irvine, CA 92614",
   },
 ];
