@@ -4,7 +4,7 @@ import Image from "next/image";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 import { Container } from "@/components/site-ui";
-import type { Division, Person } from "@/content/site";
+import type { Person } from "@/content/site";
 import { cn } from "@/lib/utils";
 import { dokdo } from "./fonts";
 
@@ -69,7 +69,8 @@ function PersonRow({ person, index }: { person: Person; index: number }) {
 
   return (
     <li ref={ref} className={cn("overflow-hidden", tone.row)}>
-      <Container className="grid items-end gap-x-(--layout-column-gap) gap-y-8 pt-12 md:grid-cols-2 md:pt-16">
+      {/* 넓은 화면에서는 한 사람 줄의 높이를 600px 로 맞춥니다 */}
+      <Container className="grid items-end gap-x-(--layout-column-gap) gap-y-8 pt-12 md:min-h-[600px] md:grid-cols-2 md:pt-16">
         {/* 인물: 이름·경력 + 사진 */}
         <div
           className={cn(
@@ -77,21 +78,21 @@ function PersonRow({ person, index }: { person: Person; index: number }) {
             flip && "md:order-2",
           )}
         >
-          <div className="flex min-w-0 flex-col gap-4 self-center pb-8 md:pb-16">
-            <div className="flex flex-col gap-1">
+          <div className="flex min-w-0 flex-col gap-4 self-center pb-8 md:gap-6 md:pb-16">
+            <div className="flex flex-col gap-1 md:gap-2">
               {person.unit && (
-                <p className={cn("m-0 text-sm font-medium", tone.subtle)}>{person.unit}</p>
+                <p className={cn("m-0 text-sm font-medium md:text-lg", tone.subtle)}>{person.unit}</p>
               )}
-              <h3 className="m-0 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-xl font-bold">
+              <h2 className="m-0 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-xl font-bold md:gap-x-3 md:text-3xl">
                 {person.name}
-                <span className={cn("text-sm font-medium", tone.subtle)}>
+                <span className={cn("text-sm font-medium md:text-lg", tone.subtle)}>
                   {person.role}
                 </span>
-              </h3>
+              </h2>
             </div>
-            <div className="flex flex-col gap-1">
-              <h4 className="m-0 text-sm font-bold">경력</h4>
-              <ul className={cn("m-0 list-none p-0 text-sm leading-relaxed", tone.subtle)}>
+            <div className="flex flex-col gap-1 md:gap-2">
+              <h3 className="m-0 text-sm font-bold md:text-lg">경력</h3>
+              <ul className={cn("m-0 list-none p-0 text-sm leading-relaxed md:text-lg", tone.subtle)}>
                 {person.career.map((item, i) => (
                   <li key={`${item}-${i}`}>{item}</li>
                 ))}
@@ -120,22 +121,22 @@ function PersonRow({ person, index }: { person: Person; index: number }) {
         {/* 인물별 헤드라인: 여는 따옴표는 첫 줄 왼쪽, 닫는 따옴표는 마지막 줄 끝에 붙습니다. */}
         <blockquote
           className={cn(
-            "order-first m-0 flex max-w-md items-start md:max-w-xl gap-3 self-center md:order-0 md:justify-self-center md:gap-4 md:pb-16",
+            "order-first m-0 flex max-w-md items-start gap-3 self-center md:order-0 md:max-w-2xl md:justify-self-center md:gap-3 md:pb-16",
             flip && "md:order-1",
           )}
         >
           <span
             aria-hidden="true"
-            className={cn("shrink-0 text-5xl leading-none font-bold", tone.mark)}
+            className={cn("shrink-0 text-5xl leading-none font-bold md:text-6xl lg:text-7xl", tone.mark)}
           >
             “
           </span>
-          <p className="m-0 pt-2 text-[2rem] leading-[1.15] break-keep whitespace-pre-line md:text-[2.25rem] lg:text-[2.5rem]">
+          <p className="m-0 pt-2 text-[2rem] leading-[1.15] break-keep whitespace-pre-line md:text-[2rem] xl:text-[2.625rem]">
             <span className={dokdo.className}>{person.quote}</span>
             <span
               aria-hidden="true"
               className={cn(
-                "ml-3 inline-block align-top text-5xl leading-none font-bold md:ml-4",
+                "ml-3 inline-block align-top text-5xl leading-none font-bold md:ml-4 md:text-6xl lg:text-7xl",
                 tone.mark,
               )}
             >
@@ -149,41 +150,15 @@ function PersonRow({ person, index }: { person: Person; index: number }) {
 }
 
 /**
- * 조직도 순서대로 부문마다 제목을 달고 그 아래에 구성원 줄을 쌓습니다.
- * 줄 배경색과 좌우 배치는 부문을 넘어 전체 순번으로 이어서 번갈아 바뀝니다.
+ * 구성원 줄을 정해진 순서(PEOPLE)대로 쌓습니다.
+ * 줄 배경색과 좌우 배치는 순번에 따라 번갈아 바뀝니다.
  */
-export function PeopleRows({ divisions }: { divisions: Division[] }) {
-  // 부문별 첫 사람의 전체 순번
-  const starts = divisions.reduce<number[]>(
-    (acc, _d, i) => [...acc, i === 0 ? 0 : acc[i - 1] + divisions[i - 1].people.length],
-    [],
-  );
-
+export function PeopleRows({ people }: { people: Person[] }) {
   return (
-    <div className="flex flex-col">
-      {divisions.map((division, d) => {
-        const headingId = `${division.id}-title`;
-        return (
-          <section key={division.id} id={division.id} aria-labelledby={headingId}>
-            <Container className="flex items-baseline gap-3 py-10 md:py-14">
-              <h2
-                id={headingId}
-                className="m-0 text-2xl leading-tight font-bold tracking-[-0.01em] md:text-[2rem]"
-              >
-                {division.name}
-              </h2>
-              <span className="text-sm text-muted-foreground">
-                {division.people.length}명
-              </span>
-            </Container>
-            <ul className="m-0 list-none p-0">
-              {division.people.map((person, i) => (
-                <PersonRow key={person.name} person={person} index={starts[d] + i} />
-              ))}
-            </ul>
-          </section>
-        );
-      })}
-    </div>
+    <ul className="m-0 list-none p-0">
+      {people.map((person, i) => (
+        <PersonRow key={person.name} person={person} index={i} />
+      ))}
+    </ul>
   );
 }

@@ -26,13 +26,16 @@ export function Container({
 export function PageHeader({
   title,
   description,
+  bordered = true,
 }: {
   title: string;
   /** 아래 섹션·필터를 되풀이하지 않을 때만 씁니다 */
   description?: string;
+  /** 머리 아래 구분선 */
+  bordered?: boolean;
 }) {
   return (
-    <header className="border-b border-border">
+    <header className={bordered ? "border-b border-border" : undefined}>
       <Container className="flex flex-col gap-4 pt-16 pb-12 md:pt-24 md:pb-16">
         <h1 className="m-0 text-[2.5rem] leading-[1.05] font-bold tracking-[-0.03em] md:text-[3.5rem]">
           {title}

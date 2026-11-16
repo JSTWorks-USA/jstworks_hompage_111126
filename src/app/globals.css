@@ -115,6 +115,11 @@
   --soil: oklch(0.17 0.03 155);
   --soil-deep: oklch(0.1 0.015 155);
   --glow: oklch(0.86 0.09 158);
+  /* 연혁 장면 땅속 네 갈래 선: 밝기를 맞추고 색만 다르게 둡니다 */
+  --lane-company: oklch(0.86 0.09 158);
+  --lane-kganada: oklch(0.85 0.13 85);
+  --lane-gentlevox: oklch(0.78 0.12 300);
+  --lane-partner: oklch(0.8 0.11 230);
   /* 지평선 가까운 밤하늘, 조슈아 트리 실루엣 */
   --horizon: oklch(0.2 0.04 230);
   --tree: oklch(0.16 0.03 155);
@@ -283,10 +288,6 @@
 
 /* 움직임은 사용자가 허용한 경우에만 둡니다. */
 @media (prefers-reduced-motion: no-preference) {
-  /* 히어로 사진: 아주 느린 카메라 줌 */
-  .hero-drift {
-    animation: hero-drift 28s var(--ease-in-out) infinite alternate;
-  }
   /* 연혁 장면의 별: 묶음마다 다른 박자(--twinkle-dur)와 어긋남(--twinkle-delay)으로 반짝입니다 */
   .star-twinkle {
     animation: star-twinkle var(--twinkle-dur, 3.2s) var(--ease-in-out) var(--twinkle-delay, 0s) infinite alternate;
@@ -304,15 +305,6 @@
     animation: root-pulse 2.4s var(--ease-out) infinite;
     transform-box: fill-box;
     transform-origin: center;
-  }
-}
-
-@keyframes hero-drift {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.08) translateY(-1.5%);
   }
 }
 

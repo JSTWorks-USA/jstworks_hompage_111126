@@ -16,8 +16,8 @@ const OFFICES: { label: string; lines: Line[] }[] = [
       { ko: "조슈아트리웍스 주식회사" },
       { ko: "Joshua Tree Works Inc." },
       {
-        ko: "서울 강남구 역삼로26길 5, 조슈아트리빌딩 3층",
-        en: "3F Joshuatree Building, Yeoksam-ro 26-gil 5, Gangnam-Gu, Seoul, Republic of Korea",
+        ko: "서울 강남구 역삼로26길 5, 조슈아트리빌딩",
+        en: "Joshuatree Building, Yeoksam-ro 26-gil 5, Gangnam-Gu, Seoul, Republic of Korea",
       },
     ],
   },

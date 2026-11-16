@@ -3,58 +3,58 @@
 /* ──────────────────────────── 연혁 ──────────────────────────── */
 
 /**
- * 연혁 장면에서의 위치
- * - root: 땅속에서 모으는 자산(특허·상표·법인·영업권)
- * - revenue: 뿌리 중심, 매출이 시작되는 시점
- * - trunk: 줄기를 타고 오르는 다음 단계
+ * 연혁이 놓이는 뿌리(갈래). 연혁 장면 땅속에서 색이 다른 선 하나씩이 되어, 위로 올라오며 하나로 모입니다.
+ * 왼쪽부터 조슈아트리웍스(회사 전체의 일), K-GANADA™, 젠틀복스, 타사 제품(독점 영업권 등) 순서입니다.
  */
-export type HistoryStage = "root" | "revenue" | "trunk";
-export type HistoryItem = {
-  month: string;
-  text: string;
-  stage: HistoryStage;
-  planned?: boolean;
+export type HistoryLane = "company" | "kganada" | "gentlevox" | "partner";
+export type HistoryLaneInfo = {
+  id: HistoryLane;
+  /** 연혁 글에서 연·월 뒤에 붙는 갈래 이름 */
+  label: string;
+  /** 넓은 화면에서 연혁 카드를 선의 어느 쪽에 띄울지 */
+  side: "left" | "right";
 };
-export type HistoryYear = { year: string; future?: boolean; items: HistoryItem[] };
-
-export const HISTORY: HistoryYear[] = [
-  {
-    year: "2025",
-    items: [{ month: "12", text: "조슈아트리웍스 창업, 연구소 설립", stage: "root" }],
-  },
-  {
-    year: "2026",
-    items: [
-      { month: "01", text: "아티스트 굿즈 특허 출원", stage: "root" },
-      { month: "03", text: "캘리포니아 얼바인에 미국 법인 설립", stage: "root" },
-      { month: "06", text: "K-GANADA™ 미국 상표 출원 4건", stage: "root" },
-      { month: "08", text: "캐릭터 굿즈 특허 출원, 아티스트 굿즈 특허 등록", stage: "root" },
-      { month: "3Q", text: "YORIEN, 제오니스 등 6개 브랜드 미국 독점 영업권", stage: "root" },
-      { month: "10", text: "아마존 K-GANADA™ 브랜드 레지스트리 등록", stage: "root" },
-      {
-        month: "12",
-        text: "YORIEN 미국 런칭 (Amazon, TikTok Shop, Shopify)",
-        stage: "revenue",
-        planned: true,
-      },
-    ],
-  },
-  {
-    year: "2027",
-    future: true,
-    items: [
-      { month: "01", text: "PCT 국제특허 출원", stage: "trunk", planned: true },
-      { month: "하반기", text: "Gentle Vox 출시", stage: "trunk", planned: true },
-    ],
-  },
+export const HISTORY_LANES: HistoryLaneInfo[] = [
+  { id: "company", label: "조슈아트리웍스", side: "left" },
+  { id: "kganada", label: "K-GANADA™", side: "left" },
+  { id: "gentlevox", label: "젠틀복스", side: "right" },
+  { id: "partner", label: "타사 제품 독점영업권", side: "right" },
 ];
 
-/** 연혁 장면 맨 위(가지 끝)에 보여 줄 비전 */
+/**
+ * 연혁. date 는 순서를 정하는 데만 쓰고, 화면에는 연·월만 보여 줍니다.
+ * note: 내용 바로 뒤에 작게 붙는 글, sub: 내용 아랫줄에 이어지는 글
+ */
+export type HistoryItem = { date: string; text: string; note?: string; sub?: string; lane: HistoryLane };
+export const HISTORY: HistoryItem[] = [
+  { date: "2025.12.15", text: "조슈아트리웍스 창업, 연구소 설립", lane: "company" },
+  { date: "2026.01.07", text: "캐릭터 굿즈특허 개발 착수", lane: "kganada" },
+  { date: "2026.01.07", text: "아티스트굿즈 특허출원", lane: "gentlevox" },
+  {
+    date: "2026.03.17",
+    text: "미국법인설립",
+    note: "(캘리포니아, 얼바인)",
+    lane: "company",
+  },
+  { date: "2026.03.17", text: "젠틀복스 개발 발의", lane: "gentlevox" },
+  { date: "2026.06.08", text: "미국 상표권 출원", lane: "kganada" },
+  {
+    date: "2026.07.20",
+    text: "삼익제약, 요리엔정수기",
+    sub: "미국 독점영업권계약 체결",
+    lane: "partner",
+  },
+  { date: "2026.08.06", text: "캐릭터 굿즈 특허 출원", lane: "gentlevox" },
+  { date: "2026.08.26", text: "아티스트굿즈 특허 등록", lane: "kganada" },
+  { date: "2026.09.23", text: "제우스 3, 제오니스 미국 및 중동 독점 계약 체결", lane: "partner" },
+  { date: "2026.10.06", text: "벤처확인기업 등록", lane: "company" },
+  { date: "2026.10.21", text: "삼익제약 요리엔", sub: "미국 초도 물량 선적", lane: "partner" },
+];
+
+/** 연혁 장면 맨 위(가지 끝)에 보여 줄 비전. branches 는 나무 왼쪽부터 붙는 이름표입니다(왼쪽 셋, 오른쪽 셋) */
 export const VISION = {
-  title: "K-컬처 유통 시장을 만듭니다",
-  description:
-    "다양한 사업과 매장 오픈으로 K-Beauty, K-Play, K-Pop, K-Food를 미국의 일상에 잇겠습니다.",
-  branches: ["K-Beauty", "K-Play", "K-Pop", "매장 오픈", "K-Food"],
+  title: "K-IP 커머스 플랫폼",
+  branches: ["K-Beauty", "K-Charm", "K-Play", "K-Apparel", "K-Living", "K-Food"],
 };
 
 /* ──────────────────────────── 날짜 정렬 ──────────────────────────── */
@@ -162,9 +162,6 @@ export const IP_ITEMS: IpItem[] = sortByDateDesc(IP_ITEMS_RAW);
 
 /* ──────────────────────────── 구성원 ──────────────────────────── */
 
-export const PEOPLE_INTRO =
-  "한국의 문화가 세계인의 일상이 될 때까지, 우리는 K-컬처가 미국에서 자라날 다음 장면을 만듭니다.";
-
 export type Person = {
   name: string;
   role: string;
@@ -269,6 +266,16 @@ export const PEOPLE_DIVISIONS: Division[] = [
     ],
   },
 ];
+/** People 페이지에 보여 주는 순서 (부문과 상관없이 이 순서대로 한 줄씩) */
+const PEOPLE_ORDER = ["이우용", "박재모", "김종효", "김진욱", "윤정원", "길용준", "이주황"];
+
+const ALL_PEOPLE = PEOPLE_DIVISIONS.flatMap((division) => division.people);
+export const PEOPLE: Person[] = [
+  ...PEOPLE_ORDER.flatMap((name) => ALL_PEOPLE.filter((person) => person.name === name)),
+  // 순서 목록에 없는 사람은 맨 뒤에 원래 순서대로 붙입니다
+  ...ALL_PEOPLE.filter((person) => !PEOPLE_ORDER.includes(person.name)),
+];
+
 
 /* ──────────────────────────── 독점 판권 브랜드 ──────────────────────────── */
 
@@ -415,8 +422,8 @@ export const OFFICE_LOCATIONS = [
   {
     eyebrow: "한국 본사",
     name: "조슈아트리웍스 주식회사",
-    address: "3F Joshuatree Building, Yeoksam-ro 26-gil 5, Gangnam-Gu, Seoul, Republic of Korea",
-    localAddress: "서울 강남구 역삼로26길 5, 조슈아트리빌딩 3층",
+    address: "Joshuatree Building, Yeoksam-ro 26-gil 5, Gangnam-Gu, Seoul, Republic of Korea",
+    localAddress: "서울 강남구 역삼로26길 5, 조슈아트리빌딩",
     /** Google 지도에서 찾을 주소 */
     mapQuery: "서울 강남구 역삼로26길 5",
   },
