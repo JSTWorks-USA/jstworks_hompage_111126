@@ -28,7 +28,7 @@ export default function AboutPage() {
       <HistoryRoots />
 
       {/* Patents & Trademarks */}
-      <section aria-label="특허, 상표권, 인증">
+      <section id="patents" aria-label="특허, 상표권, 인증">
         <Container className="flex flex-col gap-[var(--layout-section-gap)] py-16 md:py-24">
           <SectionHeader title="Patents & Trademarks" description="특허와 상표권, 인증" />
           <ul className="m-0 grid list-none gap-[var(--layout-column-gap)] p-0 sm:grid-cols-2 lg:grid-cols-3">

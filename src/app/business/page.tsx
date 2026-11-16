@@ -21,7 +21,7 @@ export default function BusinessPage() {
       <PageHeader title="Business" />
 
       {/* 자사 IP */}
-      <section aria-label="자사 IP">
+      <section id="ip-contents" aria-label="자사 IP">
         <Container className="flex flex-col gap-[var(--layout-section-gap)] py-16 md:py-24">
           <SectionHeader title="K-GANADA IP Contents" description="자사 IP" />
 
@@ -83,7 +83,7 @@ export default function BusinessPage() {
       </section>
 
       {/* 독점 판권 브랜드: 가로 전체 이미지 위에 반투명 카피 박스를 좌·우 번갈아 둡니다 */}
-      <section aria-label="독점 판권 브랜드">
+      <section id="brands" aria-label="독점 판권 브랜드">
         <div className="bg-secondary">
           <Container className="py-16 md:py-24">
             <SectionHeader

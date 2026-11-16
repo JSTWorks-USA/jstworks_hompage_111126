@@ -617,7 +617,7 @@ export function HistoryRoots() {
   });
 
   return (
-    <section aria-labelledby="history-title" className="relative">
+    <section id="history" aria-labelledby="history-title" className="relative">
       {/* 화면 낭독기용 전체 연혁 */}
       <ol className="sr-only">
         {MILESTONES.map((m) => (

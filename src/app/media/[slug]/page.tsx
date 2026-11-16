@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Container } from "@/components/site-ui";
 import { NEWS } from "@/content/site";
 import { cn } from "@/lib/utils";
+import { ArticleBody, readArticleMarkdown } from "../article-body";
 import { NewsCover } from "../news-cover";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -29,6 +30,8 @@ export default async function ArticlePage({ params }: Props) {
   const item = NEWS[index];
   const prev = NEWS[index - 1];
   const next = NEWS[index + 1];
+  // 본문 마크다운(src/content/news/<slug>.md)이 있으면 블로그 본문으로, 없으면 body 단락으로 보여 줍니다.
+  const markdown = readArticleMarkdown(item.slug);
 
   return (
     <article>
@@ -66,13 +69,17 @@ export default async function ArticlePage({ params }: Props) {
           className="aspect-video rounded-xl"
         />
 
-        <div className="flex max-w-[65ch] flex-col gap-6 text-lg leading-relaxed">
-          {item.body.map((paragraph) => (
-            <p key={paragraph} className="m-0">
-              {paragraph}
-            </p>
-          ))}
-        </div>
+        {markdown ? (
+          <ArticleBody markdown={markdown} />
+        ) : (
+          <div className="flex max-w-[65ch] flex-col gap-6 text-lg leading-relaxed">
+            {item.body.map((paragraph) => (
+              <p key={paragraph} className="m-0">
+                {paragraph}
+              </p>
+            ))}
+          </div>
+        )}
 
         {item.href && (
           <Button asChild variant="outline" size="lg" className="self-start">

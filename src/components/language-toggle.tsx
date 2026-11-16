@@ -1,11 +1,9 @@
 "use client";
 
 import { motion, useReducedMotion, type Transition } from "motion/react";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { setLang, useLang } from "@/lib/language";
 import { cn } from "@/lib/utils";
-
-type Lang = "KO" | "EN";
 
 /** 선택을 확인하는 움직임이라 튕기지 않고 바로 멈추는 스프링(임계 감쇠)을 씁니다. */
 const KNOB_SPRING: Transition = { type: "spring", stiffness: 520, damping: 46, mass: 1 };
@@ -13,11 +11,11 @@ const KNOB_SPRING: Transition = { type: "spring", stiffness: 520, damping: 46, m
 /**
  * KO / EN 언어 전환 버튼.
  * 테두리 안 어디를 눌러도 한국어 ↔ 영어가 번갈아 바뀌고, 흰 손잡이가 선택된 쪽으로 미끄러집니다.
- * 영문 콘텐츠가 준비되기 전까지는 선택 상태만 바뀝니다(본문은 한국어 그대로).
+ * 영문 문구가 준비된 곳(예: 푸터 한국 주소)만 영어로 바뀌고, 나머지 본문은 아직 한국어 그대로입니다.
  * onDark: 홈 히어로 위 투명 헤더일 때 반투명 흰 테두리로 바꿉니다.
  */
 export function LanguageToggle({ onDark = false }: { onDark?: boolean }) {
-  const [lang, setLang] = useState<Lang>("KO");
+  const lang = useLang();
   const reduceMotion = useReducedMotion();
   const english = lang === "EN";
 

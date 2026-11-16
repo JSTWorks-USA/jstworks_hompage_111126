@@ -57,6 +57,36 @@ export const VISION = {
   branches: ["K-Beauty", "K-Play", "K-Pop", "매장 오픈", "K-Food"],
 };
 
+/* ──────────────────────────── 날짜 정렬 ──────────────────────────── */
+
+/**
+ * 날짜 문구를 정렬용 숫자(YYYYMMDD)로 바꿉니다.
+ * "2026.10.14" 형식과 "2026 3Q" 같은 분기 표기를 읽고(분기는 그 분기의 첫날), 읽을 수 없는 값은 null 입니다.
+ */
+export function dateKey(date: string): number | null {
+  const day = date.match(/^(\d{4})\.(\d{1,2})\.(\d{1,2})$/);
+  if (day) return Number(day[1]) * 10000 + Number(day[2]) * 100 + Number(day[3]);
+  const quarter = date.match(/^(\d{4})\s*([1-4])Q$/i);
+  if (quarter) return Number(quarter[1]) * 10000 + ((Number(quarter[2]) - 1) * 3 + 1) * 100 + 1;
+  return null;
+}
+
+/**
+ * 최신 날짜가 먼저 오도록 정렬합니다. 날짜를 읽을 수 없거나 last(예: 내용 없는 자리 표시)에 해당하면 맨 뒤로 보냅니다.
+ * 맨 뒤로 간 항목끼리, 같은 날짜끼리는 원래 적힌 순서를 지킵니다.
+ */
+function sortByDateDesc<T extends { date: string }>(items: T[], last?: (item: T) => boolean): T[] {
+  return items
+    .map((item, order) => ({ item, order, key: last?.(item) ? null : dateKey(item.date) }))
+    .sort((a, b) => {
+      if (a.key === null && b.key === null) return a.order - b.order;
+      if (a.key === null) return 1;
+      if (b.key === null) return -1;
+      return b.key - a.key || a.order - b.order;
+    })
+    .map(({ item }) => item);
+}
+
 /* ──────────────────────────── 특허·상표권 ──────────────────────────── */
 
 export type IpStatus = "registered" | "filed" | "planned" | "certified";
@@ -75,7 +105,8 @@ export type IpItem = {
   note?: string[];
 };
 
-export const IP_ITEMS: IpItem[] = [
+/** 작성 순서는 상관없습니다. 화면에는 아래 IP_ITEMS(날짜순)를 씁니다. */
+const IP_ITEMS_RAW: IpItem[] = [
   {
     status: "registered",
     badge: "특허 등록",
@@ -126,6 +157,9 @@ export const IP_ITEMS: IpItem[] = [
   },
 ];
 
+/** 최신 날짜 → 과거 날짜 순서로 정렬합니다(예정 항목도 날짜대로). 날짜가 없는 항목만 맨 뒤로 보냅니다. */
+export const IP_ITEMS: IpItem[] = sortByDateDesc(IP_ITEMS_RAW);
+
 /* ──────────────────────────── 구성원 ──────────────────────────── */
 
 export const PEOPLE_INTRO =
@@ -150,6 +184,8 @@ export type Person = {
 };
 
 export type Division = {
+  /** 페이지 안 위치 주소(#id). 하단 메뉴에서 이 부문으로 바로 이동합니다 */
+  id: string;
   name: string;
   /** 조직도 순서: 부문장 → 부문 구성원 */
   people: Person[];
@@ -158,6 +194,7 @@ export type Division = {
 /** 조직도 순서대로 묶은 구성원. 부문 이름이 People 페이지의 구분 제목이 됩니다. */
 export const PEOPLE_DIVISIONS: Division[] = [
   {
+    id: "management",
     name: "경영",
     people: [
       {
@@ -179,6 +216,7 @@ export const PEOPLE_DIVISIONS: Division[] = [
     ],
   },
   {
+    id: "brand",
     name: "브랜드부문",
     people: [
       {
@@ -209,6 +247,7 @@ export const PEOPLE_DIVISIONS: Division[] = [
     ],
   },
   {
+    id: "global-sales",
     name: "해외영업부문",
     people: [
       {
@@ -267,15 +306,26 @@ export type NewsItem = {
   source: string;
   /** 본문 단락 */
   body: string[];
-  /** 대표 이미지 (없으면 자리 표시) */
-  cover?: { src: string; alt: string };
+  /**
+   * 대표 이미지 (없으면 자리 표시).
+   * fit: "contain" 은 로고처럼 잘리면 안 되는 이미지, focus: "right" 는 칸이 좁을 때 오른쪽을 남기고 왼쪽부터 자릅니다.
+   */
+  cover?: {
+    src: string;
+    alt: string;
+    fit?: "cover" | "contain";
+    focus?: "center" | "right";
+    /** 사진 왼쪽 가운데에 얹는 흰색 로고(가로형 SVG) */
+    logo?: { src: string; alt: string; width: number; height: number };
+  };
   /** 원문 링크 (보도) */
   href?: string;
   /** 확정 전 자리 표시 항목 */
   placeholder?: boolean;
 };
 
-export const NEWS: NewsItem[] = [
+/** 작성 순서는 상관없습니다. 화면에는 아래 NEWS(날짜순)를 씁니다. */
+const NEWS_ITEMS: NewsItem[] = [
   {
     slug: "ai-fandom-goods-patent",
     date: "2026.10.14",
@@ -283,6 +333,12 @@ export const NEWS: NewsItem[] = [
     title: "조슈아트리웍스, AI 팬덤 굿즈 특허 등록…美 스마트 토이 시장 진출",
     source: "와우테일",
     href: "https://wowtale.net/2026/10/14/266252/",
+    cover: {
+      src: "/images/certificates/patent-10-3012294.webp",
+      alt: "특허증 제10-3012294호",
+      fit: "contain",
+    },
+    // 상세 본문은 src/content/news/ai-fandom-goods-patent.md 에 있습니다. 아래 body 는 마크다운이 없을 때의 대체 문구입니다.
     body: [
       "와우테일이 조슈아트리웍스의 AI 팬덤 굿즈 특허 등록과 미국 스마트 토이 시장 진출 소식을 보도했습니다.",
       "기사 전문은 와우테일에서 볼 수 있습니다.",
@@ -315,8 +371,16 @@ export const NEWS: NewsItem[] = [
     slug: "k-ganada-us-trademark",
     date: "2026.06.08",
     kind: "소식",
-    title: "K-GANADA™ 미국 상표 출원 4건",
+    title: "K-GANADA™ 미국 상표 출원",
     source: "USPTO",
+    cover: {
+      src: "/images/news/k-ganada-us-trademark.webp",
+      alt: "밤하늘을 배경으로 횃불을 든 자유의 여신상과 옛 미국 문서",
+      focus: "right",
+      // 이 글 처음에 쓰던 K-GANADA™ 로고를 사진 왼쪽 하늘 위에 얹습니다.
+      logo: { src: "/images/k-ganada-logo.svg", alt: "K-GANADA™", width: 1823, height: 227 },
+    },
+    // 상세 본문은 src/content/news/k-ganada-us-trademark.md 에 있습니다. 아래 body 는 마크다운이 없을 때의 대체 문구입니다.
     body: [
       "K-GANADA™ 상표 4건을 미국 특허상표청(USPTO)에 출원했습니다.",
       "출원번호는 99870826, 99870856, 99870920, 99870958입니다.",
@@ -341,6 +405,9 @@ export const NEWS: NewsItem[] = [
     placeholder: true,
   },
 ];
+
+/** 최신 날짜 → 과거 날짜 순서로 정렬합니다. 내용이 없는 글(자리 표시)과 날짜가 없는 글만 맨 뒤로 보냅니다. */
+export const NEWS: NewsItem[] = sortByDateDesc(NEWS_ITEMS, (item) => item.placeholder === true);
 
 /* ──────────────────────────── 오시는 길 ──────────────────────────── */
 

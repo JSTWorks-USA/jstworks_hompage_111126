@@ -21,13 +21,23 @@ const FPS = 30;
 /** 스크롤 진행도 0~1 을 0~DURATION초에 그대로 대응시킵니다(스크롤 재생용으로 선형). */
 const DURATION = 20;
 
-/* ─────────────── 색: globals.css 의 oklch 토큰 → sRGB ─────────────── */
+/* ─────────────── 색: globals.css 의 토큰(oklch·#hex·var()) → sRGB ─────────────── */
 
 const css = readFileSync(join(ROOT_DIR, "src/app/globals.css"), "utf8");
 function token(name) {
-  const m = css.match(new RegExp(`--${name}:\\s*oklch\\(([\\d.]+)\\s+([\\d.]+)\\s+([\\d.]+)\\)`));
+  // :root 의 첫 정의만 읽습니다(@theme 의 --color-* 는 이름이 달라 겹치지 않습니다).
+  const m = css.match(new RegExp(`--${name}:\\s*([^;]+);`));
   if (!m) throw new Error(`색 토큰을 찾지 못했습니다: --${name}`);
-  return oklchToRgb(Number(m[1]), Number(m[2]), Number(m[3]));
+  const value = m[1].trim();
+  const ref = value.match(/^var\(--([\w-]+)\)$/);
+  if (ref) return token(ref[1]);
+  const hex = value.match(/^#([0-9a-f]{6})$/i);
+  if (hex) {
+    return [0, 2, 4].map((i) => Math.round((parseInt(hex[1].slice(i, i + 2), 16) / 255) * 10000) / 10000);
+  }
+  const ok = value.match(/^oklch\(([\d.]+)\s+([\d.]+)\s+([\d.]+)\)$/);
+  if (ok) return oklchToRgb(Number(ok[1]), Number(ok[2]), Number(ok[3]));
+  throw new Error(`읽을 수 없는 색 값입니다: --${name}: ${value}`);
 }
 function oklchToRgb(L, C, h) {
   const a = C * Math.cos((h * Math.PI) / 180);
@@ -57,8 +67,8 @@ const COLORS = {
   mintLine: token("mint-line"),
   primary: token("primary"),
   border: token("border"),
-  // 배지 기본(default) 배경: badge.tsx 의 oklch(0.897 0 180)
-  badgeBg: oklchToRgb(0.897, 0, 180),
+  // 배지 기본(default) 배경: badge.tsx 의 bg-ceramic
+  badgeBg: token("ceramic"),
 };
 
 /* ─────────────── 장면 좌표 (history-roots.tsx 와 동일, viewBox 0 0 600 2000) ─────────────── */

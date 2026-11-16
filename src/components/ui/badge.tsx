@@ -15,13 +15,13 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "text-secondary-foreground border-border hover:bg-accent bg-[color:oklch(0.897_0_180)]",
+          "text-secondary-foreground border-border hover:bg-accent bg-ceramic",
         primary:
           "bg-primary text-primary-foreground hover:bg-primary/90",
         outline:
-          "bg-transparent text-foreground hover:bg-accent border border-[color:oklch(0.421_0.01_271.2)]",
+          "bg-transparent text-foreground hover:bg-accent border border-muted-foreground",
         muted:
-          "hover:bg-accent hover:text-foreground bg-[color:oklch(0.9_0_188.1)] text-[color:oklch(0.491_0_173.2)]",
+          "hover:bg-accent hover:text-foreground bg-neutral-warm text-muted-foreground",
         // 어두운 바탕(밤하늘·땅속 장면) 위의 테두리 배지
         inverse:
           "bg-transparent text-night-foreground border border-mint-line",

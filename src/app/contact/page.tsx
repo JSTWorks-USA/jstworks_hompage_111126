@@ -13,7 +13,7 @@ export default function ContactPage() {
     <>
       <PageHeader title="Contact" />
 
-      <section aria-label="오시는 길">
+      <section id="location" aria-label="오시는 길">
         <Container className="grid gap-[var(--layout-column-gap)] py-16 md:grid-cols-2 md:py-24">
           {OFFICE_LOCATIONS.map((office) => (
             <Card key={office.name} className="flex flex-col overflow-hidden">
@@ -50,7 +50,7 @@ export default function ContactPage() {
         </Container>
       </section>
 
-      <section aria-label="문의하기" className="bg-secondary">
+      <section id="inquiry" aria-label="문의하기" className="bg-secondary">
         <Container className="grid gap-x-16 gap-y-12 py-16 md:py-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
           <div className="flex flex-col gap-6">
             <SectionHeader

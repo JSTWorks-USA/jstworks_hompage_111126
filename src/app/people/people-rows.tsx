@@ -18,9 +18,9 @@ function toneFor(index: number): Tone {
 
 const TONE = {
   dark: {
-    row: "bg-night text-night-foreground",
+    row: "bg-black text-night-foreground",
     subtle: "text-night-foreground/70",
-    mark: "text-glow",
+    mark: "text-green-light",
   },
   muted: {
     row: "bg-muted text-foreground",
@@ -162,9 +162,9 @@ export function PeopleRows({ divisions }: { divisions: Division[] }) {
   return (
     <div className="flex flex-col">
       {divisions.map((division, d) => {
-        const headingId = `division-${d}`;
+        const headingId = `${division.id}-title`;
         return (
-          <section key={division.name} aria-labelledby={headingId}>
+          <section key={division.id} id={division.id} aria-labelledby={headingId}>
             <Container className="flex items-baseline gap-3 py-10 md:py-14">
               <h2
                 id={headingId}
