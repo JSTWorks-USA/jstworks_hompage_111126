@@ -61,6 +61,11 @@ const buttonVariants = cva(
         // language switch). Press feedback belongs to the child, so the button does not scale.
         switch:
           "rounded-full bg-transparent active:scale-100 focus-visible:ring-offset-0",
+
+        // Tile: 아이콘 + 이름 카드형 선택 버튼 (Business 카테고리). 고른 카드(aria-pressed)는 초록 테두리·글자
+        tile:
+          "rounded-xl border border-border bg-background text-foreground " +
+          "hover:border-primary/40 aria-pressed:border-primary aria-pressed:bg-primary/5 aria-pressed:text-primary",
       },
       size: {
         sm:      "h-8 px-4 text-xs rounded-lg",
@@ -75,6 +80,8 @@ const buttonVariants = cva(
         // 44px tall target with an even ring gap around a 30px track; the negative margin
         // cancels the side padding so the visible track keeps its place in the layout
         switch:  "-mx-2 h-11 px-2",
+        // 카드형 선택 버튼: 아이콘 위, 이름 아래 (세로로 쌓고 가운데 정렬)
+        tile:    "h-auto w-full flex-col gap-3 px-2 py-4 text-sm md:px-3 md:py-6 md:text-base",
       },
     },
     defaultVariants: {

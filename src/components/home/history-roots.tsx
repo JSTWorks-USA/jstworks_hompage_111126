@@ -10,12 +10,29 @@ import {
   useTransform,
   type MotionValue,
 } from "motion/react";
-import { useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+} from "react";
 import { TREE_PATH } from "@/components/logo";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Timeline } from "@/components/ui/timeline";
 import { Container, KeepTogether } from "@/components/site-ui";
-import { HISTORY, HISTORY_LANES, VISION, type HistoryLane } from "@/content/site";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import {
+  HISTORY,
+  HISTORY_LANES,
+  VISION,
+  VISION_DETAILS,
+  type BusinessCategory,
+  type HistoryLane,
+} from "@/content/site";
+import { BUBBLE_ID, HistoryBubble, type BubblePlacement } from "./history-bubble";
 import { cn } from "@/lib/utils";
 
 /* ─────────────── 장면 좌표 (viewBox 0 0 600 2000) ─────────────── */
@@ -125,6 +142,17 @@ const CAMERA_Y = [
   horizonAtBottom(CAMERA_SCALE[4]),
   horizonAtBottom(CAMERA_SCALE[5]),
 ];
+/**
+ * 휴대폰: 나무가 좌우로 잘리지 않게 30% 더 작게(0.68 → 0.476) 줌아웃합니다.
+ * 뿌리에서 줄기를 타고 올라와 나무 전체가 보이는 때(TREE_FRAME)부터 이미 이 최종 크기·자리에 두어,
+ * 큰 나무가 잘린 채 보이는 중간 장면 없이 가지 이름표 6개가 처음부터 모두 화면 안에 보입니다.
+ * 지평선은 화면 맨 아래에 둡니다. 태블릿·PC 는 위 값을 그대로 씁니다.
+ */
+const NARROW_FINAL_SCALE = CAMERA_SCALE[5] * 0.7;
+const NARROW_CAMERA_SCALE = [...CAMERA_SCALE.slice(0, 3), NARROW_FINAL_SCALE, NARROW_FINAL_SCALE, NARROW_FINAL_SCALE];
+const NARROW_CAMERA_Y = [...CAMERA_Y.slice(0, 3), ...Array(3).fill(horizonAtBottom(NARROW_FINAL_SCALE))];
+/** 휴대폰: "미국향 커머스 플랫폼" 카드는 모든 효과가 거의 끝날 무렵(진행도 90%) 나타납니다 */
+const NARROW_VISION_SHOW = 0.9;
 /** 장면 y 가 화면 가운데에 오도록 장면 상자를 옮기는 양(상자 높이 대비 %) */
 const cameraShift = (centerY: number) => `${(-(centerY - VIEW_H / 2) / SCENE_H) * 100}%`;
 /** 뿌리 구간에서 진행도 p 일 때 화면 가운데에 오는 장면 y */
@@ -167,15 +195,21 @@ function lanePath(lane: HistoryLane, fromY: number = SCENE_H) {
   }).join(" ");
 }
 
-/** 갈래 선 전체 (장면 맨 아래 → 뿌리 중심) */
-const LANE_LINES = LINE_LANES.map((lane) => ({ lane, d: lanePath(lane) }));
-
 type LineSpotData = { i: number; lane: HistoryLane; x: number; y: number; path: string };
 
 /** 갈래 선 위 연혁 자리: 그 연혁이 나올 때 화면 가운데에 오는 깊이에 둡니다 */
 const SPOTS: LineSpotData[] = MILESTONES.map((m, i) => {
   const y = rootCenterAt((i + 0.5) * ROOT_STEP);
   return { i, lane: m.lane, x: laneX(m.lane, y), y, path: lanePath(m.lane, y) };
+});
+
+/**
+ * 갈래 선: 그 갈래의 첫 연혁(가장 깊은 자리) → 뿌리 중심.
+ * 첫 연혁보다 앞선(더 깊은) 구간은 그리지 않아, 선이 연혁이 시작되는 점에서 시작합니다.
+ */
+const LANE_LINES = LINE_LANES.flatMap((lane) => {
+  const ys = SPOTS.filter((spot) => spot.lane === lane).map((spot) => spot.y);
+  return ys.length ? [{ lane, d: lanePath(lane, Math.max(...ys)) }] : [];
 });
 
 /** 줄기와 가지 (빛이 타고 오르는 길) */
@@ -443,28 +477,49 @@ function GlowPath({
   );
 }
 
+/** 카탈로그 이름표 자리 (장면 대비 %) */
+type CatalogSpot = { left: number; top: number };
+type CatalogLayout = Partial<Record<BusinessCategory, CatalogSpot>>;
+
 /**
- * 카탈로그: 줌아웃이 끝났을 때 가지 이름표가 놓이는 자리 (장면 대비 %, VISION.branches 순서).
- * 나무 왼쪽에 셋, 오른쪽에 셋. 좁은 화면은 화면 안에 들어오도록 나무 쪽으로 붙입니다.
+ * 카탈로그: 줌아웃이 끝났을 때 가지 이름표가 놓이는 자리 (장면 대비 %).
+ * 보내 주신 시안 배치: 맨 위 가운데 K-Play, 왼쪽 위 K-Living · 왼쪽 아래 K-Beauty,
+ * 오른쪽 위 K-Charm · 오른쪽 아래 K-Apparel.
+ * 1안은 K-Food 까지 여섯 개라 K-Play 와 K-Food 를 맨 위에 나란히 두고, 2안(말풍선)에는 K-Food 가 없습니다.
+ * 좁은 화면(휴대폰)은 넓은 화면과 같은 배치를 쓰되, 화면 밖으로 나가지 않게 좌우 간격만 가운데 쪽으로 좁힙니다.
  */
-const CATALOG_WIDE = [
-  { left: -15, top: 22.5 },
-  { left: -11.7, top: 15 },
-  { left: 1.7, top: 7.5 },
-  { left: 98.3, top: 7.5 },
-  { left: 111.7, top: 15 },
-  { left: 115, top: 22.5 },
-];
-const CATALOG_NARROW = [
-  { left: 27.5, top: 25 },
-  { left: 27.5, top: 17 },
-  { left: 27.5, top: 9 },
-  { left: 72.5, top: 9 },
-  { left: 72.5, top: 17 },
-  { left: 72.5, top: 25 },
-];
+const CATALOG_SIDES_WIDE: CatalogLayout = {
+  "K-Living": { left: 6.2, top: 15.4 },
+  "K-Beauty": { left: -14.2, top: 22.5 },
+  "K-Charm": { left: 93.7, top: 14.5 },
+  "K-Apparel": { left: 110.4, top: 21.7 },
+};
+const CATALOG_WIDE: Record<Version, CatalogLayout> = {
+  // 1안: 처음 자리(왼쪽 Beauty·Charm·Play, 오른쪽 Apparel·Living·Food, K-Food 는 오른쪽 아래)
+  "1": {
+    "K-Beauty": { left: -15, top: 22.5 },
+    "K-Charm": { left: -11.7, top: 15 },
+    "K-Play": { left: 1.7, top: 7.5 },
+    "K-Apparel": { left: 98.3, top: 7.5 },
+    "K-Living": { left: 111.7, top: 15 },
+    "K-Food": { left: 115, top: 22.5 },
+  },
+  "2": { ...CATALOG_SIDES_WIDE, "K-Play": { left: 51, top: 10.1 } },
+};
+/** 휴대폰에서 좌우 간격을 줄이는 비율: 가장 바깥 이름표(-15% · 115%)가 화면 안(약 10% · 90%)에 들어옵니다 */
+const NARROW_SPREAD = 0.62;
+const toNarrow = (layout: CatalogLayout): CatalogLayout =>
+  Object.fromEntries(
+    Object.entries(layout).map(([label, { left, top }]) => [label, { left: 50 + (left - 50) * NARROW_SPREAD, top }]),
+  );
+const CATALOG: Record<Version, { wide: CatalogLayout; narrow: CatalogLayout }> = {
+  "1": { wide: CATALOG_WIDE["1"], narrow: toNarrow(CATALOG_WIDE["1"]) },
+  "2": { wide: CATALOG_WIDE["2"], narrow: toNarrow(CATALOG_WIDE["2"]) },
+};
 
 const NARROW_QUERY = "(max-width: 767px)";
+/** 휴대폰 가로처럼 아주 키가 낮은 넓은 화면 (globals.css 의 squat 과 같은 조건) */
+const SQUAT_QUERY = "(min-width: 768px) and (max-height: 540px)";
 function subscribeNarrow(onChange: () => void) {
   const mq = window.matchMedia(NARROW_QUERY);
   mq.addEventListener("change", onChange);
@@ -479,9 +534,41 @@ function useNarrow() {
   );
 }
 
+/** 연혁 시안: 1안(지금 버전) / 2안(가지 이름표에 마우스를 올리면 말풍선) */
+type Version = "1" | "2";
+
+/** 2안에서 이름표를 눌렀을 때·마우스를 올렸을 때 할 일 */
+type LabelEvents = {
+  /** 이름표가 말풍선을 열 수 있는 상태(2안, 카탈로그가 다 보임) */
+  live: boolean;
+  version: Version;
+  open: number | null;
+  onOpen: (index: number, element: HTMLElement) => void;
+  onClose: (index: number) => void;
+  /**
+   * 넓은 화면(태블릿·PC)에서 이름표 좌우 간격 비율(0~1). 태블릿 세로처럼 화면 폭에 비해 장면이 넓으면
+   * 바깥 이름표가 화면 밖으로 나가므로, 화면 안에 들어오도록 가운데 쪽으로 좁힙니다. PC 는 대개 1(그대로)입니다.
+   */
+  spread: number;
+};
+
+/**
+ * 넓은 화면 이름표 좌우 간격 비율: 마지막 장면(줌아웃 끝)에서 가장 바깥 이름표가 화면 가장자리에서
+ * 여백(24px) + 이름표 반 폭(약 70px) 안쪽에 오도록 합니다.
+ */
+function wideSpread(version: Version, stageW: number, stageH: number) {
+  // 장면 상자: 높이 = 무대 높이 × 285.714%, 폭 = 높이 × 600/2000, 마지막 배율 CAMERA_SCALE[5]
+  const sceneW = stageH * 2.85714 * 0.3 * CAMERA_SCALE[5];
+  const reach = Math.max(...Object.values(CATALOG_WIDE[version]).map((spot) => Math.abs(spot.left - 50) / 100));
+  const room = stageW / 2 - 24 - 70;
+  return Math.max(0.4, Math.min(1, room / (reach * sceneW)));
+}
+
 /**
  * 가지 이름표: 나무 전체가 보일 때 가지 위에 나타났다가, 줌아웃과 함께 카탈로그 자리로 퍼집니다.
  * 장면이 줄어들어도 글자 크기는 그대로 두려고 카메라 배율의 역수로 키웁니다.
+ * 2안: 이름표가 버튼이 되어 마우스를 올리거나(휴대폰은 누르면) 말풍선이 뜹니다.
+ *      내용이 없는 카테고리는 말풍선에 "준비중"을 보여 줍니다.
  */
 function BranchLabel({
   progress,
@@ -489,27 +576,60 @@ function BranchLabel({
   narrow,
   index,
   label,
+  events,
 }: {
   progress: MotionValue<number>;
   zoom: MotionValue<number>;
   narrow: boolean;
   index: number;
-  label: string;
+  label: BusinessCategory;
+  events: LabelEvents;
 }) {
   const start = TREE_FRAME - 0.03 + index * 0.012;
   const opacity = useTransform(progress, [start, start + 0.03], [0, 1]);
   // 처음 나타날 때부터 나무(로고) 바깥 카탈로그 자리에 둡니다. 가지 쪽에서 살짝 밀려 나오며 나타납니다.
-  const to = (narrow ? CATALOG_NARROW : CATALOG_WIDE)[index];
+  // 이 시안에 자리가 없는 이름표(2안의 K-Food)는 그리지 않습니다.
+  const spot = CATALOG[events.version][narrow ? "narrow" : "wide"][label] ?? { left: 50, top: 10 };
+  const to = narrow ? spot : { left: 50 + (spot.left - 50) * events.spread, top: spot.top };
   const branch = BRANCH_LABELS[index];
   const near = (a: number, b: number) => a + (b - a) * 0.8;
   const left = useTransform(progress, [start, start + 0.04], [`${near(branch.left, to.left)}%`, `${to.left}%`]);
   const top = useTransform(progress, [start, start + 0.04], [`${near(branch.top, to.top)}%`, `${to.top}%`]);
-  const scale = useTransform(zoom, (z) => 1 / z);
+  // 글자 크기는 카메라 배율의 역수로 지킵니다. 휴대폰은 마지막에 나무가 30% 더 작아질 때 이름표도 같이 70% 크기로 줄입니다.
+  const scale = useTransform(zoom, (z) =>
+    narrow ? (1 / z) * Math.min(1, Math.max(0.7, z / CAMERA_SCALE[5])) : 1 / z,
+  );
+  const base =
+    "absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-glow/40 bg-night/85 px-4 py-2 text-sm whitespace-nowrap text-night-foreground md:text-base";
+
+  if (!CATALOG[events.version][narrow ? "narrow" : "wide"][label]) return null;
+  // 2안: 모든 이름표가 말풍선을 엽니다. 내용이 없는 카테고리는 말풍선에 "준비중"이 보입니다.
+  if (events.version === "2" && events.live) {
+    const isOpen = events.open === index;
+    return (
+      <motion.button
+        type="button"
+        style={{ opacity, scale, left, top }}
+        aria-expanded={isOpen}
+        aria-controls={isOpen ? BUBBLE_ID : undefined}
+        onPointerEnter={(e) => e.pointerType === "mouse" && events.onOpen(index, e.currentTarget)}
+        onPointerLeave={(e) => e.pointerType === "mouse" && events.onClose(index)}
+        onFocus={(e) => events.onOpen(index, e.currentTarget)}
+        onBlur={() => events.onClose(index)}
+        onClick={(e) => events.onOpen(index, e.currentTarget)}
+        className={cn(
+          base,
+          "pointer-events-auto cursor-pointer transition-colors hover:border-glow hover:bg-primary focus-visible:ring-2 focus-visible:ring-glow focus-visible:outline-none",
+          isOpen && "border-glow bg-primary",
+        )}
+      >
+        {label}
+      </motion.button>
+    );
+  }
+
   return (
-    <motion.span
-      style={{ opacity, scale, left, top }}
-      className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-glow/40 bg-night/85 px-4 py-2 text-sm whitespace-nowrap text-night-foreground md:text-base"
-    >
+    <motion.span aria-hidden="true" style={{ opacity, scale, left, top }} className={base}>
       {label}
     </motion.span>
   );
@@ -531,7 +651,7 @@ function SpotCard({ step }: { step: Step }) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25, ease: [0.19, 1, 0.22, 1] }}
           className={cn(
-            "absolute hidden w-[21rem] -translate-y-1/2 rounded-xl border-2 bg-night/85 p-6 backdrop-blur-md lg:block",
+            "absolute hidden w-[21rem] -translate-y-1/2 rounded-xl border-2 bg-night/85 p-6 backdrop-blur-md spot:block",
             isLeftLane(spot.lane) ? "mr-10" : "ml-10",
           )}
           style={{
@@ -555,6 +675,7 @@ function Scene({
   zoom,
   focusY,
   step,
+  events,
 }: {
   progress: MotionValue<number>;
   camera: MotionValue<string>;
@@ -563,6 +684,7 @@ function Scene({
   /** 화면 가운데에 오는 장면 y (줌의 기준점, 0~1) */
   focusY: MotionValue<number>;
   step: Step;
+  events: LabelEvents;
 }) {
   const narrow = useNarrow();
   const markScale = narrow ? NARROW_MARK_SCALE : 1;
@@ -585,6 +707,7 @@ function Scene({
       className="absolute top-0 left-1/2 aspect-[600/2000] h-[285.714%] -translate-x-1/2"
     >
       <svg
+        aria-hidden="true"
         viewBox={`0 0 ${SCENE_W} ${SCENE_H}`}
         className="absolute inset-0 size-full overflow-visible"
       >
@@ -691,7 +814,7 @@ function Scene({
           strokeWidth={2}
         />
 
-        {/* 땅속 네 갈래 선: 깊은 곳에서 벌어져 있다가 뿌리 중심에서 하나로 모입니다 */}
+        {/* 땅속 네 갈래 선: 각 갈래의 첫 연혁에서 시작해 위로 오르며 뿌리 중심에서 하나로 모입니다 */}
         <motion.g style={{ opacity: lanesLit }}>
           {LANE_LINES.map(({ lane, d }) => (
             <path key={lane} d={d} fill="none" stroke={laneColor(lane)} strokeWidth={3 * lineScale} strokeLinecap="round" />
@@ -747,7 +870,9 @@ function Scene({
         </motion.g>
       </svg>
 
-      <SpotCard step={step} />
+      <div aria-hidden="true">
+        <SpotCard step={step} />
+      </div>
 
       {/* 같은 이름이 두 번 나올 수 있어 순번을 key 에 함께 씁니다 */}
       {VISION.branches.map((label, i) => (
@@ -758,6 +883,7 @@ function Scene({
           narrow={narrow}
           index={i}
           label={label}
+          events={events}
         />
       ))}
     </motion.div>
@@ -768,9 +894,12 @@ function Scene({
 function StepPanel({ step }: { step: Step }) {
   if (step.kind === "vision") {
     return (
-      <p className="m-0 text-center type-title">
-        <KeepTogether text={VISION.title} />
-      </p>
+      <div className="flex flex-col items-center gap-2 text-center">
+        <p className="m-0 type-meta text-balance text-night-foreground/75 squat:text-[0.6875rem]">{VISION.lead}</p>
+        <p className="m-0 text-4xl leading-tight font-bold whitespace-nowrap md:text-[2.5rem] squat:text-xl">
+          <KeepTogether text={VISION.title} />
+        </p>
+      </div>
     );
   }
   return (
@@ -797,6 +926,59 @@ function StepPanel({ step }: { step: Step }) {
         )}
       </p>
     </div>
+  );
+}
+
+/** 쌓인 카드가 위로 밀려 올라가는 간격(px): 이전 카드의 날짜 줄이 지금 카드 위로 한 줄씩 보입니다 */
+const STACK_STEP = 40;
+/** 함께 보이는 카드 수(지금 카드 + 이전 카드) */
+const STACK_SIZE = 4;
+
+/**
+ * 세로 태블릿: 연혁 카드를 화면 오른쪽 가운데(빛나는 점이 퍼지는 높이)에 띄웁니다.
+ * 스크롤하면 새 연혁이 아래에서 올라와 맨 앞에 놓이고, 이전 연혁은 그 뒤에서 위로 조금씩 밀려 올라가며
+ * 차곡차곡 쌓였다가 흐려져 사라집니다. 비전 단계에서는 사라지고 아래 비전 카드가 나옵니다.
+ */
+function MilestoneStack({ active, progress }: { active: number; progress: MotionValue<number> }) {
+  const reduceMotion = useReducedMotion();
+  // 모든 연혁 점이 뿌리 중심으로 모이는 때(GATHER)에 맞춰 쌓인 카드가 서서히 사라집니다. 위로 올리면 다시 나타납니다.
+  const fade = useTransform(progress, GATHER, [1, 0]);
+  const current = STEPS[active]?.kind === "milestone" ? active : -1;
+  const shown = current < 0 ? [] : MILESTONES.slice(Math.max(0, current - STACK_SIZE + 1), current + 1);
+  return (
+    <motion.div
+      aria-hidden="true"
+      style={{ opacity: fade }}
+      className="pointer-events-none absolute top-1/2 right-(--page-inset) hidden w-80 stack:block"
+    >
+      {/* 카드 위쪽 끝을 가운데보다 조금 위에 맞춰, 지금 카드의 가운데가 화면 가운데에 오게 합니다 */}
+      <div className="absolute inset-x-0 -top-14">
+        <AnimatePresence initial={false}>
+          {shown.map((m) => {
+            const depth = current - MILESTONES.indexOf(m);
+            return (
+              <motion.div
+                key={m.key}
+                initial={{ opacity: 0, y: reduceMotion ? 0 : 48, scale: 1 }}
+                animate={{ opacity: 1, y: -depth * STACK_STEP, scale: 1 - depth * 0.05 }}
+                exit={{ opacity: 0, y: -(depth + 1) * STACK_STEP, scale: 1 - (depth + 1) * 0.05 }}
+                transition={{ duration: reduceMotion ? 0 : 0.35, ease: [0.19, 1, 0.22, 1] }}
+                style={{ zIndex: STACK_SIZE - depth, borderColor: laneColor(m.lane), originY: 0 }}
+                // 바탕은 불투명하게 두어 뒤 카드 글자가 비치지 않게 하고, 이전 카드일수록 내용만 흐리게 합니다
+                className="absolute inset-x-0 top-0 rounded-xl border-2 bg-night p-5"
+              >
+                <motion.div
+                  animate={{ opacity: depth === 0 ? 1 : Math.max(0.25, 0.75 - depth * 0.2) }}
+                  transition={{ duration: reduceMotion ? 0 : 0.35 }}
+                >
+                  <StepPanel step={m} />
+                </motion.div>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
+      </div>
+    </motion.div>
   );
 }
 
@@ -835,6 +1017,7 @@ function StaticHistory() {
             ))}
           </ol>
           <div className="flex max-w-[40rem] flex-col gap-3">
+            <p className="m-0 type-meta text-muted-foreground">{VISION.lead}</p>
             <h3 className="m-0 type-title">{VISION.title}</h3>
             <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
               {VISION.branches.map((label, i) => (
@@ -867,7 +1050,33 @@ const STORY_END = 6 / 7;
 export function HistoryRoots() {
   const reduceMotion = useReducedMotion();
   const trackRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
+  const narrow = useNarrow();
+
+  // 연혁 시안 비교: 1안(지금 버전) / 2안(가지 이름표 말풍선). 시안을 고르면 전환 버튼은 지웁니다.
+  const [version, setVersion] = useState<Version>("1");
+  // 가지 이름표가 모두 카탈로그 자리에 나타난 뒤에만 말풍선을 열 수 있습니다.
+  const [labelsLive, setLabelsLive] = useState(false);
+  const [visionReady, setVisionReady] = useState(false);
+  const [open, setOpen] = useState<number | null>(null);
+  const [placement, setPlacement] = useState<BubblePlacement | null>(null);
+  const openLabel = useRef<HTMLElement | null>(null);
+  const openIndex = useRef<number | null>(null);
+  // 연혁 화면(무대) 크기: 넓은 화면 이름표 간격을 화면에 맞추는 데 씁니다.
+  const [stageSize, setStageSize] = useState<{ w: number; h: number } | null>(null);
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setStageSize((current) =>
+        current && current.w === width && current.h === height ? current : { w: width, h: height },
+      );
+    });
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, [reduceMotion]);
 
   const { scrollYProgress } = useScroll({
     target: trackRef,
@@ -875,11 +1084,53 @@ export function HistoryRoots() {
   });
   // 이야기는 트랙 스크롤의 앞 STORY_END 안에서 끝나고, 나머지(약 한 화면, 마우스 휠 10칸 안팎)는
   // 완성된 장면(가지 이름표 + 비전)을 붙잡아 둡니다. 그 뒤에야 다음 섹션으로 넘어갑니다.
-  const story = useTransform(scrollYProgress, [0, STORY_END], [0, 1]);
+  // 한 번 끝까지 본 뒤(done)에는 장면을 마지막 모습(1)에 고정해, 위로 스크롤해도 거꾸로 재생되지 않습니다.
+  const [done, setDone] = useState(false);
+  const doneRef = useRef(false);
+  /** 트랙을 줄이기 직전, 트랙 아래 끝의 화면 위치. 줄인 뒤 같은 자리로 스크롤을 맞춥니다 */
+  const bottomBefore = useRef<number | null>(null);
+  /** 이번에 연혁 구간 안을 실제로 스크롤하며 지나왔는지(바로 아래로 건너뛰거나 새로 고침으로 아래에 온 경우는 아님) */
+  const seenInside = useRef(false);
+  const story = useTransform(scrollYProgress, (v) => (doneRef.current ? 1 : Math.min(1, Math.max(0, v / STORY_END))));
   const smooth = useSpring(story, { stiffness: 140, damping: 32, mass: 0.6 });
-  const camera = useTransform(smooth, CAMERA_P, CAMERA_Y.map(cameraShift));
-  const zoom = useTransform(smooth, CAMERA_P, CAMERA_SCALE);
-  const focusY = useTransform(smooth, CAMERA_P, CAMERA_Y.map((y) => y / SCENE_H));
+
+  // 트랙 끝까지 내려오면(모든 효과가 끝나면) 800vh 스크롤 구간을 한 화면 높이로 줄입니다.
+  // 이후로는 완성된 장면이 보통 섹션처럼 지나가고, 다시 위로 올려도 애니메이션이 거꾸로 돌지 않습니다.
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    if (v > 0.001 && v < 0.999) seenInside.current = true;
+    if (doneRef.current || v < 0.999 || !seenInside.current || !trackRef.current) return;
+    doneRef.current = true;
+    bottomBefore.current = trackRef.current.getBoundingClientRect().bottom;
+    smooth.jump(1);
+    setDone(true);
+  });
+  // 줄어든 높이만큼 스크롤을 당겨, 줄이는 순간 화면이 튀지 않게 합니다(그리기 전에 맞춥니다).
+  useLayoutEffect(() => {
+    const before = bottomBefore.current;
+    if (!done || before === null || !trackRef.current) return;
+    bottomBefore.current = null;
+    const shift = trackRef.current.getBoundingClientRect().bottom - before;
+    if (shift !== 0) window.scrollTo({ top: window.scrollY + shift, behavior: "instant" });
+  }, [done]);
+  // 연혁보다 위(히어로)로 완전히 올라가면 고정을 풀어, 다시 내려올 때 처음부터 재생합니다.
+  // 연혁이 화면 아래로 다 빠진 뒤에 트랙이 다시 길어지므로 보이는 화면은 움직이지 않습니다.
+  useEffect(() => {
+    if (!done) return;
+    const onScroll = () => {
+      const track = trackRef.current;
+      if (!track || track.getBoundingClientRect().top < window.innerHeight - 2) return;
+      doneRef.current = false;
+      seenInside.current = false;
+      smooth.jump(0);
+      setDone(false);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [done, smooth]);
+  const cameraY = narrow ? NARROW_CAMERA_Y : CAMERA_Y;
+  const camera = useTransform(smooth, CAMERA_P, cameraY.map(cameraShift));
+  const zoom = useTransform(smooth, CAMERA_P, narrow ? NARROW_CAMERA_SCALE : CAMERA_SCALE);
+  const focusY = useTransform(smooth, CAMERA_P, cameraY.map((y) => y / SCENE_H));
 
   // 지금 연혁의 갈래 (비전은 없음)
   const activeStep = STEPS[active];
@@ -889,6 +1140,106 @@ export function HistoryRoots() {
     const next = stepAt(p);
     setActive((current) => (current === next ? current : next));
   });
+
+  /**
+   * 말풍선 자리: 가리킨 이름표를 기준으로, 연혁 화면 크기에 맞춰 그때그때 계산합니다.
+   * 이름표 자리는 그대로 두고, 화면 왼쪽 이름표(K-Living·K-Beauty)는 말풍선을 왼쪽으로,
+   * 오른쪽 이름표(K-Charm·K-Apparel)는 오른쪽으로 펼칩니다(꼬리는 이름표 쪽 끝).
+   * 화면 가운데 이름표(2안의 K-Play)는 말풍선도 이름표 바로 위 가운데에 띄웁니다(꼬리는 말풍선 가운데).
+   * 위쪽 공간이 모자라면 이름표 아래에 띄웁니다. 화면 밖으로 나가지 않게 가장자리에서 멈춥니다.
+   * 휴대폰 세로는 늘 화면 아래에, 휴대폰 가로는 오른쪽 아래에 띄웁니다.
+   */
+  const place = useCallback(() => {
+    const stage = stageRef.current;
+    const label = openLabel.current;
+    if (!stage || !label) return;
+    if (narrow) {
+      setPlacement({ mode: "bottom" });
+      return;
+    }
+    // 휴대폰 가로(키가 아주 낮은 넓은 화면): 오른쪽 아래에 고정합니다. 왼쪽 아래에는 비전 카드가 있습니다.
+    if (window.matchMedia(SQUAT_QUERY).matches) {
+      setPlacement({ mode: "corner" });
+      return;
+    }
+    const box = stage.getBoundingClientRect();
+    const tag = label.getBoundingClientRect();
+    const margin = 16;
+    const gap = 18;
+    // "준비중" 말풍선은 내용이 짧아 좁게 띄웁니다.
+    const index = openIndex.current;
+    const hasDetail = index !== null && Boolean(VISION_DETAILS[VISION.branches[index]]);
+    const width = Math.min(hasDetail ? 448 : 288, box.width - margin * 2);
+    const centerX = tag.left + tag.width / 2 - box.left;
+    const centered = Math.abs(centerX - box.width / 2) < box.width * 0.08;
+    const leftHalf = centerX < box.width / 2;
+    const rawLeft = centered ? centerX - width / 2 : leftHalf ? centerX - width + 40 : centerX - 40;
+    const left = Math.min(Math.max(rawLeft, margin), box.width - width - margin);
+    const tailX = Math.min(Math.max(centerX - left, 20), width - 20);
+    const tagTop = tag.top - box.top;
+    const tagBottom = tag.bottom - box.top;
+    // 말풍선 높이는 약 190px("준비중"은 약 120px). 이름표 위에 그만큼 자리가 없으면 아래에 띄웁니다.
+    const above = tagTop - gap > (hasDetail ? 200 : 130);
+    setPlacement(
+      above
+        ? { mode: "float", left, width, bottom: box.height - (tagTop - gap), tailX }
+        : { mode: "float", left, width, top: tagBottom + gap, tailX },
+    );
+  }, [narrow]);
+
+  const openBubble = useCallback(
+    (index: number, element: HTMLElement) => {
+      openLabel.current = element;
+      openIndex.current = index;
+      setOpen(index);
+      place();
+    },
+    [place],
+  );
+  const closeBubble = useCallback((index: number) => {
+    setOpen((current) => (current === index ? null : current));
+  }, []);
+
+  useMotionValueEvent(smooth, "change", (p) => {
+    const live = p > TREE_FRAME + 0.08;
+    setLabelsLive((current) => (current === live ? current : live));
+    const ready = p > NARROW_VISION_SHOW;
+    setVisionReady((current) => (current === ready ? current : ready));
+    // 스크롤로 장면이 움직이면 말풍선도 이름표를 따라갑니다.
+    if (open !== null) place();
+  });
+
+  // 말풍선이 열려 있을 때: 창 크기가 바뀌면 자리를 다시 잡고, Esc 나 바깥을 누르면 닫습니다.
+  useEffect(() => {
+    if (open === null) return;
+    const onResize = () => place();
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && setOpen(null);
+    const onDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && openLabel.current?.contains(event.target)) return;
+      setOpen(null);
+    };
+    window.addEventListener("resize", onResize);
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("pointerdown", onDown);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerdown", onDown);
+    };
+  }, [open, place]);
+
+  const bubbleOpen = version === "2" && labelsLive && open !== null;
+  const openCategory = open !== null ? VISION.branches[open] : null;
+  const openDetail = openCategory ? VISION_DETAILS[openCategory] : undefined;
+  const spread = stageSize ? wideSpread(version, stageSize.w, stageSize.h) : 1;
+  const events: LabelEvents = {
+    live: labelsLive,
+    version,
+    open: bubbleOpen ? open : null,
+    onOpen: openBubble,
+    onClose: closeBubble,
+    spread,
+  };
 
   return (
     <section id="history" aria-labelledby="history-title" className="relative">
@@ -900,7 +1251,7 @@ export function HistoryRoots() {
           </li>
         ))}
         <li>
-          {VISION.title}: {VISION.branches.join(", ")}
+          {VISION.lead} {VISION.title}: {VISION.branches.join(", ")}
         </li>
       </ol>
 
@@ -912,27 +1263,66 @@ export function HistoryRoots() {
           <StaticHistory />
         </>
       ) : (
-        // 800vh = 이야기 약 6화면 + 마지막 장면 붙잡기 약 1화면
-        <div ref={trackRef} className="relative h-[800vh] bg-soil-deep">
-          <div className="sticky top-0 h-svh overflow-hidden text-night-foreground md:top-18 md:h-[calc(100svh-4.5rem)]">
-            <div aria-hidden="true">
-              <Scene progress={smooth} camera={camera} zoom={zoom} focusY={focusY} step={STEPS[active]} />
+        // 800vh = 이야기 약 6화면 + 마지막 장면 붙잡기 약 1화면. 끝까지 본 뒤에는 한 화면 높이(완성된 장면)만 남깁니다.
+        <div ref={trackRef} className={cn("relative bg-soil-deep", !done && "h-[800vh]")}>
+          <div
+            ref={stageRef}
+            className="sticky top-0 h-svh overflow-hidden text-night-foreground md:top-18 md:h-[calc(100svh-4.5rem)]"
+          >
+            <div>
+              <Scene
+                progress={smooth}
+                camera={camera}
+                zoom={zoom}
+                focusY={focusY}
+                step={STEPS[active]}
+                events={events}
+              />
             </div>
 
-            <Container className="pointer-events-none relative flex h-full flex-col justify-between py-8 md:py-12">
-              <div className="flex flex-col gap-1">
-                <h2 id="history-title" className="m-0 text-2xl font-semibold tracking-tight">
-                  History
-                </h2>
-                <p className="m-0 text-sm text-mint-line">연혁</p>
+            <Container className="pointer-events-none relative flex h-full flex-col justify-between py-8 md:py-12 squat:py-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-1">
+                  <h2 id="history-title" className="m-0 text-2xl font-semibold tracking-tight">
+                    History
+                  </h2>
+                  <p className="m-0 text-sm text-mint-line">연혁</p>
+                </div>
+                <ToggleGroup
+                  type="single"
+                  value={version}
+                  // 이미 고른 쪽을 다시 눌러도 선택이 풀리지 않게 합니다.
+                  onValueChange={(value) => value && setVersion(value as Version)}
+                  aria-label="연혁 시안 선택"
+                  className="pointer-events-auto bg-background/90 text-foreground backdrop-blur-sm"
+                >
+                  <ToggleGroupItem value="1" className="min-h-9">
+                    1 · 현재
+                  </ToggleGroupItem>
+                  <ToggleGroupItem value="2" className="min-h-9">
+                    2 · 말풍선
+                  </ToggleGroupItem>
+                </ToggleGroup>
               </div>
 
               <div
                 aria-hidden="true"
                 className={cn(
                   // 넓은 화면에서는 이 카드에 비전만 나오므로, 퍼진 카탈로그 이름표와 겹치지 않게 조금 더 아래에 둡니다
-                  "relative w-full rounded-xl bg-night/75 p-6 backdrop-blur-md md:mb-[18vh] md:w-88 lg:mb-[8vh]",
-                  activeLane ? "border-2 lg:invisible" : "border border-glow/20",
+                  "relative w-full rounded-xl bg-night/75 p-6 backdrop-blur-md md:mb-[18vh] md:w-104 lg:mb-[8vh]",
+                  // 휴대폰 가로: 작게 줄여 왼쪽 아래에 붙입니다
+                  "squat:mb-0 squat:w-auto squat:self-start squat:px-5 squat:py-3",
+                  // 연혁 카드: 넓은 화면은 점 옆(SpotCard), 세로 태블릿은 오른쪽 쌓임 카드(MilestoneStack)로 보여 줍니다
+                  activeLane ? "border-2 spot:invisible stack:invisible" : "border border-glow/20",
+                  // 휴대폰: 비전 카드는 History 제목과 K-Play 이름표 사이 가운데(빈 하늘)에 둡니다. 연혁 카드는 그대로 아래에 둡니다.
+                  // 장면은 화면 높이에 비례하므로(K-Play 위쪽 ≈ 화면 높이의 1안 47.65%, 2안 51.3%) 위 여백도 화면 높이로 정합니다.
+                  activeStep.kind === "vision" &&
+                    (version === "1"
+                      ? "max-md:mt-[max(1.5rem,calc(23.8svh-6.625rem))] max-md:mb-auto"
+                      : "max-md:mt-[max(1.5rem,calc(25.65svh-6.625rem))] max-md:mb-auto"),
+                  // 휴대폰: 비전 카드는 효과가 거의 끝날 때까지 숨겼다가 천천히 나타납니다
+                  "transition-opacity duration-500",
+                  activeStep.kind === "vision" && !visionReady && "max-md:invisible max-md:opacity-0",
                 )}
                 style={activeLane ? { borderColor: laneColor(activeLane) } : undefined}
               >
@@ -956,6 +1346,14 @@ export function HistoryRoots() {
                 </AnimatePresence>
               </div>
             </Container>
+
+            <MilestoneStack active={active} progress={smooth} />
+
+            <AnimatePresence>
+              {bubbleOpen && openCategory && placement && (
+                <HistoryBubble key={openCategory} category={openCategory} detail={openDetail} placement={placement} />
+              )}
+            </AnimatePresence>
           </div>
         </div>
       )}

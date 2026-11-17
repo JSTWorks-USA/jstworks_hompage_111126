@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef } from "react";
 import { HeroCopy } from "./hero-copy";
 
 type Star = {
@@ -36,12 +36,11 @@ function flareAnchor(canvas: HTMLCanvasElement) {
 }
 
 /**
- * 히어로 2안: 은하수가 보이는 밤하늘과 검은 조슈아 트리 실루엣 사진 위에 반짝이는 별(캔버스)을 겹칩니다.
+ * 메인 히어로: 은하수가 보이는 밤하늘과 검은 조슈아 트리 실루엣 사진 위에 반짝이는 별(캔버스)을 겹칩니다.
  * 사진은 아주 느리게 다가오고(hero-drift), 가끔 별똥별이 지나가며 그때 제목 위쪽에서 별 2~3개가 반짝입니다.
  * 움직임을 줄이도록 설정한 사용자에게는 정지한 별만 그립니다.
- * children: 히어로 안에 함께 띄울 요소(1·2안 전환 버튼)
  */
-export function HeroNightSky({ children }: { children?: ReactNode }) {
+export function HeroNightSky() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -245,7 +244,6 @@ export function HeroNightSky({ children }: { children?: ReactNode }) {
       <div className="relative flex h-full flex-col items-center px-6 pt-[calc(var(--header-height)+6rem)] text-center md:pt-[calc(var(--header-height)+16vh)]">
         <HeroCopy />
       </div>
-      {children}
     </section>
   );
 }

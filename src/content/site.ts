@@ -28,7 +28,7 @@ export const HISTORY_LANES: HistoryLaneInfo[] = [
 export type HistoryItem = { date: string; text: string; note?: string; sub?: string; lane: HistoryLane };
 export const HISTORY: HistoryItem[] = [
   { date: "2025.12.15", text: "조슈아트리웍스 창업, 연구소 설립", lane: "company" },
-  { date: "2026.01.07", text: "캐릭터 굿즈특허 개발 착수", lane: "gentlevox" },
+  { date: "2026.01.07", text: "캐릭터굿즈 특허 아이디어 발의", lane: "gentlevox" },
   { date: "2026.01.07", text: "아티스트굿즈 특허출원", lane: "kganada" },
   {
     date: "2026.03.17",
@@ -40,21 +40,70 @@ export const HISTORY: HistoryItem[] = [
   { date: "2026.06.08", text: "미국 상표권 출원", lane: "kganada" },
   {
     date: "2026.07.20",
-    text: "삼익제약, 요리엔정수기",
+    text: "삼익제약 요리엔정수기",
     sub: "미국 독점영업권계약 체결",
     lane: "partner",
   },
-  { date: "2026.08.06", text: "캐릭터 굿즈 특허 출원", lane: "gentlevox" },
+  { date: "2026.08.06", text: "캐릭터굿즈 특허 출원", lane: "gentlevox" },
   { date: "2026.08.26", text: "아티스트굿즈 특허 등록", lane: "kganada" },
-  { date: "2026.09.23", text: "제우스 III, 제오니스", sub: "미국 및 중동 독점계약 체결", lane: "partner" },
+  {
+    date: "2026.09.23",
+    text: "뷰티 디바이스",
+    note: "(제우스 III, 제오니스)",
+    sub: "미국 및 중동 독점계약 체결",
+    lane: "partner",
+  },
   { date: "2026.10.06", text: "벤처확인기업 등록", lane: "company" },
-  { date: "2026.10.21", text: "삼익제약 요리엔", sub: "미국 초도 물량 선적", lane: "partner" },
+  { date: "2026.10.21", text: "삼익제약 요리엔정수기", sub: "초도 물량 미국 선적", lane: "partner" },
 ];
 
 /** 연혁 장면 맨 위(가지 끝)에 보여 줄 비전. branches 는 나무 왼쪽부터 붙는 이름표입니다(왼쪽 셋, 오른쪽 셋) */
 export const VISION = {
+  /** 비전 위에 작게 붙는 설명 */
+  lead: "검증된 한국브랜드의 독점영업권 및 자사 IP를 결합한",
   title: "미국향 커머스 플랫폼",
-  branches: ["K-Beauty", "K-Charm", "K-Play", "K-Apparel", "K-Living", "K-Food"],
+  branches: ["K-Beauty", "K-Charm", "K-Play", "K-Apparel", "K-Living", "K-Food"] as BusinessCategory[],
+};
+
+/** 연혁 2안: 가지 이름표에 마우스를 올리면 뜨는 말풍선 (진행 중인 프로젝트 소개) */
+export type VisionDetail = {
+  title: string;
+  body: string;
+  /**
+   * 사진이 없으면 카테고리 아이콘을 대신 보여 줍니다.
+   * fit: "contain" 은 흰 바탕 제품 사진처럼 잘리면 안 되는 사진(흰 칸에 통째로 넣습니다)
+   */
+  image?: { src: string; alt: string; width: number; height: number; fit?: "cover" | "contain" };
+};
+
+/** 내용이 없는 카테고리는 이름표에 "(준비중)"으로 표시합니다 */
+export const VISION_DETAILS: Partial<Record<BusinessCategory, VisionDetail>> = {
+  "K-Play": {
+    title: "젠틀복스 Gentle Vox",
+    body: "앱에 남긴 가족의 목소리를 큐브 스피커로 전해 주는 스마트 오디오 토이입니다.",
+  },
+  "K-Living": {
+    title: "삼익제약 요리엔 정수기",
+    body: "조슈아트리웍스와 삼익제약은 미국 독점영업권계약을 체결하여 미국시장에 진출합니다.",
+    image: {
+      src: "/images/news/yorien-pitcher-kitchen.webp",
+      alt: "주방 조리대 위에 놓인 나무 손잡이 YORIEN 정수 피처",
+      width: 1440,
+      height: 960,
+    },
+  },
+  "K-Beauty": {
+    title: "제오니스 · 제우스 III",
+    body: "뷰티 디바이스 제오니스와 제우스 III의 미국 및 중동 독점계약을 체결했습니다.",
+    // 흰 바탕에 두 제품이 나란히 있는 정사각 사진이라 잘리지 않게 통째로 보여 줍니다.
+    image: {
+      src: "/images/business/beauty-devices.webp",
+      alt: "뷰티 디바이스 제오니스(왼쪽)와 제우스 III(오른쪽)",
+      width: 800,
+      height: 800,
+      fit: "contain",
+    },
+  },
 };
 
 /* ──────────────────────────── 날짜 정렬 ──────────────────────────── */
@@ -268,10 +317,18 @@ export const PEOPLE: Person[] = [
 ];
 
 
+/* ──────────────────────────── 비즈니스 카테고리 ──────────────────────────── */
+
+/** Business 페이지 위쪽 카테고리 카드 순서. 카드를 누르면 그 카테고리의 자사 IP·타사 제품이 아래에 보입니다 */
+export const BUSINESS_CATEGORIES = ["K-Play", "K-Beauty", "K-Living", "K-Apparel", "K-Charm", "K-Food"] as const;
+export type BusinessCategory = (typeof BUSINESS_CATEGORIES)[number];
+
 /* ──────────────────────────── 독점 판권 브랜드 ──────────────────────────── */
 
 export type Brand = {
   name: string;
+  /** Business 카테고리(K-Living 등) */
+  kCategory: BusinessCategory;
   category: string;
   /** 강점을 한 줄로 말하는 카피 (시안) */
   tagline: string;
@@ -292,6 +349,7 @@ export type Brand = {
 export const BRANDS: Brand[] = [
   {
     name: "YORIEN",
+    kCategory: "K-Living",
     category: "삼익제약 정수기",
     tagline: "매일 마시는 물, 제약사가 만듭니다",
     description: "삼익제약의 정수기 YORIEN을 미국 가정의 주방에 소개합니다.",
@@ -346,6 +404,17 @@ export type NewsItem = {
 
 /** 작성 순서는 상관없습니다. 화면에는 아래 NEWS(날짜순)를 씁니다. */
 const NEWS_ITEMS: NewsItem[] = [
+  {
+    // 연혁 2026.03.17 "미국법인설립 (캘리포니아, 얼바인)"과 같은 날짜입니다.
+    id: 7,
+    slug: "us-corporation-founded",
+    date: "2026.03.17",
+    kind: "소식",
+    title: "미국 법인 설립",
+    source: "JSTWorks",
+    // 본문은 src/content/news/us-corporation-founded.md 에 있습니다(이 단락은 파일이 없을 때만 보입니다).
+    body: ["조슈아트리웍스가 미국 캘리포니아주 얼바인(Irvine)에 미국 현지 법인 H&H USA LLC를 설립했습니다."],
+  },
   {
     id: 4,
     slug: "fandom-goods-patent-sentv",

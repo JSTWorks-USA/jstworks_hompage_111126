@@ -4,6 +4,19 @@
 @custom-variant dark (&:is(.dark *));
 /* 키가 낮은 넓은 화면(노트북 등): 한 화면에 섹션이 들어오도록 여백을 줄일 때 씁니다 */
 @custom-variant short (@media (min-width: 768px) and (max-height: 820px));
+/* 휴대폰 가로처럼 아주 키가 낮은 넓은 화면: 연혁 비전 카드를 작게 줄여 왼쪽 아래에 둡니다 */
+@custom-variant squat (@media (min-width: 768px) and (max-height: 540px));
+/* 연혁: 점 옆 카드를 띄울 만큼 넓은 화면(1024px 이상이면서 가로:세로 5:4 이상). 세로로 긴 태블릿은 아래 카드로 보여 줍니다 */
+@custom-variant spot (@media (min-width: 1024px) and (min-aspect-ratio: 5/4));
+/* 연혁: 점 옆 카드를 띄우지 않는 태블릿(세로 태블릿 등). 오른쪽 가운데에 연혁 카드를 차곡차곡 쌓아 보여 줍니다 */
+@custom-variant stack {
+  @media (min-width: 768px) and (max-width: 1023.98px) {
+    @slot;
+  }
+  @media (min-width: 1024px) and (max-aspect-ratio: 5/4) {
+    @slot;
+  }
+}
 
 /*
  * Gmarket Sans — Medium (전체 + 라틴 서브셋), Bold (라틴 서브셋)

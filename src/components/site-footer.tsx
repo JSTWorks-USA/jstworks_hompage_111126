@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { LocalizedText } from "./localized-text";
-import { NAV_ITEMS } from "./site-nav";
 import { Container } from "./site-ui";
 
 const CONTACT_EMAIL = "info@jstworks.com";
@@ -33,7 +32,7 @@ const body = "m-0 text-[0.9375rem] leading-relaxed";
 
 /**
  * 하단 영역
- * 1줄: 왼쪽 로고, 오른쪽 메뉴 (휴대폰: 로고 아래 메뉴 다섯 개를 한 줄에 고르게)
+ * 1줄: 왼쪽 로고
  * 2줄: Korea · USA · Contact 세 칸 (칸 이름은 흐리게, 첫 줄은 흰색, 나머지는 흐리게)
  * 3줄: 구분선 아래 저작권 (휴대폰 왼쪽, 넓은 화면 오른쪽)
  */
@@ -41,32 +40,16 @@ export function SiteFooter() {
   return (
     <footer className="bg-footer text-footer-foreground">
       <Container className="flex flex-col gap-10 pt-12 pb-10 md:gap-12 md:pt-16">
-        <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-6">
-          <Link href="/" aria-label="Joshua Tree WORKS 홈" className="inline-flex shrink-0">
-            {/* 흰색 세로형 로고(투명 배경). 어두운 푸터 위에서만 씁니다. */}
-            <Image
-              src="/images/joshua-tree-logo-white.webp"
-              alt=""
-              width={655}
-              height={604}
-              className="block h-20 w-auto md:h-28"
-            />
-          </Link>
-          <nav aria-label="하단 메뉴" className="w-full md:w-auto">
-            <ul className="m-0 flex list-none items-center justify-between p-0 md:flex-wrap md:justify-start md:gap-x-6">
-              {NAV_ITEMS.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="inline-flex min-h-11 items-center text-sm text-footer-foreground no-underline underline-offset-4 hover:underline md:text-[0.9375rem]"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </div>
+        <Link href="/" aria-label="Joshua Tree WORKS 홈" className="inline-flex shrink-0 self-start">
+          {/* 흰색 세로형 로고(투명 배경). 어두운 푸터 위에서만 씁니다. */}
+          <Image
+            src="/images/joshua-tree-logo-white.webp"
+            alt=""
+            width={655}
+            height={604}
+            className="block h-20 w-auto md:h-28"
+          />
+        </Link>
 
         <div className="grid gap-x-12 gap-y-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:gap-y-8">
           {OFFICES.map((office) => (

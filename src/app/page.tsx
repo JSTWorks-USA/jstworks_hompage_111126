@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { HeroSection } from "@/components/home/hero-section";
+import { HeroNightSky } from "@/components/home/hero-night-sky";
 import { HistoryRoots } from "@/components/home/history-roots";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -23,7 +23,7 @@ const ipBadgeVariant: Record<IpStatus, "primary" | "outline" | "default"> = {
 export default function AboutPage() {
   return (
     <>
-      <HeroSection />
+      <HeroNightSky />
 
       <HistoryRoots />
 

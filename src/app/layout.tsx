@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   },
   description:
     "한국의 브랜드와 IP를 미국 시장으로 잇는 K-IP 커머스 회사, 조슈아트리웍스(Joshua Tree WORKS).",
-  // 링크 공유 대표 사진은 app/opengraph-image.jpg · twitter-image.jpg (조슈아 트리 낮 사진, 1200×630)
+  // 링크 공유 대표 사진은 app/opengraph-image.jpg · twitter-image.jpg (히어로 밤하늘 사진, 1200×630)
   twitter: { card: "summary_large_image" },
 };
 

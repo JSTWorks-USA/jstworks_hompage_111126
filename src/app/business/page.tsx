@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Container, KeepTogether, PageHeader } from "@/components/site-ui";
-import { BRANDS } from "@/content/site";
+import { BRANDS, BUSINESS_CATEGORIES, type Brand, type BusinessCategory } from "@/content/site";
+import { BusinessCategories } from "./business-categories";
 import { GentleVoxFlow } from "./gentle-vox-flow";
 import { cn } from "@/lib/utils";
 
@@ -28,117 +29,150 @@ function focusCover(ratio: number, focus: { x: number; y: number }): CSSProperti
   };
 }
 
+/** 자사 IP 제품의 카테고리 */
+const GENTLE_VOX_CATEGORY: BusinessCategory = "K-Play";
+
+/** 자사 IP: Gentle Vox (제품 외형은 비공개 — 사진 없이 카피와 작동 흐름으로 소개합니다) */
+function IpSection() {
+  return (
+    <section id="ip-contents" aria-label="자사 IP">
+      {/* 제목 띠: 아래 '타사 제품 독점영업권' 제목 띠와 같은 크기·색 */}
+      <div className="bg-secondary">
+        <Container className="py-(--section-pad) md:py-8">
+          <SectionHeader title="자사 IP" />
+        </Container>
+      </div>
+      <Container className="py-(--section-pad) md:py-12">
+        <article
+          aria-labelledby="gentle-vox"
+          className="rounded-xl border border-border bg-background p-6 text-foreground md:p-8 short:p-6"
+        >
+          <GentleVoxFlow
+            product={
+              <div className="flex flex-col gap-1">
+                {/* 아래 YORIEN 카드 이름과 같은 글씨 규격(type-title) */}
+                <h3 id="gentle-vox" className="m-0 type-title">
+                  Gentle Vox
+                </h3>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                  <p className="m-0 type-label text-muted-foreground">스마트 오디오 토이</p>
+                  <Badge>2027 하반기 출시 예정</Badge>
+                </div>
+              </div>
+            }
+          />
+        </article>
+      </Container>
+    </section>
+  );
+}
+
+/**
+ * 타사 제품 독점영업권: 가로 전체 이미지 위에 반투명 카피 박스를 좌·우 번갈아 둡니다.
+ * 넓은 화면에서는 섹션 제목 띠와 첫 브랜드 사진이 한 화면(헤더 아래 높이)에 함께 보입니다.
+ */
+function BrandsSection({ brands, category }: { brands: Brand[]; category: BusinessCategory }) {
+  return (
+    <section
+      aria-label="타사 제품 독점영업권"
+      className="md:flex md:min-h-[calc(100svh-var(--header-height))] md:flex-col"
+    >
+      <div className="bg-secondary">
+        <Container className="py-(--section-pad) md:py-8">
+          <SectionHeader title="타사 제품 독점영업권" />
+        </Container>
+      </div>
+
+      <ul className="m-0 flex list-none flex-col p-0 md:flex-1">
+        {brands.map((brand, i) => {
+          const right = i % 2 === 1;
+          const headingId = `brand-${category.toLowerCase()}-${i}`;
+          return (
+            <li key={brand.name} className="md:flex md:flex-1 md:flex-col">
+              {/* 휴대폰: 사진 위, 카피 상자 아래 / 넓은 화면: 사진을 배경으로 깔고 빈 쪽에 카피 상자 */}
+              <article
+                aria-labelledby={headingId}
+                className="relative isolate flex flex-col overflow-hidden bg-night md:min-h-96 md:flex-1 md:flex-row"
+              >
+                {brand.background && (
+                  <div className="relative aspect-square w-full overflow-hidden [--tx:0.5] [--ty:0.5] [container-type:size] md:absolute md:inset-0 md:-z-10 md:aspect-auto md:[--tx:0.7]">
+                    <Image
+                      src={brand.background.src}
+                      alt={brand.background.alt}
+                      width={brand.background.width}
+                      height={brand.background.height}
+                      sizes="(max-width: 767px) 160vw, 120vw"
+                      className="absolute max-w-none"
+                      style={focusCover(brand.background.width / brand.background.height, brand.background.focus)}
+                    />
+                  </div>
+                )}
+                <Container
+                  className={cn(
+                    "relative flex items-end py-8 md:items-center md:py-16",
+                    right ? "md:justify-end" : "md:justify-start",
+                  )}
+                >
+                  <div className="flex w-full max-w-md flex-col gap-4 rounded-xl border border-night-foreground/15 bg-night/70 p-6 text-night-foreground backdrop-blur-md md:p-8">
+                    <div className="flex flex-col gap-1">
+                      <h3 id={headingId} className="m-0 type-title">
+                        {brand.name}
+                      </h3>
+                      <p className="m-0 type-label text-mint-line">{brand.category}</p>
+                    </div>
+                    <p className="m-0 type-title text-balance">
+                      <KeepTogether text={brand.tagline} />
+                    </p>
+                    <p className="m-0 type-body text-mint-line">
+                      <KeepTogether text={brand.description} />
+                    </p>
+                    {brand.status && (
+                      <Badge size="lg" variant="inverse" className="self-start">
+                        {brand.status}
+                      </Badge>
+                    )}
+                  </div>
+                </Container>
+              </article>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+/** 아직 소개할 제품이 없는 카테고리 */
+function EmptyCategory({ category }: { category: BusinessCategory }) {
+  return (
+    <Container className="pb-(--section-pad) md:pb-12">
+      <div className="flex flex-col items-center gap-2 rounded-xl bg-muted px-6 py-16 text-center">
+        <p className="m-0 type-title">{category} 제품을 준비하고 있습니다</p>
+      </div>
+    </Container>
+  );
+}
+
+function CategoryPanel({ category }: { category: BusinessCategory }) {
+  const hasIp = category === GENTLE_VOX_CATEGORY;
+  const brands = BRANDS.filter((brand) => brand.kCategory === category);
+  if (!hasIp && brands.length === 0) return <EmptyCategory category={category} />;
+  return (
+    <>
+      {hasIp && <IpSection />}
+      {brands.length > 0 && <BrandsSection brands={brands} category={category} />}
+    </>
+  );
+}
+
 export default function BusinessPage() {
+  const panels = Object.fromEntries(
+    BUSINESS_CATEGORIES.map((category) => [category, <CategoryPanel key={category} category={category} />]),
+  ) as Record<BusinessCategory, ReactNode>;
   return (
     <>
       <PageHeader title="Business" />
-
-      {/* 자사 IP: 넓은 화면에서는 섹션 제목과 Gentle Vox 카드가 한 화면(헤더 아래 높이)에 들어오게 합니다 */}
-      <section
-        id="ip-contents"
-        aria-label="자사 IP"
-        className="md:flex md:min-h-[calc(100svh-var(--header-height))] md:flex-col md:justify-center"
-      >
-        <Container className="flex flex-col gap-6 py-(--section-pad) md:py-8 short:gap-4 short:py-4">
-          <SectionHeader title="K-GANADA IP Contents" description="자사 IP" />
-
-          {/* 제품 외형은 비공개 — 사진 없이 카피와 작동 흐름으로 소개합니다 */}
-          <article
-            aria-labelledby="gentle-vox"
-            className="rounded-xl border border-border bg-background p-6 text-foreground md:p-8 short:p-6"
-          >
-            <GentleVoxFlow
-              product={
-                <div className="flex flex-col gap-1">
-                  {/* 아래 YORIEN 카드 이름과 같은 글씨 규격(type-title) */}
-                  <h3 id="gentle-vox" className="m-0 type-title">
-                    Gentle Vox
-                  </h3>
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                    <p className="m-0 type-label text-muted-foreground">스마트 오디오 토이</p>
-                    <Badge>2027 하반기 출시 예정</Badge>
-                  </div>
-                </div>
-              }
-            />
-          </article>
-        </Container>
-      </section>
-
-      {/* 독점 판권 브랜드: 가로 전체 이미지 위에 반투명 카피 박스를 좌·우 번갈아 둡니다.
-          넓은 화면에서는 섹션 제목 띠와 첫 브랜드 사진이 한 화면(헤더 아래 높이)에 함께 보입니다. */}
-      <section
-        id="brands"
-        aria-label="독점 판권 브랜드"
-        className="md:flex md:min-h-[calc(100svh-var(--header-height))] md:flex-col"
-      >
-        <div className="bg-secondary">
-          <Container className="py-(--section-pad) md:py-8">
-            <SectionHeader
-              title="K-BRAND Reseller"
-              description="독점 판권 브랜드 — 한국 브랜드의 미국 독점 영업권"
-            />
-          </Container>
-        </div>
-
-        <ul className="m-0 flex list-none flex-col p-0 md:flex-1">
-          {BRANDS.map((brand, i) => {
-            const right = i % 2 === 1;
-            return (
-              <li key={brand.name} className="md:flex md:flex-1 md:flex-col">
-                {/* 휴대폰: 사진 위, 카피 상자 아래 / 넓은 화면: 사진을 배경으로 깔고 빈 쪽에 카피 상자 */}
-                <article
-                  aria-labelledby={`brand-${i}`}
-                  className="relative isolate flex flex-col overflow-hidden bg-night md:min-h-96 md:flex-1 md:flex-row"
-                >
-                  {brand.background && (
-                    <div className="relative aspect-square w-full overflow-hidden [--tx:0.5] [--ty:0.5] [container-type:size] md:absolute md:inset-0 md:-z-10 md:aspect-auto md:[--tx:0.7]">
-                      <Image
-                        src={brand.background.src}
-                        alt={brand.background.alt}
-                        width={brand.background.width}
-                        height={brand.background.height}
-                        sizes="(max-width: 767px) 160vw, 120vw"
-                        className="absolute max-w-none"
-                        style={focusCover(brand.background.width / brand.background.height, brand.background.focus)}
-                      />
-                    </div>
-                  )}
-                  <Container
-                    className={cn(
-                      "relative flex items-end py-8 md:items-center md:py-16",
-                      right ? "md:justify-end" : "md:justify-start",
-                    )}
-                  >
-                    <div className="flex w-full max-w-md flex-col gap-4 rounded-xl border border-night-foreground/15 bg-night/70 p-6 text-night-foreground backdrop-blur-md md:p-8">
-                      <div className="flex flex-col gap-1">
-                        <h3
-                          id={`brand-${i}`}
-                          className="m-0 type-title"
-                        >
-                          {brand.name}
-                        </h3>
-                        <p className="m-0 type-label text-mint-line">{brand.category}</p>
-                      </div>
-                      <p className="m-0 type-title text-balance">
-                        <KeepTogether text={brand.tagline} />
-                      </p>
-                      <p className="m-0 type-body text-mint-line">
-                        <KeepTogether text={brand.description} />
-                      </p>
-                      {brand.status && (
-                        <Badge size="lg" variant="inverse" className="self-start">
-                          {brand.status}
-                        </Badge>
-                      )}
-                    </div>
-                  </Container>
-                </article>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+      <BusinessCategories panels={panels} />
     </>
   );
 }
