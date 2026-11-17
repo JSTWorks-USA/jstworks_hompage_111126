@@ -68,7 +68,8 @@ export function ArticleModal({
       aria-label={title}
       tabIndex={-1}
       onKeyDown={onKeyDown}
-      onClick={close}
+      // 어두운 바탕을 직접 눌렀을 때만 닫습니다. 안쪽 버튼의 클릭이 여기까지 올라와 한 번 더 닫히지 않게 합니다.
+      onClick={(event) => event.target === event.currentTarget && close()}
       className="fixed inset-0 z-50 flex justify-center overflow-y-auto overscroll-contain bg-foreground/40 px-0 pt-16 backdrop-blur-[0.125rem] outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset md:p-10 md:pt-20"
     >
       {/* 글 칸 바깥(왼쪽 위·오른쪽 위)에 두는 이전·닫기 버튼 */}

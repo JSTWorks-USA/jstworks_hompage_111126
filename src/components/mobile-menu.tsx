@@ -25,6 +25,22 @@ export function MobileMenu({ onDark = false, className }: { onDark?: boolean; cl
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
+  // 페이지가 바뀌면(안드로이드 뒤로 가기 등) 메뉴를 닫습니다.
+  const [shownPath, setShownPath] = useState(pathname);
+  if (shownPath !== pathname) {
+    setShownPath(pathname);
+    setOpen(false);
+  }
+
+  // 화면이 넓어지면(태블릿을 가로로 돌리는 등) 메뉴가 사라지므로 닫아서 스크롤 잠금을 풉니다.
+  useEffect(() => {
+    if (!open) return;
+    const wide = window.matchMedia("(min-width: 768px)");
+    const onChange = () => wide.matches && setOpen(false);
+    wide.addEventListener("change", onChange);
+    return () => wide.removeEventListener("change", onChange);
+  }, [open]);
+
   // 열려 있는 동안 뒤 페이지 스크롤을 막고, 처음 메뉴 항목에 초점을 둡니다.
   useEffect(() => {
     if (!open) return;

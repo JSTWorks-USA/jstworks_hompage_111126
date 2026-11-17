@@ -4,7 +4,6 @@
 
 export { ArrowLeftIcon } from "./arrow-left";
 export { ArrowUpRightIcon } from "./arrow-up-right";
-export { MapPinIcon } from "./map-pin";
 export { CameraIcon } from "./camera";
 export { MailIcon } from "./mail";
 export { MenuIcon } from "./menu";

@@ -187,9 +187,13 @@ export function InquiryForm() {
       className="flex flex-col gap-6"
     >
       <fieldset className="m-0 flex flex-col gap-3 border-0 p-0">
-        <legend className="mb-3 p-0 text-sm font-medium">문의 유형</legend>
+        <legend id="inquiry-kind-label" className="mb-3 p-0 text-sm font-medium">
+          문의 유형
+        </legend>
         <RadioGroup
           name="kind"
+          aria-labelledby="inquiry-kind-label"
+          aria-required="true"
           value={kind}
           onValueChange={(value) => {
             setKind(value);

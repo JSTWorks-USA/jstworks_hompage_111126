@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { HeroNightSky } from "@/components/home/hero-night-sky";
 import { HistoryRoots } from "@/components/home/history-roots";
@@ -12,6 +13,13 @@ import {
 import { SectionHeader } from "@/components/ui/section-header";
 import { Container, Placeholder } from "@/components/site-ui";
 import { IP_ITEMS, type IpStatus } from "@/content/site";
+import { PAGE_SEO } from "@/lib/seo";
+
+// 첫 화면: 제목은 레이아웃의 기본 제목(사이트 이름 + 한 줄 소개)을 그대로 씁니다.
+export const metadata: Metadata = {
+  description: PAGE_SEO.about.description,
+  alternates: { canonical: "/" },
+};
 
 const ipBadgeVariant: Record<IpStatus, "primary" | "outline" | "default"> = {
   registered: "primary",
@@ -50,7 +58,6 @@ export default function AboutPage() {
                       </div>
                     ) : (
                       <Placeholder
-                        icon="camera"
                         caption={ip.document}
                         className="aspect-[210/297] bg-background shadow-sm"
                       />
@@ -69,7 +76,7 @@ export default function AboutPage() {
                       </CardDescription>
                     </div>
                   </CardHeader>
-                  {ip.note && (
+                  {ip.note?.some(Boolean) && (
                     <CardContent className="p-3 pt-0 md:p-4 md:pt-0">
                       <p className="m-0 text-xs leading-relaxed text-muted-foreground tabular-nums">
                         {ip.note.map((line) => (

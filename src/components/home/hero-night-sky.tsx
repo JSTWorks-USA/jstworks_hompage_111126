@@ -229,7 +229,7 @@ export function HeroNightSky() {
         src="/images/hero/joshua-tree-night-silhouette.jpg"
         alt="은하수가 보이는 밤하늘 아래 조슈아 트리 실루엣"
         fill
-        priority
+        preload
         sizes="100vw"
         className="hero-drift object-cover object-bottom"
       />

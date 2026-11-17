@@ -1,5 +1,5 @@
 import { Fragment, type ReactNode } from "react";
-import { CameraIcon, MapPinIcon } from "@/components/icons";
+import { CameraIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
 /** 75rem(1200px) 콘텐츠 폭 + 화면 크기별 좌우 여백(--page-inset: 15 / 20 / 32px) */
@@ -48,22 +48,15 @@ export function PageHeader({
   );
 }
 
-const placeholderIcons = {
-  camera: CameraIcon,
-  pin: MapPinIcon,
-};
 
 /** 사진·지도가 들어갈 자리 표시 */
 export function Placeholder({
-  icon,
   caption,
   className,
 }: {
-  icon: keyof typeof placeholderIcons;
   caption: string;
   className?: string;
 }) {
-  const Icon = placeholderIcons[icon];
   return (
     <figure
       className={cn(
@@ -71,7 +64,7 @@ export function Placeholder({
         className,
       )}
     >
-      <Icon aria-hidden="true" className="size-7" />
+      <CameraIcon aria-hidden="true" className="size-7" />
       <figcaption>{caption}</figcaption>
     </figure>
   );

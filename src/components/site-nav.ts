@@ -5,5 +5,3 @@ export const NAV_ITEMS = [
   { href: "/media", label: "Media" },
   { href: "/contact", label: "Contact" },
 ] as const;
-
-export type NavHref = (typeof NAV_ITEMS)[number]["href"];

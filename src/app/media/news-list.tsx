@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useState, useSyncExternalStore, type MouseEvent, type ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { NewsItem, NewsKind } from "@/content/site";
@@ -17,6 +16,18 @@ const FILTERS: Filter[] = ["전체", "보도", "소식"];
 const PAGE_SIZE = 10;
 
 export type FeedItem = NewsItem & { preview: string };
+
+/** 주소(?type=)를 바꾼 뒤 화면에 알리는 이벤트 (replaceState 는 popstate 를 내지 않습니다) */
+const FILTER_CHANGE = "media-filter-change";
+
+function subscribeFilter(onChange: () => void) {
+  window.addEventListener("popstate", onChange);
+  window.addEventListener(FILTER_CHANGE, onChange);
+  return () => {
+    window.removeEventListener("popstate", onChange);
+    window.removeEventListener(FILTER_CHANGE, onChange);
+  };
+}
 
 const isFilter = (value: string | null): value is Filter =>
   value !== null && (FILTERS as string[]).includes(value);
@@ -73,11 +84,16 @@ function FeedCard({ item, onOpen }: { item: FeedItem; onOpen: (event: MouseEvent
  * 고른 탭은 주소(?type=보도)에 남아, 새로 고침하거나 링크를 공유해도 같은 탭이 열립니다.
  */
 export function NewsList({ items, articles }: { items: FeedItem[]; articles: Record<string, ReactNode> }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const typeParam = searchParams.get("type");
-  const filter: Filter = isFilter(typeParam) ? typeParam : "전체";
+  // 서버와 첫 화면은 "전체" 목록을 그려 두고(검색엔진·첫 화면에 글이 바로 보이도록), 주소에 탭이 있으면 바로 그 탭으로 바뀝니다.
+  // 탭은 주소만 바꾸고(replaceState) 서버에 다시 요청하지 않습니다.
+  const filter = useSyncExternalStore(
+    subscribeFilter,
+    (): Filter => {
+      const typeParam = new URLSearchParams(window.location.search).get("type");
+      return isFilter(typeParam) ? typeParam : "전체";
+    },
+    (): Filter => "전체",
+  );
   // 탭을 바꾸면 보여 주는 글 수를 처음(10개)으로 되돌립니다(탭별로 따로 기억).
   const [shown, setShown] = useState<Record<Filter, number>>({ 전체: PAGE_SIZE, 보도: PAGE_SIZE, 소식: PAGE_SIZE });
 
@@ -109,6 +125,7 @@ export function NewsList({ items, articles }: { items: FeedItem[]; articles: Rec
     if (window.history.state?.mediaModal) window.history.back();
     else {
       window.history.replaceState(null, "", "/media");
+      window.dispatchEvent(new Event(FILTER_CHANGE));
       setOpenSlug(null);
     }
   };
@@ -118,7 +135,11 @@ export function NewsList({ items, articles }: { items: FeedItem[]; articles: Rec
 
   const selectFilter = (next: Filter) => {
     setShown((current) => ({ ...current, [next]: PAGE_SIZE }));
-    router.replace(next === "전체" ? pathname : `${pathname}?type=${encodeURIComponent(next)}`, { scroll: false });
+    const url = new URL(window.location.href);
+    if (next === "전체") url.searchParams.delete("type");
+    else url.searchParams.set("type", next);
+    window.history.replaceState(window.history.state, "", url);
+    window.dispatchEvent(new Event(FILTER_CHANGE));
   };
 
   return (

@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import { pageMetadata } from "@/lib/seo";
 import { Container, PageHeader } from "@/components/site-ui";
 import { NEWS } from "@/content/site";
 import { articlePreview } from "./article-body";
 import { ArticleContent } from "./article-content";
 import { NewsList, type FeedItem } from "./news-list";
 
-export const metadata: Metadata = { title: "Media" };
+export const metadata: Metadata = pageMetadata("media", "/media");
 
 /** 카드에 보일 본문 앞부분: 서버에서 마크다운을 읽어 만들고, 빌드 때 한 번만 계산해 둡니다. */
 async function getFeedItems(): Promise<FeedItem[]> {
@@ -25,10 +25,7 @@ export default async function MediaPage() {
       <PageHeader title="Media" />
       <section aria-label="뉴스 목록" className="bg-neutral-cool">
         <Container className="py-(--section-pad)">
-          {/* 탭 상태를 주소(?type=)에서 읽으므로 Suspense 로 감쌉니다 */}
-          <Suspense>
-            <NewsList items={items} articles={articles} />
-          </Suspense>
+          <NewsList items={items} articles={articles} />
         </Container>
       </section>
     </>

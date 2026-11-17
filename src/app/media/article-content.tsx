@@ -56,7 +56,7 @@ export function ArticleContent({
         (item.cover.logo ? (
           <NewsCover
             item={item}
-            priority
+            eager
             sizes="(min-width: 800px) 720px, 100vw"
             className="w-full rounded-lg"
             style={{ aspectRatio: `${item.cover.width} / ${item.cover.height}` }}
@@ -67,7 +67,7 @@ export function ArticleContent({
             alt={item.cover.alt}
             width={item.cover.width}
             height={item.cover.height}
-            priority
+            loading="eager"
             sizes={`(min-width: 800px) ${Math.min(item.cover.width, 720)}px, 100vw`}
             className="block h-auto max-w-full rounded-lg"
           />

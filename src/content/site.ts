@@ -57,15 +57,15 @@ export const HISTORY: HistoryItem[] = [
   { date: "2026.10.21", text: "삼익제약 요리엔정수기", sub: "초도 물량 미국 선적", lane: "partner" },
 ];
 
-/** 연혁 장면 맨 위(가지 끝)에 보여 줄 비전. branches 는 나무 왼쪽부터 붙는 이름표입니다(왼쪽 셋, 오른쪽 셋) */
+/** 연혁 장면 맨 위(가지 끝)에 보여 줄 비전. branches 는 가지 이름표입니다(순서는 장면의 BRANCH_LABELS 와 같음, K-Food 는 아직 없음) */
 export const VISION = {
   /** 비전 위에 작게 붙는 설명 */
   lead: "검증된 한국브랜드의 독점영업권 및 자사 IP를 결합한",
   title: "미국향 커머스 플랫폼",
-  branches: ["K-Beauty", "K-Charm", "K-Play", "K-Apparel", "K-Living", "K-Food"] as BusinessCategory[],
+  branches: ["K-Beauty", "K-Charm", "K-Play", "K-Apparel", "K-Living"] as BusinessCategory[],
 };
 
-/** 연혁 2안: 가지 이름표에 마우스를 올리면 뜨는 말풍선 (진행 중인 프로젝트 소개) */
+/** 연혁: 가지 이름표에 마우스를 올리면(휴대폰은 누르면) 뜨는 말풍선 (진행 중인 프로젝트 소개) */
 export type VisionDetail = {
   title: string;
   body: string;
@@ -80,7 +80,7 @@ export type VisionDetail = {
 export const VISION_DETAILS: Partial<Record<BusinessCategory, VisionDetail>> = {
   "K-Play": {
     title: "젠틀복스 Gentle Vox",
-    body: "앱에 남긴 가족의 목소리를 큐브 스피커로 전해 주는 스마트 오디오 토이입니다.",
+    body: "가족이 앱에 남긴 목소리를 큐브 스피커로 들려주는 스마트 오디오 토이입니다.",
   },
   "K-Living": {
     title: "삼익제약 요리엔 정수기",
@@ -320,7 +320,7 @@ export const PEOPLE: Person[] = [
 /* ──────────────────────────── 비즈니스 카테고리 ──────────────────────────── */
 
 /** Business 페이지 위쪽 카테고리 카드 순서. 카드를 누르면 그 카테고리의 자사 IP·타사 제품이 아래에 보입니다 */
-export const BUSINESS_CATEGORIES = ["K-Play", "K-Beauty", "K-Living", "K-Apparel", "K-Charm", "K-Food"] as const;
+export const BUSINESS_CATEGORIES = ["K-Play", "K-Living", "K-Beauty", "K-Apparel", "K-Charm", "K-Food"] as const;
 export type BusinessCategory = (typeof BUSINESS_CATEGORIES)[number];
 
 /* ──────────────────────────── 독점 판권 브랜드 ──────────────────────────── */

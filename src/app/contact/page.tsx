@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { MailIcon } from "@/components/icons";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -6,7 +7,7 @@ import { Container, PageHeader } from "@/components/site-ui";
 import { OFFICE_LOCATIONS } from "@/content/site";
 import { InquiryForm } from "./inquiry-form";
 
-export const metadata: Metadata = { title: "Contact" };
+export const metadata: Metadata = pageMetadata("contact", "/contact");
 
 export default function ContactPage() {
   return (

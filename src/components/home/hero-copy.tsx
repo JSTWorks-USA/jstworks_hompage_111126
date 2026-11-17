@@ -11,7 +11,7 @@ export function HeroCopy() {
         alt="Joshua Tree WORKS"
         width={649}
         height={58}
-        priority
+        loading="eager"
         sizes="300px"
         className="block h-auto w-75 max-w-full"
       />

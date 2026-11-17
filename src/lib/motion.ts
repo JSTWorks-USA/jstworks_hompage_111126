@@ -9,12 +9,6 @@ export const springInteraction: Transition = {
   damping: 35,
 }
 
-export const springStateChange: Transition = {
-  type: "spring",
-  stiffness: 400,
-  damping: 30,
-}
-
 export function useDataState(ref: RefObject<HTMLElement | null>): string | null {
   const [state, setState] = useState<string | null>(null)
 

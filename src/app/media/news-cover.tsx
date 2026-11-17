@@ -1,6 +1,5 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
-import { Placeholder } from "@/components/site-ui";
 import type { NewsItem } from "@/content/site";
 import { cn } from "@/lib/utils";
 
@@ -8,19 +7,19 @@ import { cn } from "@/lib/utils";
 export function NewsCover({
   item,
   sizes,
-  priority,
+  eager,
   className,
   style,
 }: {
   item: NewsItem;
   sizes: string;
-  priority?: boolean;
+  /** 첫 화면에 바로 보이는 사진이면 true (지연 로딩하지 않음) */
+  eager?: boolean;
   className?: string;
   style?: CSSProperties;
 }) {
-  if (!item.cover) {
-    return <Placeholder icon="camera" caption="대표 이미지 자리" className={className} />;
-  }
+  // 부르는 쪽이 대표 사진이 있을 때만 그립니다.
+  if (!item.cover) return null;
   // 문서처럼 잘리면 안 되는 이미지는 옅은 바탕 가운데에 여백을 두고 통째로 보여 줍니다.
   const contain = item.cover.fit === "contain";
   return (
@@ -31,7 +30,7 @@ export function NewsCover({
         alt={item.cover.alt}
         fill
         sizes={sizes}
-        priority={priority}
+        loading={eager ? "eager" : undefined}
         className={cn(
           contain ? "object-contain p-[6%]" : "object-cover",
           item.cover.focus === "right" && "object-right",

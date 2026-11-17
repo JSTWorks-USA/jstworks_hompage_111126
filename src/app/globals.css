@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-/* 라이트 테마 전용 브랜드입니다. dark: 변형은 .dark 클래스가 있을 때만 적용되며, 사이트에서는 쓰지 않습니다. */
-@custom-variant dark (&:is(.dark *));
 /* 키가 낮은 넓은 화면(노트북 등): 한 화면에 섹션이 들어오도록 여백을 줄일 때 씁니다 */
 @custom-variant short (@media (min-width: 768px) and (max-height: 820px));
 /* 휴대폰 가로처럼 아주 키가 낮은 넓은 화면: 연혁 비전 카드를 작게 줄여 왼쪽 아래에 둡니다 */
@@ -19,41 +17,6 @@
 }
 
 /*
- * Gmarket Sans — Medium (전체 + 라틴 서브셋), Bold (라틴 서브셋)
- * 디자인 시스템 키트가 넣은 외부 폰트 @import(fonts.bunny.net)는 Gmarket Sans를 제공하지 않아 빼고,
- * 프로젝트의 로컬 폰트 파일을 그대로 씁니다.
- */
-@font-face {
-  font-family: "Gmarket Sans";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("/fonts/GmarketSans-Medium-KR.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Gmarket Sans";
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url("/fonts/GmarketSans-Medium-Latin.woff2") format("woff2");
-  unicode-range: U+0020-005E, U+0061-007E, U+00A9-00AA, U+00AD, U+00B2-00B3,
-    U+00B7, U+00B9-00BE, U+013F-0140, U+2013, U+2074, U+2081-2084, U+2116,
-    U+2153-2154, U+215B-215E, U+2192, U+223C, U+300C-300D, U+301C, U+FF01-FF3E,
-    U+FF41-FF5E;
-}
-@font-face {
-  font-family: "Gmarket Sans";
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url("/fonts/GmarketSans-Bold-Latin.woff2") format("woff2");
-  unicode-range: U+0020-005E, U+0061-007E, U+00A9-00AA, U+00AD, U+00B2-00B3,
-    U+00B7, U+00B9-00BE, U+013F-0140, U+2013, U+2074, U+2081-2084, U+2116,
-    U+2153-2154, U+215B-215E, U+2192, U+223C, U+300C-300D, U+301C, U+FF01-FF3E,
-    U+FF41-FF5E;
-}
-
-/*
  * Better Design 커스텀 시스템 "bright-eye" 토큰 (JSTWorks 브랜드 기반)
  * https://better-design.com/projects/1d571de3-1e8e-4d21-90c8-3c56a03dee3c
  */
@@ -64,8 +27,6 @@
    */
   --green: #00441d; /* Main Color */
   --green-accent: #00754a; /* 2nd Color */
-  --house-green: #1e3932;
-  --green-uplift: #2b5148;
   --green-light: #d4e9e2;
   --white: #ffffff;
   --neutral-cool: #f9f9f9;
@@ -74,17 +35,13 @@
   --black: #000000;
   --text-black: rgba(0, 0, 0, 0.87);
   --text-black-soft: rgba(0, 0, 0, 0.58);
-  --rewards-green: #33433d;
   --red: #c82014;
-  --yellow: #fbbc05;
 
   /* 화면 역할별 색: 위 색상표에서만 고릅니다 */
   --background: var(--white);
   --foreground: var(--text-black);
   --card: var(--white);
   --card-foreground: var(--text-black);
-  --popover: var(--white);
-  --popover-foreground: var(--text-black);
   --primary: var(--green);
   --primary-foreground: var(--white);
   --secondary: var(--green-light);
@@ -101,7 +58,6 @@
   --ring: var(--green-accent);
   --radius: 1rem;
 
-  --shadow-2xs: 0 0.0625rem 0.125rem 0 rgba(0, 0, 0, 0.03);
   --shadow-xs: 0 0.0625rem 0.125rem 0 rgba(0, 0, 0, 0.05);
   --shadow-sm: 0 0.0625rem 0.1875rem 0 rgba(0, 0, 0, 0.06),
     0 0.0625rem 0.125rem -0.0625rem rgba(0, 0, 0, 0.04);
@@ -119,7 +75,8 @@
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --ease-in: cubic-bezier(0.895, 0.03, 0.685, 0.22);
 
-  --font-sans: "Gmarket Sans", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  /* 영문·숫자는 Inter, 한글은 Nanum Gothic (app/fonts.ts) */
+  --font-sans: var(--font-inter), var(--font-nanum-gothic), "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
 
   /* 브랜드 보조 색 */
   --brand: var(--green);
@@ -163,7 +120,7 @@
  * --section-pad: 섹션 위아래 여백 48 / 64 / 96px (PC 96px 를 기준으로 단계별로 줄임)
  */
 :root {
-  --page-inset: 15px;
+  --page-inset: 0.9375rem;
   --section-pad: 3rem;
 }
 @media (max-width: 767px) {
@@ -176,13 +133,13 @@
 }
 @media (min-width: 768px) {
   :root {
-    --page-inset: 20px;
+    --page-inset: 1.25rem;
     --section-pad: 4rem;
   }
 }
 @media (min-width: 992px) {
   :root {
-    --page-inset: 32px;
+    --page-inset: 2rem;
     --section-pad: 6rem;
   }
 }
@@ -198,8 +155,6 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
@@ -216,14 +171,10 @@
 
   --color-green: var(--green);
   --color-green-accent: var(--green-accent);
-  --color-house-green: var(--house-green);
-  --color-green-uplift: var(--green-uplift);
   --color-green-light: var(--green-light);
   --color-neutral-cool: var(--neutral-cool);
   --color-neutral-warm: var(--neutral-warm);
   --color-ceramic: var(--ceramic);
-  --color-rewards-green: var(--rewards-green);
-  --color-warning: var(--yellow);
 
   --color-brand: var(--brand);
   --color-mint-line: var(--mint-line);
@@ -244,7 +195,6 @@
   --radius-xl: calc(var(--radius) + 0.25rem);
   --radius-2xl: calc(var(--radius) + 0.5rem);
 
-  --shadow-2xs: var(--shadow-2xs);
   --shadow-xs: var(--shadow-xs);
   --shadow-sm: var(--shadow-sm);
   --shadow: var(--shadow);
@@ -271,7 +221,7 @@
 
   html {
     font-family: var(--font-sans);
-    /* Gmarket Sans 한글은 500 한 굵기뿐이라 가짜 굵기를 만들지 않습니다. */
+    /* 한글은 Nanum Gothic 400·700·800, 영문은 Inter 가변 굵기를 쓰므로 가짜 굵기를 만들지 않습니다. */
     font-synthesis-weight: none;
     text-underline-position: from-font;
     text-decoration-skip-ink: auto;
@@ -319,12 +269,6 @@
       overflow-y: auto;
     }
   }
-
-  @supports (scrollbar-gutter: stable) {
-    html body[data-scroll-locked] {
-      margin-right: 0 !important;
-    }
-  }
 }
 
 /*
@@ -368,9 +312,9 @@
 }
 .border-beam {
   position: absolute;
-  inset: -1px;
+  inset: -0.0625rem;
   border-radius: inherit;
-  padding: 1.5px;
+  padding: 0.09375rem;
   pointer-events: none;
   background: conic-gradient(
     from var(--beam-angle),
@@ -385,9 +329,9 @@
     linear-gradient(#000 0 0);
 }
 .border-beam-glow {
-  inset: -4px;
-  padding: 5px;
-  filter: blur(8px);
+  inset: -0.25rem;
+  padding: 0.3125rem;
+  filter: blur(0.5rem);
   opacity: 0.85;
 }
 
@@ -402,7 +346,7 @@
   .border-beam {
     animation: beam-spin 4s linear infinite;
   }
-  /* 히어로 2안 밤하늘 사진: 아주 느린 카메라 줌 */
+  /* 히어로 밤하늘 사진: 아주 느린 카메라 줌 */
   .hero-drift {
     animation: hero-drift 28s var(--ease-in-out) infinite alternate;
   }

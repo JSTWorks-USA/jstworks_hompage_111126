@@ -4,7 +4,6 @@ import {
   AnimatePresence,
   motion,
   useMotionValueEvent,
-  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
@@ -23,7 +22,6 @@ import { TREE_PATH } from "@/components/logo";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Timeline } from "@/components/ui/timeline";
 import { Container, KeepTogether } from "@/components/site-ui";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   HISTORY,
   HISTORY_LANES,
@@ -34,6 +32,7 @@ import {
 } from "@/content/site";
 import { BUBBLE_ID, HistoryBubble, type BubblePlacement } from "./history-bubble";
 import { cn } from "@/lib/utils";
+import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 
 /* ─────────────── 장면 좌표 (viewBox 0 0 600 2000) ─────────────── */
 
@@ -240,7 +239,6 @@ const BRANCH_LABELS = [
   { left: 36, top: 16.5 },
   { left: 64, top: 16.5 },
   { left: 68, top: 21.5 },
-  { left: 70, top: 26.8 },
 ];
 
 /* ─────────────── 별 ───────────────
@@ -483,39 +481,21 @@ type CatalogLayout = Partial<Record<BusinessCategory, CatalogSpot>>;
 
 /**
  * 카탈로그: 줌아웃이 끝났을 때 가지 이름표가 놓이는 자리 (장면 대비 %).
- * 보내 주신 시안 배치: 맨 위 가운데 K-Play, 왼쪽 위 K-Living · 왼쪽 아래 K-Beauty,
- * 오른쪽 위 K-Charm · 오른쪽 아래 K-Apparel.
- * 1안은 K-Food 까지 여섯 개라 K-Play 와 K-Food 를 맨 위에 나란히 두고, 2안(말풍선)에는 K-Food 가 없습니다.
- * 좁은 화면(휴대폰)은 넓은 화면과 같은 배치를 쓰되, 화면 밖으로 나가지 않게 좌우 간격만 가운데 쪽으로 좁힙니다.
+ * 맨 위 가운데 K-Play, 왼쪽 위 K-Living · 왼쪽 아래 K-Beauty, 오른쪽 위 K-Charm · 오른쪽 아래 K-Apparel.
+ * 좁은 화면(휴대폰)은 같은 배치를 쓰되, 화면 밖으로 나가지 않게 좌우 간격만 가운데 쪽으로 좁힙니다.
  */
-const CATALOG_SIDES_WIDE: CatalogLayout = {
+const CATALOG_WIDE: CatalogLayout = {
+  "K-Play": { left: 51, top: 10.1 },
   "K-Living": { left: 6.2, top: 15.4 },
   "K-Beauty": { left: -14.2, top: 22.5 },
   "K-Charm": { left: 93.7, top: 14.5 },
   "K-Apparel": { left: 110.4, top: 21.7 },
 };
-const CATALOG_WIDE: Record<Version, CatalogLayout> = {
-  // 1안: 처음 자리(왼쪽 Beauty·Charm·Play, 오른쪽 Apparel·Living·Food, K-Food 는 오른쪽 아래)
-  "1": {
-    "K-Beauty": { left: -15, top: 22.5 },
-    "K-Charm": { left: -11.7, top: 15 },
-    "K-Play": { left: 1.7, top: 7.5 },
-    "K-Apparel": { left: 98.3, top: 7.5 },
-    "K-Living": { left: 111.7, top: 15 },
-    "K-Food": { left: 115, top: 22.5 },
-  },
-  "2": { ...CATALOG_SIDES_WIDE, "K-Play": { left: 51, top: 10.1 } },
-};
-/** 휴대폰에서 좌우 간격을 줄이는 비율: 가장 바깥 이름표(-15% · 115%)가 화면 안(약 10% · 90%)에 들어옵니다 */
+/** 휴대폰에서 좌우 간격을 줄이는 비율: 가장 바깥 이름표(-14.2% · 110.4%)가 화면 안에 들어옵니다 */
 const NARROW_SPREAD = 0.62;
-const toNarrow = (layout: CatalogLayout): CatalogLayout =>
-  Object.fromEntries(
-    Object.entries(layout).map(([label, { left, top }]) => [label, { left: 50 + (left - 50) * NARROW_SPREAD, top }]),
-  );
-const CATALOG: Record<Version, { wide: CatalogLayout; narrow: CatalogLayout }> = {
-  "1": { wide: CATALOG_WIDE["1"], narrow: toNarrow(CATALOG_WIDE["1"]) },
-  "2": { wide: CATALOG_WIDE["2"], narrow: toNarrow(CATALOG_WIDE["2"]) },
-};
+const CATALOG_NARROW: CatalogLayout = Object.fromEntries(
+  Object.entries(CATALOG_WIDE).map(([label, { left, top }]) => [label, { left: 50 + (left - 50) * NARROW_SPREAD, top }]),
+);
 
 const NARROW_QUERY = "(max-width: 767px)";
 /** 휴대폰 가로처럼 아주 키가 낮은 넓은 화면 (globals.css 의 squat 과 같은 조건) */
@@ -534,14 +514,10 @@ function useNarrow() {
   );
 }
 
-/** 연혁 시안: 1안(지금 버전) / 2안(가지 이름표에 마우스를 올리면 말풍선) */
-type Version = "1" | "2";
-
-/** 2안에서 이름표를 눌렀을 때·마우스를 올렸을 때 할 일 */
+/** 이름표를 눌렀을 때·마우스를 올렸을 때 할 일 (말풍선) */
 type LabelEvents = {
-  /** 이름표가 말풍선을 열 수 있는 상태(2안, 카탈로그가 다 보임) */
+  /** 이름표가 말풍선을 열 수 있는 상태(카탈로그가 다 보임) */
   live: boolean;
-  version: Version;
   open: number | null;
   onOpen: (index: number, element: HTMLElement) => void;
   onClose: (index: number) => void;
@@ -556,10 +532,10 @@ type LabelEvents = {
  * 넓은 화면 이름표 좌우 간격 비율: 마지막 장면(줌아웃 끝)에서 가장 바깥 이름표가 화면 가장자리에서
  * 여백(24px) + 이름표 반 폭(약 70px) 안쪽에 오도록 합니다.
  */
-function wideSpread(version: Version, stageW: number, stageH: number) {
+function wideSpread(stageW: number, stageH: number) {
   // 장면 상자: 높이 = 무대 높이 × 285.714%, 폭 = 높이 × 600/2000, 마지막 배율 CAMERA_SCALE[5]
   const sceneW = stageH * 2.85714 * 0.3 * CAMERA_SCALE[5];
-  const reach = Math.max(...Object.values(CATALOG_WIDE[version]).map((spot) => Math.abs(spot.left - 50) / 100));
+  const reach = Math.max(...Object.values(CATALOG_WIDE).map((spot) => Math.abs(spot.left - 50) / 100));
   const room = stageW / 2 - 24 - 70;
   return Math.max(0.4, Math.min(1, room / (reach * sceneW)));
 }
@@ -567,8 +543,8 @@ function wideSpread(version: Version, stageW: number, stageH: number) {
 /**
  * 가지 이름표: 나무 전체가 보일 때 가지 위에 나타났다가, 줌아웃과 함께 카탈로그 자리로 퍼집니다.
  * 장면이 줄어들어도 글자 크기는 그대로 두려고 카메라 배율의 역수로 키웁니다.
- * 2안: 이름표가 버튼이 되어 마우스를 올리거나(휴대폰은 누르면) 말풍선이 뜹니다.
- *      내용이 없는 카테고리는 말풍선에 "준비중"을 보여 줍니다.
+ * 다 나타나면 이름표가 버튼이 되어 마우스를 올리거나(휴대폰은 누르면) 말풍선이 뜹니다.
+ * 내용이 없는 카테고리는 말풍선에 "준비중"을 보여 줍니다.
  */
 function BranchLabel({
   progress,
@@ -588,8 +564,7 @@ function BranchLabel({
   const start = TREE_FRAME - 0.03 + index * 0.012;
   const opacity = useTransform(progress, [start, start + 0.03], [0, 1]);
   // 처음 나타날 때부터 나무(로고) 바깥 카탈로그 자리에 둡니다. 가지 쪽에서 살짝 밀려 나오며 나타납니다.
-  // 이 시안에 자리가 없는 이름표(2안의 K-Food)는 그리지 않습니다.
-  const spot = CATALOG[events.version][narrow ? "narrow" : "wide"][label] ?? { left: 50, top: 10 };
+  const spot = (narrow ? CATALOG_NARROW : CATALOG_WIDE)[label] ?? { left: 50, top: 10 };
   const to = narrow ? spot : { left: 50 + (spot.left - 50) * events.spread, top: spot.top };
   const branch = BRANCH_LABELS[index];
   const near = (a: number, b: number) => a + (b - a) * 0.8;
@@ -602,36 +577,34 @@ function BranchLabel({
   const base =
     "absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-glow/40 bg-night/85 px-4 py-2 text-sm whitespace-nowrap text-night-foreground md:text-base";
 
-  if (!CATALOG[events.version][narrow ? "narrow" : "wide"][label]) return null;
-  // 2안: 모든 이름표가 말풍선을 엽니다. 내용이 없는 카테고리는 말풍선에 "준비중"이 보입니다.
-  if (events.version === "2" && events.live) {
-    const isOpen = events.open === index;
-    return (
-      <motion.button
-        type="button"
-        style={{ opacity, scale, left, top }}
-        aria-expanded={isOpen}
-        aria-controls={isOpen ? BUBBLE_ID : undefined}
-        onPointerEnter={(e) => e.pointerType === "mouse" && events.onOpen(index, e.currentTarget)}
-        onPointerLeave={(e) => e.pointerType === "mouse" && events.onClose(index)}
-        onFocus={(e) => events.onOpen(index, e.currentTarget)}
-        onBlur={() => events.onClose(index)}
-        onClick={(e) => events.onOpen(index, e.currentTarget)}
-        className={cn(
-          base,
-          "pointer-events-auto cursor-pointer transition-colors hover:border-glow hover:bg-primary focus-visible:ring-2 focus-visible:ring-glow focus-visible:outline-none",
-          isOpen && "border-glow bg-primary",
-        )}
-      >
-        {label}
-      </motion.button>
-    );
-  }
-
+  // 늘 같은 <button> 으로 두고, 이름표가 다 나타나기 전(live 아님)에는 장식처럼 키보드·클릭만 막습니다.
+  // 요소를 바꾸지 않으므로 이름표에 초점이 있는 채 위로 스크롤해도 초점이 빠지지 않습니다.
+  const live = events.live;
+  const isOpen = live && events.open === index;
   return (
-    <motion.span aria-hidden="true" style={{ opacity, scale, left, top }} className={base}>
+    <motion.button
+      type="button"
+      style={{ opacity, scale, left, top }}
+      tabIndex={live ? undefined : -1}
+      aria-hidden={live ? undefined : true}
+      aria-expanded={live ? isOpen : undefined}
+      aria-controls={isOpen ? BUBBLE_ID : undefined}
+      aria-describedby={isOpen ? BUBBLE_ID : undefined}
+      onPointerEnter={(e) => live && e.pointerType === "mouse" && events.onOpen(index, e.currentTarget)}
+      onPointerLeave={(e) => live && e.pointerType === "mouse" && events.onClose(index)}
+      onFocus={(e) => live && events.onOpen(index, e.currentTarget)}
+      onBlur={() => live && events.onClose(index)}
+      onClick={(e) => live && events.onOpen(index, e.currentTarget)}
+      className={cn(
+        base,
+        live
+          ? "pointer-events-auto cursor-pointer transition-colors hover:border-glow hover:bg-primary focus-visible:ring-2 focus-visible:ring-glow focus-visible:outline-none"
+          : "pointer-events-none",
+        isOpen && "border-glow bg-primary",
+      )}
+    >
       {label}
-    </motion.span>
+    </motion.button>
   );
 }
 
@@ -940,7 +913,7 @@ const STACK_SIZE = 4;
  * 차곡차곡 쌓였다가 흐려져 사라집니다. 비전 단계에서는 사라지고 아래 비전 카드가 나옵니다.
  */
 function MilestoneStack({ active, progress }: { active: number; progress: MotionValue<number> }) {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   // 모든 연혁 점이 뿌리 중심으로 모이는 때(GATHER)에 맞춰 쌓인 카드가 서서히 사라집니다. 위로 올리면 다시 나타납니다.
   const fade = useTransform(progress, GATHER, [1, 0]);
   const current = STEPS[active]?.kind === "milestone" ? active : -1;
@@ -986,7 +959,7 @@ function MilestoneStack({ active, progress }: { active: number; progress: Motion
 
 /** 연도별 묶음 */
 const BY_YEAR = MILESTONES.reduce<{ year: string; items: Milestone[] }[]>((groups, m) => {
-  const year = m.key.slice(0, 4);
+  const year = m.when.iso.split("-")[0];
   const last = groups.at(-1);
   if (last?.year === year) last.items.push(m);
   else groups.push({ year, items: [m] });
@@ -1009,7 +982,7 @@ function StaticHistory() {
                   className="max-w-[40rem]"
                   items={group.items.map((m) => ({
                     title: fullText(m),
-                    timestamp: `${Number(m.key.slice(5, 7))}월`,
+                    timestamp: `${Number(m.when.iso.split("-")[1])}월`,
                     description: LANE[m.lane].label,
                   }))}
                 />
@@ -1048,14 +1021,12 @@ const STORY_END = 6 / 7;
  * 모두 모이면 줄기를 타고 땅 위로 올라가 가지 끝에서 비전이 열립니다.
  */
 export function HistoryRoots() {
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const trackRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const narrow = useNarrow();
 
-  // 연혁 시안 비교: 1안(지금 버전) / 2안(가지 이름표 말풍선). 시안을 고르면 전환 버튼은 지웁니다.
-  const [version, setVersion] = useState<Version>("1");
   // 가지 이름표가 모두 카탈로그 자리에 나타난 뒤에만 말풍선을 열 수 있습니다.
   const [labelsLive, setLabelsLive] = useState(false);
   const [visionReady, setVisionReady] = useState(false);
@@ -1145,7 +1116,7 @@ export function HistoryRoots() {
    * 말풍선 자리: 가리킨 이름표를 기준으로, 연혁 화면 크기에 맞춰 그때그때 계산합니다.
    * 이름표 자리는 그대로 두고, 화면 왼쪽 이름표(K-Living·K-Beauty)는 말풍선을 왼쪽으로,
    * 오른쪽 이름표(K-Charm·K-Apparel)는 오른쪽으로 펼칩니다(꼬리는 이름표 쪽 끝).
-   * 화면 가운데 이름표(2안의 K-Play)는 말풍선도 이름표 바로 위 가운데에 띄웁니다(꼬리는 말풍선 가운데).
+   * 화면 가운데 이름표(K-Play)는 말풍선도 이름표 바로 위 가운데에 띄웁니다(꼬리는 말풍선 가운데).
    * 위쪽 공간이 모자라면 이름표 아래에 띄웁니다. 화면 밖으로 나가지 않게 가장자리에서 멈춥니다.
    * 휴대폰 세로는 늘 화면 아래에, 휴대폰 가로는 오른쪽 아래에 띄웁니다.
    */
@@ -1153,13 +1124,16 @@ export function HistoryRoots() {
     const stage = stageRef.current;
     const label = openLabel.current;
     if (!stage || !label) return;
+    // 스크롤 중에는 매 프레임 불리므로, 자리가 그대로면 다시 그리지 않습니다.
+    const update = (next: BubblePlacement) =>
+      setPlacement((current) => (current && JSON.stringify(current) === JSON.stringify(next) ? current : next));
     if (narrow) {
-      setPlacement({ mode: "bottom" });
+      update({ mode: "bottom" });
       return;
     }
     // 휴대폰 가로(키가 아주 낮은 넓은 화면): 오른쪽 아래에 고정합니다. 왼쪽 아래에는 비전 카드가 있습니다.
     if (window.matchMedia(SQUAT_QUERY).matches) {
-      setPlacement({ mode: "corner" });
+      update({ mode: "corner" });
       return;
     }
     const box = stage.getBoundingClientRect();
@@ -1180,29 +1154,43 @@ export function HistoryRoots() {
     const tagBottom = tag.bottom - box.top;
     // 말풍선 높이는 약 190px("준비중"은 약 120px). 이름표 위에 그만큼 자리가 없으면 아래에 띄웁니다.
     const above = tagTop - gap > (hasDetail ? 200 : 130);
-    setPlacement(
+    update(
       above
-        ? { mode: "float", left, width, bottom: box.height - (tagTop - gap), tailX }
-        : { mode: "float", left, width, top: tagBottom + gap, tailX },
+        ? { mode: "float", left: Math.round(left), width, bottom: Math.round(box.height - (tagTop - gap)), tailX: Math.round(tailX) }
+        : { mode: "float", left: Math.round(left), width, top: Math.round(tagBottom + gap), tailX: Math.round(tailX) },
     );
   }, [narrow]);
 
+  // 마우스가 이름표에서 말풍선으로 옮겨 가는 동안 닫히지 않도록 잠깐 기다렸다 닫습니다(말풍선 위에 있으면 열린 채).
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelClose = useCallback(() => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = null;
+  }, []);
   const openBubble = useCallback(
     (index: number, element: HTMLElement) => {
+      cancelClose();
       openLabel.current = element;
       openIndex.current = index;
       setOpen(index);
       place();
     },
-    [place],
+    [place, cancelClose],
   );
-  const closeBubble = useCallback((index: number) => {
-    setOpen((current) => (current === index ? null : current));
-  }, []);
+  const closeBubble = useCallback(
+    (index: number) => {
+      cancelClose();
+      closeTimer.current = setTimeout(() => setOpen((current) => (current === index ? null : current)), 150);
+    },
+    [cancelClose],
+  );
+  useEffect(() => cancelClose, [cancelClose]);
 
   useMotionValueEvent(smooth, "change", (p) => {
     const live = p > TREE_FRAME + 0.08;
     setLabelsLive((current) => (current === live ? current : live));
+    // 이름표가 다시 장식으로 돌아가면(위로 스크롤) 열려 있던 말풍선도 닫습니다.
+    if (!live) setOpen((current) => (current === null ? current : null));
     const ready = p > NARROW_VISION_SHOW;
     setVisionReady((current) => (current === ready ? current : ready));
     // 스크롤로 장면이 움직이면 말풍선도 이름표를 따라갑니다.
@@ -1215,7 +1203,9 @@ export function HistoryRoots() {
     const onResize = () => place();
     const onKey = (event: KeyboardEvent) => event.key === "Escape" && setOpen(null);
     const onDown = (event: PointerEvent) => {
-      if (event.target instanceof Node && openLabel.current?.contains(event.target)) return;
+      const target = event.target;
+      if (target instanceof Node && (openLabel.current?.contains(target) || document.getElementById(BUBBLE_ID)?.contains(target)))
+        return;
       setOpen(null);
     };
     window.addEventListener("resize", onResize);
@@ -1228,13 +1218,12 @@ export function HistoryRoots() {
     };
   }, [open, place]);
 
-  const bubbleOpen = version === "2" && labelsLive && open !== null;
+  const bubbleOpen = labelsLive && open !== null;
   const openCategory = open !== null ? VISION.branches[open] : null;
   const openDetail = openCategory ? VISION_DETAILS[openCategory] : undefined;
-  const spread = stageSize ? wideSpread(version, stageSize.w, stageSize.h) : 1;
+  const spread = stageSize ? wideSpread(stageSize.w, stageSize.h) : 1;
   const events: LabelEvents = {
     live: labelsLive,
-    version,
     open: bubbleOpen ? open : null,
     onOpen: openBubble,
     onClose: closeBubble,
@@ -1242,29 +1231,34 @@ export function HistoryRoots() {
   };
 
   return (
-    <section id="history" aria-labelledby="history-title" className="relative">
-      {/* 화면 낭독기용 전체 연혁 */}
-      <ol className="sr-only">
-        {MILESTONES.map((m) => (
-          <li key={m.key}>
-            {m.when.label} {LANE[m.lane].label}: {fullText(m)}
-          </li>
-        ))}
-        <li>
-          {VISION.lead} {VISION.title}: {VISION.branches.join(", ")}
-        </li>
-      </ol>
-
+    <section
+      id="history"
+      {...(reduceMotion ? { "aria-label": "연혁" } : { "aria-labelledby": "history-title" })}
+      className="relative"
+    >
       {reduceMotion ? (
-        <>
-          <h2 id="history-title" className="sr-only">
-            연혁
-          </h2>
-          <StaticHistory />
-        </>
+        // 움직임 줄이기: 같은 연혁을 정적인 목록으로 보여 줍니다(제목 History 는 목록 안에 있습니다).
+        <StaticHistory />
       ) : (
         // 800vh = 이야기 약 6화면 + 마지막 장면 붙잡기 약 1화면. 끝까지 본 뒤에는 한 화면 높이(완성된 장면)만 남깁니다.
         <div ref={trackRef} className={cn("relative bg-soil-deep", !done && "h-[800vh]")}>
+          {/* 화면 낭독기용 전체 연혁과 카테고리별 프로젝트 소개 (장면은 장식이라 읽지 않습니다) */}
+          <ol className="sr-only">
+            {MILESTONES.map((m) => (
+              <li key={m.key}>
+                {m.when.label} {LANE[m.lane].label}: {fullText(m)}
+              </li>
+            ))}
+            <li>
+              {VISION.lead} {VISION.title}:{" "}
+              {VISION.branches
+                .map((branch) => {
+                  const detail = VISION_DETAILS[branch];
+                  return detail ? `${branch} (${detail.title}: ${detail.body})` : `${branch} (준비중)`;
+                })
+                .join(", ")}
+            </li>
+          </ol>
           <div
             ref={stageRef}
             className="sticky top-0 h-svh overflow-hidden text-night-foreground md:top-18 md:h-[calc(100svh-4.5rem)]"
@@ -1281,28 +1275,11 @@ export function HistoryRoots() {
             </div>
 
             <Container className="pointer-events-none relative flex h-full flex-col justify-between py-8 md:py-12 squat:py-5">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex flex-col gap-1">
-                  <h2 id="history-title" className="m-0 text-2xl font-semibold tracking-tight">
-                    History
-                  </h2>
-                  <p className="m-0 text-sm text-mint-line">연혁</p>
-                </div>
-                <ToggleGroup
-                  type="single"
-                  value={version}
-                  // 이미 고른 쪽을 다시 눌러도 선택이 풀리지 않게 합니다.
-                  onValueChange={(value) => value && setVersion(value as Version)}
-                  aria-label="연혁 시안 선택"
-                  className="pointer-events-auto bg-background/90 text-foreground backdrop-blur-sm"
-                >
-                  <ToggleGroupItem value="1" className="min-h-9">
-                    1 · 현재
-                  </ToggleGroupItem>
-                  <ToggleGroupItem value="2" className="min-h-9">
-                    2 · 말풍선
-                  </ToggleGroupItem>
-                </ToggleGroup>
+              <div className="flex flex-col gap-1">
+                <h2 id="history-title" className="m-0 text-2xl font-semibold tracking-tight">
+                  History
+                </h2>
+                <p className="m-0 text-sm text-mint-line">연혁</p>
               </div>
 
               <div
@@ -1315,11 +1292,8 @@ export function HistoryRoots() {
                   // 연혁 카드: 넓은 화면은 점 옆(SpotCard), 세로 태블릿은 오른쪽 쌓임 카드(MilestoneStack)로 보여 줍니다
                   activeLane ? "border-2 spot:invisible stack:invisible" : "border border-glow/20",
                   // 휴대폰: 비전 카드는 History 제목과 K-Play 이름표 사이 가운데(빈 하늘)에 둡니다. 연혁 카드는 그대로 아래에 둡니다.
-                  // 장면은 화면 높이에 비례하므로(K-Play 위쪽 ≈ 화면 높이의 1안 47.65%, 2안 51.3%) 위 여백도 화면 높이로 정합니다.
-                  activeStep.kind === "vision" &&
-                    (version === "1"
-                      ? "max-md:mt-[max(1.5rem,calc(23.8svh-6.625rem))] max-md:mb-auto"
-                      : "max-md:mt-[max(1.5rem,calc(25.65svh-6.625rem))] max-md:mb-auto"),
+                  // 장면은 화면 높이에 비례하므로(K-Play 위쪽 ≈ 화면 높이의 51.3%) 위 여백도 화면 높이로 정합니다.
+                  activeStep.kind === "vision" && "max-md:mt-[max(1.5rem,calc(25.65svh-6.625rem))] max-md:mb-auto",
                   // 휴대폰: 비전 카드는 효과가 거의 끝날 때까지 숨겼다가 천천히 나타납니다
                   "transition-opacity duration-500",
                   activeStep.kind === "vision" && !visionReady && "max-md:invisible max-md:opacity-0",
@@ -1351,7 +1325,14 @@ export function HistoryRoots() {
 
             <AnimatePresence>
               {bubbleOpen && openCategory && placement && (
-                <HistoryBubble key={openCategory} category={openCategory} detail={openDetail} placement={placement} />
+                <HistoryBubble
+                  key={openCategory}
+                  category={openCategory}
+                  detail={openDetail}
+                  placement={placement}
+                  onPointerEnter={cancelClose}
+                  onPointerLeave={() => open !== null && closeBubble(open)}
+                />
               )}
             </AnimatePresence>
           </div>

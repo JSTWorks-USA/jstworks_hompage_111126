@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +10,7 @@ import { BusinessCategories } from "./business-categories";
 import { GentleVoxFlow } from "./gentle-vox-flow";
 import { cn } from "@/lib/utils";
 
-export const metadata: Metadata = { title: "Business" };
+export const metadata: Metadata = pageMetadata("business", "/business");
 
 /**
  * 사진을 칸에 꽉 채우고, 제품 위치(focus)를 칸 안의 기준점(--tx, --ty)에 맞춥니다.

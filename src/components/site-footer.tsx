@@ -1,19 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
-import { LocalizedText } from "./localized-text";
+import { StableLocalizedText } from "./localized-text";
 import { Container } from "./site-ui";
 
 const CONTACT_EMAIL = "info@jstworks.com";
 
-/** 주소 줄. en 이 있으면 영문(EN) 화면에서 그 문구로 바뀝니다. */
-type Line = { ko: string; en?: string };
+/** 주소 줄. en 이 있으면 영문(EN) 화면에서 그 문구로 바뀝니다(두 문구 중 긴 쪽 높이로 자리를 잡아 푸터 크기는 그대로). */
+type Line = { ko: string; en?: string; /** 영어 문구는 "en" (화면 낭독기가 영어로 읽음) */ lang?: "en" };
 
 const OFFICES: { label: string; lines: Line[] }[] = [
   {
     label: "Korea",
     lines: [
       { ko: "조슈아트리웍스 주식회사" },
-      { ko: "Joshua Tree Works CO., Ltd." },
+      { ko: "Joshua Tree Works CO., Ltd.", lang: "en" },
       {
         ko: "서울 강남구 역삼로26길 5, 조슈아트리빌딩",
         en: "Joshuatree Building, Yeoksam-ro 26-gil 5, Gangnam-Gu, Seoul, Republic of Korea",
@@ -23,7 +23,10 @@ const OFFICES: { label: string; lines: Line[] }[] = [
   {
     // 미국 주소는 언어와 관계없이 영어로 둡니다.
     label: "USA",
-    lines: [{ ko: "H&H USA LLC" }, { ko: "17595 Harvard Ave, Suite C, Irvine, CA 92614" }],
+    lines: [
+      { ko: "H&H USA LLC", lang: "en" },
+      { ko: "17595 Harvard Ave, Suite C, Irvine, CA 92614", lang: "en" },
+    ],
   },
 ];
 
@@ -57,8 +60,8 @@ export function SiteFooter() {
               <h2 className={label}>{office.label}</h2>
               <p className={body}>
                 {office.lines.map((line, i) => (
-                  <span key={line.ko} className={i === 0 ? "block" : "block text-footer-muted"}>
-                    {line.en ? <LocalizedText ko={line.ko} en={line.en} /> : line.ko}
+                  <span key={line.ko} lang={line.lang} className={i === 0 ? "block" : "block text-footer-muted"}>
+                    {line.en ? <StableLocalizedText ko={line.ko} en={line.en} /> : line.ko}
                   </span>
                 ))}
               </p>

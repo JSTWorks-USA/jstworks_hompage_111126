@@ -25,7 +25,7 @@ export type BubblePlacement =
     };
 
 /**
- * 연혁 2안 말풍선: 왼쪽 사진(없으면 카테고리 아이콘), 오른쪽 프로젝트 이름·간단한 설명.
+ * 연혁 말풍선: 왼쪽 사진(없으면 카테고리 아이콘), 오른쪽 프로젝트 이름·간단한 설명.
  * 아직 내용이 없는 카테고리는 같은 모양으로 카테고리 이름과 "준비중"만 보여 줍니다.
  * 넓은 화면에서는 가리킨 이름표 바로 위(공간이 없으면 아래)에 꼬리를 달고 뜨고, 휴대폰에서는 화면 아래에 뜹니다.
  */
@@ -33,11 +33,16 @@ export function HistoryBubble({
   category,
   detail,
   placement,
+  onPointerEnter,
+  onPointerLeave,
 }: {
   category: BusinessCategory;
   /** 없으면 "준비중" 말풍선 */
   detail?: VisionDetail;
   placement: BubblePlacement;
+  /** 마우스가 말풍선 위에 있는 동안 열린 채로 둡니다(WCAG 1.4.13: 떠 있는 내용 위로 포인터를 옮길 수 있어야 함) */
+  onPointerEnter?: () => void;
+  onPointerLeave?: () => void;
 }) {
   const reduceMotion = useReducedMotion();
   const float = placement.mode === "float" ? placement : null;
@@ -55,12 +60,14 @@ export function HistoryBubble({
     <motion.div
       id={BUBBLE_ID}
       role="status"
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
       initial={{ opacity: 0, y: reduceMotion ? 0 : above || !float ? 6 : -6, scale: reduceMotion ? 1 : 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.18, ease: [0.19, 1, 0.22, 1] }}
       className={cn(
-        "pointer-events-none absolute z-20",
+        "absolute z-20",
         float
           ? ""
           : placement.mode === "corner"

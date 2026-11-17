@@ -4,6 +4,8 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { ArrowLeftIcon } from "@/components/icons";
 import { Container } from "@/components/site-ui";
 import { NEWS } from "@/content/site";
+import { BASE_OPEN_GRAPH, SITE_NAME, articleJsonLd, articlePath, isoDate, jsonLd } from "@/lib/seo";
+import { articlePreview } from "../article-body";
 import { ArticleContent } from "../article-content";
 
 type Props = { params: Promise<{ id: string }> };
@@ -15,10 +17,30 @@ export function generateStaticParams() {
   return NEWS.map((item) => ({ id: String(item.id) }));
 }
 
+/** 검색 결과·링크 공유 미리보기에 쓰는 글 요약 (본문 앞부분) */
+const summaryOf = (item: (typeof NEWS)[number]) => articlePreview(item.slug, item.body, 150);
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const item = NEWS[findIndex(id)];
-  return { title: item ? item.title : "Media" };
+  if (!item) return { title: "Media" };
+  const description = summaryOf(item);
+  const path = articlePath(item);
+  return {
+    title: item.title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      ...BASE_OPEN_GRAPH,
+      type: "article",
+      url: path,
+      title: item.title,
+      description,
+      publishedTime: isoDate(item.date),
+      ...(item.cover ? { images: [{ url: item.cover.src, width: item.cover.width, height: item.cover.height, alt: item.cover.alt }] } : {}),
+    },
+    twitter: { card: "summary_large_image", title: `${item.title} | ${SITE_NAME}`, description },
+  };
 }
 
 export default async function ArticlePage({ params }: Props) {
@@ -34,6 +56,8 @@ export default async function ArticlePage({ params }: Props) {
 
   return (
     <article>
+      {/* 검색엔진·AI 검색용 기사 정보(JSON-LD) */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(articleJsonLd(item, summaryOf(item))) }} />
       <Container className="flex flex-col gap-12 py-12 md:py-16">
         <Link
           href="/media"

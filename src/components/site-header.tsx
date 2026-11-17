@@ -40,7 +40,6 @@ export function SiteHeader() {
   return (
     <header
       id="site-header"
-      data-on-dark={onDark || undefined}
       className={cn(
         "relative z-40 border-b transition-colors duration-base ease-out motion-reduce:transition-none md:sticky md:top-0",
         onDark

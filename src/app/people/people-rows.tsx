@@ -1,12 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 import { Container } from "@/components/site-ui";
 import type { Person } from "@/content/site";
 import { cn } from "@/lib/utils";
 import { dokdo } from "./fonts";
+import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 
 type Tone = "dark" | "muted" | "mint";
 
@@ -60,7 +61,7 @@ function PersonRow({ person, index }: { person: Person; index: number }) {
   // 홀수 줄은 문구가 왼쪽, 인물이 오른쪽
   const flip = index % 2 === 1;
   const ref = useRef<HTMLLIElement>(null);
-  const reduceMotion = useReducedMotion();
+  const reduceMotion = usePrefersReducedMotion();
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start end", "center center"],

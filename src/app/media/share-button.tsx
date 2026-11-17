@@ -10,13 +10,10 @@ import { cn } from "@/lib/utils";
  */
 export function ShareButton({
   id,
-  iconOnly = false,
   className,
 }: {
   /** 글 번호 */
   id: number;
-  /** 아이콘만 보이고, 복사되면 "링크 복사됨"을 잠깐 글자로 보여 줍니다 */
-  iconOnly?: boolean;
   className?: string;
 }) {
   const [copied, setCopied] = useState(false);
@@ -45,26 +42,6 @@ export function ShareButton({
     }
     setCopied(true);
   };
-
-  if (iconOnly) {
-    return (
-      <span className={cn("inline-flex items-center gap-1", className)}>
-        <span aria-live="polite" className="text-sm text-muted-foreground">
-          {copied ? "링크 복사됨" : ""}
-        </span>
-        <Button
-          type="button"
-          variant="ghost"
-          size="iconLg"
-          aria-label="공유하기"
-          onClick={share}
-          className="cursor-pointer"
-        >
-          <ShareAndroidIcon aria-hidden="true" className="size-5" />
-        </Button>
-      </span>
-    );
-  }
 
   return (
     <Button
