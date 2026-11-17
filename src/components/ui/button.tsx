@@ -68,6 +68,10 @@ const buttonVariants = cva(
         lg:      "h-[2.75rem] px-4 text-base",
         xl:      "h-14 px-10 text-base",
         icon:    "h-[2.375rem] w-[2.375rem] rounded-xl",
+        // 알약 모양 탭 버튼 (Media 글 종류 탭 등), 44px 높이
+        pill:    "h-11 px-5 rounded-full text-base",
+        // 44px 터치 영역의 아이콘 버튼 (모바일 햄버거·닫기 등)
+        iconLg:  "size-11 rounded-xl",
         // 44px tall target with an even ring gap around a 30px track; the negative margin
         // cancels the side padding so the visible track keeps its place in the layout
         switch:  "-mx-2 h-11 px-2",

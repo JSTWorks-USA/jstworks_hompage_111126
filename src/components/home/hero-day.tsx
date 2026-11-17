@@ -1,9 +1,12 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
+import { HeroCopy } from "./hero-copy";
 
 /**
- * 메인 히어로: 조슈아 트리 국립공원 낮 사진을 그대로 씁니다. 별빛·움직임 효과는 없습니다.
+ * 히어로 1안: 조슈아 트리 국립공원 낮 사진을 그대로 씁니다. 별빛·움직임 효과는 없습니다.
+ * children: 히어로 안에 함께 띄울 요소(1·2안 전환 버튼)
  */
-export function HeroDay() {
+export function HeroDay({ children }: { children?: ReactNode }) {
   return (
     <section
       aria-labelledby="hero-title"
@@ -22,26 +25,10 @@ export function HeroDay() {
       />
       {/* 헤더가 겹치는 높이만큼 위쪽 여백을 더하고, 나뭇잎과 덜 겹치도록 하늘 쪽(위)에 둡니다 */}
       <div className="relative flex h-full flex-col items-center px-6 pt-[calc(var(--header-height)+2.5rem)] text-center md:pt-[calc(var(--header-height)+5vh)]">
-        {/* 나뭇잎 위에서도 읽히도록 글자 그림자와, 뒤에 옅고 둥근 어두운 번짐을 깝니다 */}
-        <h1
-          id="hero-title"
-          className="relative m-0 flex flex-col items-center gap-4 drop-shadow-[0_0.125rem_0.75rem_rgb(0_0_0/0.55)] before:absolute before:-inset-x-24 before:-inset-y-12 before:-z-10 before:bg-[radial-gradient(closest-side,rgb(0_0_0/0.4),transparent)] md:gap-5"
-        >
-          {/* 조슈아트리웍스 흰색 로고에서 "Joshua Tree WORKS" 글자만 잘라낸 이미지, 가로 300px */}
-          <Image
-            src="/images/joshua-tree-works-wordmark-white.webp"
-            alt="Joshua Tree WORKS"
-            width={649}
-            height={58}
-            priority
-            sizes="300px"
-            className="block h-auto w-[300px] max-w-full"
-          />
-          <span className="text-xl leading-tight font-medium md:text-[1.75rem]">
-            미국향 커머스 플랫폼
-          </span>
-        </h1>
+        {/* 나뭇잎 위에서도 읽히도록 글자 뒤에 옅은 번짐을 깝니다 */}
+        <HeroCopy scrim />
       </div>
+      {children}
     </section>
   );
 }

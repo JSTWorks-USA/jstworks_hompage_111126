@@ -14,7 +14,7 @@ export default function ContactPage() {
       <PageHeader title="Contact" />
 
       <section id="location" aria-label="오시는 길">
-        <Container className="grid gap-[var(--layout-column-gap)] py-16 md:grid-cols-2 md:py-24">
+        <Container className="grid gap-[var(--layout-column-gap)] py-(--section-pad) md:grid-cols-2">
           {OFFICE_LOCATIONS.map((office) => (
             <Card key={office.name} className="flex flex-col overflow-hidden">
               {/* Google 지도 임베드(키 없이 쓰는 공개 지도). 지도 안에서 확대·이동이 됩니다.
@@ -32,16 +32,16 @@ export default function ContactPage() {
               </div>
               <CardHeader className="gap-2 space-y-0">
                 {/* 페이지 h1 바로 아래 단계라 CardTitle(h3) 대신 h2를 씁니다 */}
-                <h2 className="m-0 text-xl leading-snug font-medium tracking-tight">
+                <h2 className="m-0 type-title">
                   {office.name}
                 </h2>
-                <p className="m-0 text-sm text-muted-foreground">
+                <p className="m-0 type-label text-muted-foreground">
                   {office.eyebrow}
                 </p>
               </CardHeader>
               <CardContent className="flex flex-1 flex-col gap-2">
-                <p className="m-0 text-base leading-relaxed">{office.address}</p>
-                <p className="m-0 text-sm leading-relaxed text-muted-foreground">
+                <p className="m-0 type-body">{office.address}</p>
+                <p className="m-0 type-meta text-muted-foreground">
                   {office.localAddress}
                 </p>
               </CardContent>
@@ -51,7 +51,7 @@ export default function ContactPage() {
       </section>
 
       <section id="inquiry" aria-label="문의하기" className="bg-secondary">
-        <Container className="grid gap-x-16 gap-y-12 py-16 md:py-24 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
+        <Container className="grid gap-x-16 gap-y-12 py-(--section-pad) lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
           <div className="flex flex-col gap-6">
             <SectionHeader
               title="문의하기"

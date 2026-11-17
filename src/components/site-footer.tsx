@@ -14,7 +14,7 @@ const OFFICES: { label: string; lines: Line[] }[] = [
     label: "Korea",
     lines: [
       { ko: "조슈아트리웍스 주식회사" },
-      { ko: "Joshua Tree Works Inc." },
+      { ko: "Joshua Tree Works CO., Ltd." },
       {
         ko: "서울 강남구 역삼로26길 5, 조슈아트리빌딩",
         en: "Joshuatree Building, Yeoksam-ro 26-gil 5, Gangnam-Gu, Seoul, Republic of Korea",
@@ -33,14 +33,14 @@ const body = "m-0 text-[0.9375rem] leading-relaxed";
 
 /**
  * 하단 영역
- * 1줄: 왼쪽 로고, 오른쪽 메뉴
+ * 1줄: 왼쪽 로고, 오른쪽 메뉴 (휴대폰: 로고 아래 메뉴 다섯 개를 한 줄에 고르게)
  * 2줄: Korea · USA · Contact 세 칸 (칸 이름은 흐리게, 첫 줄은 흰색, 나머지는 흐리게)
- * 3줄: 구분선 아래 오른쪽 저작권
+ * 3줄: 구분선 아래 저작권 (휴대폰 왼쪽, 넓은 화면 오른쪽)
  */
 export function SiteFooter() {
   return (
     <footer className="bg-footer text-footer-foreground">
-      <Container className="flex flex-col gap-12 pt-16 pb-10">
+      <Container className="flex flex-col gap-10 pt-12 pb-10 md:gap-12 md:pt-16">
         <div className="flex flex-wrap items-center justify-between gap-x-8 gap-y-6">
           <Link href="/" aria-label="Joshua Tree WORKS 홈" className="inline-flex shrink-0">
             {/* 흰색 세로형 로고(투명 배경). 어두운 푸터 위에서만 씁니다. */}
@@ -49,16 +49,16 @@ export function SiteFooter() {
               alt=""
               width={655}
               height={604}
-              className="block h-24 w-auto md:h-28"
+              className="block h-20 w-auto md:h-28"
             />
           </Link>
-          <nav aria-label="하단 메뉴">
-            <ul className="m-0 flex list-none flex-wrap items-center gap-x-6 p-0">
+          <nav aria-label="하단 메뉴" className="w-full md:w-auto">
+            <ul className="m-0 flex list-none items-center justify-between p-0 md:flex-wrap md:justify-start md:gap-x-6">
               {NAV_ITEMS.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="inline-flex min-h-11 items-center text-[0.9375rem] text-footer-foreground no-underline underline-offset-4 hover:underline"
+                    className="inline-flex min-h-11 items-center text-sm text-footer-foreground no-underline underline-offset-4 hover:underline md:text-[0.9375rem]"
                   >
                     {item.label}
                   </Link>
@@ -68,7 +68,7 @@ export function SiteFooter() {
           </nav>
         </div>
 
-        <div className="grid gap-x-12 gap-y-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+        <div className="grid gap-x-12 gap-y-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] md:gap-y-8">
           {OFFICES.map((office) => (
             <div key={office.label} className="flex flex-col gap-3">
               <h2 className={label}>{office.label}</h2>
@@ -91,8 +91,8 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="flex justify-end border-t border-footer-line pt-6 text-sm text-footer-muted">
-          <p className="m-0">© 2026 Joshua Tree Works Inc.</p>
+        <div className="flex justify-start border-t border-footer-line pt-6 text-sm text-footer-muted md:justify-end">
+          <p className="m-0">© 2026 Joshua Tree Works CO., Ltd.</p>
         </div>
       </Container>
     </footer>

@@ -6,6 +6,7 @@ import { useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 import { HeaderHeightSync } from "./header-height-sync";
 import { LanguageToggle } from "./language-toggle";
+import { MobileMenu } from "./mobile-menu";
 import { TreeMark } from "./logo";
 import { PrimaryNav } from "./primary-nav";
 import { Container } from "./site-ui";
@@ -28,7 +29,7 @@ function useAtTop() {
 /**
  * 상단 헤더.
  * 데스크톱: 로고 | (메뉴 + 언어) 두 묶음.
- * 모바일: 로고·언어 줄 아래에 메뉴 다섯 개를 한 줄로 고르게 나눕니다(아주 좁은 화면에서만 가로 스크롤).
+ * 모바일(768px 미만): 로고 | 햄버거 버튼, 그 아래 오른쪽에 언어 전환. 메뉴는 햄버거를 누르면 왼쪽에서 밀려 나옵니다.
  * 홈 첫 화면에서는 밤하늘 히어로 위에 투명하게 겹치고, 조금이라도 스크롤하면 흰 배경으로 바뀝니다.
  */
 export function SiteHeader() {
@@ -61,12 +62,17 @@ export function SiteHeader() {
           <TreeMark width={29} height={34} className="block" />
         </Link>
 
-        {/* 모바일에서는 contents로 풀어 메뉴만 다음 줄로 보냅니다 */}
-        <div className="contents md:flex md:items-center md:gap-6">
-          <PrimaryNav
-            onDark={onDark}
-            className="order-last -mx-4 w-[calc(100%+2rem)] overflow-x-auto md:order-none md:mx-0 md:w-auto md:overflow-visible"
-          />
+        {/* 모바일: 언어 전환 자리에 햄버거 버튼 */}
+        <MobileMenu onDark={onDark} className="md:hidden" />
+
+        {/* 데스크톱: 메뉴 + 언어 전환 */}
+        <div className="hidden md:flex md:items-center md:gap-6">
+          <PrimaryNav onDark={onDark} />
+          <LanguageToggle onDark={onDark} />
+        </div>
+
+        {/* 모바일: 햄버거 버튼 아래 오른쪽에 언어 전환 */}
+        <div className="flex w-full justify-end md:hidden">
           <LanguageToggle onDark={onDark} />
         </div>
       </Container>

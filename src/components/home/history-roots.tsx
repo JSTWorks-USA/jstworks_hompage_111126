@@ -40,7 +40,7 @@ function seeded(seed: number) {
 
 /* ─────────────── 단계와 스크롤 진행도 ───────────────
  * 연혁 하나하나가 뿌리 끝에서 모은 양분입니다. 양분이 뿌리 중심에 모이면 줄기를 타고 땅 위로 올라가고,
- * 가지 끝에서 비전(K-IP 커머스 플랫폼)이 열립니다. */
+ * 가지 끝에서 비전(미국향 커머스 플랫폼)이 열립니다. */
 
 const LANE = Object.fromEntries(HISTORY_LANES.map((lane) => [lane.id, lane])) as Record<
   HistoryLane,
@@ -111,7 +111,7 @@ const stepAt = (p: number) => {
 /** 카메라: 진행도별로 화면 가운데에 오는 장면 y. 땅속 깊은 곳 → 뿌리 위쪽 → 줄기 → 가지 끝 */
 const CAMERA_P = [0, ROOT_END, VISION_START, TREE_FRAME, SPREAD_START, 1];
 /**
- * 카메라 배율. 비전(K-IP 커머스 플랫폼)이 나온 뒤에는 나무 전체를 담으려고 0.82 로 물러났다가,
+ * 카메라 배율. 비전(미국향 커머스 플랫폼)이 나온 뒤에는 나무 전체를 담으려고 0.82 로 물러났다가,
  * 카탈로그가 퍼질 때 0.68 까지 줌아웃합니다.
  */
 const CAMERA_SCALE = [1, 1, 1, 0.82, 0.82, 0.68];
@@ -298,16 +298,19 @@ function Particles({
   pathId,
   color,
   begins,
+  size = 1,
 }: {
   opacity: MotionValue<number>;
   pathId: string;
   color: string;
   begins: number[];
+  /** 굵기 배율 (휴대폰에서 크게) */
+  size?: number;
 }) {
   return (
     <motion.g style={{ opacity }}>
       {begins.map((begin) => (
-        <circle key={begin} r={3.5} fill={color}>
+        <circle key={begin} r={3.5 * size} fill={color}>
           <animateMotion dur="2.4s" begin={`${begin}s`} repeatCount="indefinite">
             <mpath href={`#${pathId}`} />
           </animateMotion>
@@ -317,14 +320,26 @@ function Particles({
   );
 }
 
-function SpotNode({ x, y, color, opacity }: { x: number; y: number; color: string; opacity: MotionValue<number> }) {
+function SpotNode({
+  x,
+  y,
+  color,
+  opacity,
+  size = 1,
+}: {
+  x: number;
+  y: number;
+  color: string;
+  opacity: MotionValue<number>;
+  size?: number;
+}) {
   return (
     <>
-      <motion.circle cx={x} cy={y} r={9} fill={color} style={{ opacity }} />
+      <motion.circle cx={x} cy={y} r={9 * size} fill={color} style={{ opacity }} />
       <motion.circle
         cx={x}
         cy={y}
-        r={18}
+        r={18 * size}
         fill="none"
         stroke={color}
         strokeOpacity={0.45}
@@ -335,7 +350,24 @@ function SpotNode({ x, y, color, opacity }: { x: number; y: number; color: strin
 }
 
 /** 갈래 선 위의 연혁: 그 자리에서 뿌리 중심까지 선이 빛나고, 양분이 위로 흘러갑니다 */
-function LineSpot({ progress, spot }: { progress: MotionValue<number>; spot: LineSpotData }) {
+/** 휴대폰(좁은 화면)에서 갈래 선·점·양분 알갱이를 키우는 배율. 화면이 좁아 장면이 작게 보이기 때문입니다 */
+const NARROW_MARK_SCALE = 1.7;
+/** 휴대폰에서 선 굵기 배율: 점·알갱이 배율의 절반 (선만 너무 두껍지 않게) */
+const NARROW_LINE_SCALE = NARROW_MARK_SCALE / 2;
+
+function LineSpot({
+  progress,
+  spot,
+  size = 1,
+  lineSize = 1,
+}: {
+  progress: MotionValue<number>;
+  spot: LineSpotData;
+  /** 점·양분 알갱이 크기 배율 */
+  size?: number;
+  /** 선 굵기 배율 */
+  lineSize?: number;
+}) {
   const { flow, node, particles } = useSpotTiming(progress, STARTS[spot.i]);
   const color = laneColor(spot.lane);
   const id = `history-spot-${spot.i}`;
@@ -347,7 +379,7 @@ function LineSpot({ progress, spot }: { progress: MotionValue<number>; spot: Lin
         fill="none"
         stroke={color}
         strokeOpacity={0.22}
-        strokeWidth={12}
+        strokeWidth={12 * lineSize}
         strokeLinecap="round"
         style={{ pathLength: flow }}
       />
@@ -355,12 +387,12 @@ function LineSpot({ progress, spot }: { progress: MotionValue<number>; spot: Lin
         d={spot.path}
         fill="none"
         stroke={color}
-        strokeWidth={3.5}
+        strokeWidth={3.5 * lineSize}
         strokeLinecap="round"
         style={{ pathLength: flow }}
       />
-      <Particles opacity={particles} pathId={id} color={color} begins={[0, 0.8, 1.6]} />
-      <SpotNode x={spot.x} y={spot.y} color={color} opacity={node} />
+      <Particles opacity={particles} pathId={id} color={color} begins={[0, 0.8, 1.6]} size={size} />
+      <SpotNode x={spot.x} y={spot.y} color={color} opacity={node} size={size} />
     </g>
   );
 }
@@ -533,6 +565,15 @@ function Scene({
   step: Step;
 }) {
   const narrow = useNarrow();
+  const markScale = narrow ? NARROW_MARK_SCALE : 1;
+  const lineScale = narrow ? NARROW_LINE_SCALE : 1;
+  // 휴대폰: 뿌리 중심(x 258)과 네 갈래 선이 장면 가운데(300)보다 왼쪽에 있어, 땅속 구간에서는 장면을 오른쪽으로 옮겨
+  // 선 묶음이 화면 가운데에 오게 합니다. 줄기를 타고 오르며(가운데 x 297) 원래 자리로 돌아옵니다.
+  const centerShift = useTransform(
+    progress,
+    [ROOT_END, VISION_START],
+    narrow ? ["6%", "0%"] : ["0%", "0%"],
+  );
   const gathered = useTransform(progress, GATHER, [0, 1]);
   // 네 갈래 선은 늘 옅게 보이다가, 양분이 뿌리 중심에 모일 때 한꺼번에 밝아집니다.
   const lanesLit = useTransform(progress, [GATHER[0] - 0.02, GATHER[1]], [0.35, 0.85]);
@@ -540,7 +581,7 @@ function Scene({
 
   return (
     <motion.div
-      style={{ y: camera, scale: zoom, originY: focusY }}
+      style={{ x: centerShift, y: camera, scale: zoom, originY: focusY }}
       className="absolute top-0 left-1/2 aspect-[600/2000] h-[285.714%] -translate-x-1/2"
     >
       <svg
@@ -653,12 +694,12 @@ function Scene({
         {/* 땅속 네 갈래 선: 깊은 곳에서 벌어져 있다가 뿌리 중심에서 하나로 모입니다 */}
         <motion.g style={{ opacity: lanesLit }}>
           {LANE_LINES.map(({ lane, d }) => (
-            <path key={lane} d={d} fill="none" stroke={laneColor(lane)} strokeWidth={3} strokeLinecap="round" />
+            <path key={lane} d={d} fill="none" stroke={laneColor(lane)} strokeWidth={3 * lineScale} strokeLinecap="round" />
           ))}
         </motion.g>
 
         {SPOTS.map((spot) => (
-          <LineSpot key={spot.i} progress={progress} spot={spot} />
+          <LineSpot key={spot.i} progress={progress} spot={spot} size={markScale} lineSize={lineScale} />
         ))}
 
         {/* 조슈아 트리 */}
@@ -727,25 +768,25 @@ function Scene({
 function StepPanel({ step }: { step: Step }) {
   if (step.kind === "vision") {
     return (
-      <p className="m-0 text-2xl leading-snug font-medium md:text-[1.75rem]">
+      <p className="m-0 text-center type-title">
         <KeepTogether text={VISION.title} />
       </p>
     );
   }
   return (
     <div className="flex flex-col gap-2">
-      <p className="m-0 flex items-center gap-2 text-sm text-mint-line">
+      <p className="m-0 flex items-center gap-2 type-meta text-mint-line">
         <LaneMark lane={step.lane} />
         <span>
           <time dateTime={step.when.iso}>{step.when.label}</time> · {LANE[step.lane].label}
         </span>
       </p>
-      <p className="m-0 text-xl leading-snug font-semibold md:text-2xl">
+      <p className="m-0 type-title">
         <KeepTogether text={step.text} />
         {/* 줄이 바뀌면 앞 공백이 사라져 들여쓰기 없이 다음 줄 맨 앞에 붙습니다 */}
         {step.note && " "}
         {step.note && (
-          <span className="inline-block text-sm font-normal whitespace-nowrap text-night-foreground/75">
+          <span className="inline-block type-meta font-normal whitespace-nowrap text-night-foreground/75">
             {step.note}
           </span>
         )}
@@ -773,13 +814,13 @@ const BY_YEAR = MILESTONES.reduce<{ year: string; items: Milestone[] }[]>((group
 function StaticHistory() {
   return (
     <div className="bg-secondary">
-      <Container className="grid gap-[var(--layout-section-gap)] py-16 md:py-24 lg:grid-cols-[16rem_minmax(0,1fr)]">
+      <Container className="grid gap-[var(--layout-section-gap)] py-(--section-pad) lg:grid-cols-[16rem_minmax(0,1fr)]">
         <SectionHeader title="History" description="연혁" />
         <div className="flex flex-col gap-12">
           <ol className="m-0 flex list-none flex-col gap-12 p-0">
             {BY_YEAR.map((group) => (
               <li key={group.year} className="grid gap-6 md:grid-cols-[7rem_minmax(0,1fr)]">
-                <h3 className="m-0 text-xl leading-7 font-bold text-primary tabular-nums">
+                <h3 className="m-0 type-title text-primary tabular-nums">
                   {group.year}
                 </h3>
                 <Timeline
@@ -794,7 +835,7 @@ function StaticHistory() {
             ))}
           </ol>
           <div className="flex max-w-[40rem] flex-col gap-3">
-            <h3 className="m-0 text-xl font-medium">{VISION.title}</h3>
+            <h3 className="m-0 type-title">{VISION.title}</h3>
             <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
               {VISION.branches.map((label, i) => (
                 <li key={`${label}-${i}`} className="rounded-full border border-border px-3 py-1 text-sm">
@@ -890,11 +931,18 @@ export function HistoryRoots() {
                 aria-hidden="true"
                 className={cn(
                   // 넓은 화면에서는 이 카드에 비전만 나오므로, 퍼진 카탈로그 이름표와 겹치지 않게 조금 더 아래에 둡니다
-                  "w-full rounded-xl bg-night/75 p-6 backdrop-blur-md md:mb-[18vh] md:w-88 lg:mb-[8vh]",
+                  "relative w-full rounded-xl bg-night/75 p-6 backdrop-blur-md md:mb-[18vh] md:w-88 lg:mb-[8vh]",
                   activeLane ? "border-2 lg:invisible" : "border border-glow/20",
                 )}
                 style={activeLane ? { borderColor: laneColor(activeLane) } : undefined}
               >
+                {/* 비전 카드: 테두리를 따라 빛이 돌며 주변이 반짝입니다(보더 빔) */}
+                {activeStep.kind === "vision" && (
+                  <>
+                    <span aria-hidden="true" className="border-beam border-beam-glow" />
+                    <span aria-hidden="true" className="border-beam" />
+                  </>
+                )}
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={STEPS[active].key}

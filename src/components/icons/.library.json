@@ -2,12 +2,15 @@
   "library": "iconoir",
   "prefix": "iconoir",
   "source": "iconify",
-  "installedAt": "2026-11-05T06:37:12.753Z",
+  "installedAt": "2026-11-16T12:10:49.273Z",
   "icons": [
     "arrow-left",
     "arrow-up-right",
     "camera",
     "mail",
-    "map-pin"
+    "map-pin",
+    "menu",
+    "share-android",
+    "xmark"
   ]
 }

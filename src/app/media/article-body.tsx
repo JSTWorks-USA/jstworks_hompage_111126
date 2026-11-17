@@ -17,11 +17,11 @@ export function readArticleMarkdown(slug: string): string | null {
 /** 마크다운 요소별 모양. 블록마다 위쪽 간격만 두어 리듬을 맞춥니다(부모의 [&>*+*] 규칙). */
 const components: Components = {
   h2: ({ children }) => (
-    <h2 className="m-0 text-2xl leading-tight font-bold tracking-[-0.01em] text-balance md:text-[1.75rem]">
+    <h2 className="m-0 text-lg leading-snug font-bold tracking-[-0.01em] text-balance">
       {children}
     </h2>
   ),
-  h3: ({ children }) => <h3 className="m-0 text-xl leading-snug font-bold">{children}</h3>,
+  h3: ({ children }) => <h3 className="m-0 text-base leading-snug font-bold">{children}</h3>,
   p: ({ children }) => <p className="m-0">{children}</p>,
   strong: ({ children }) => <strong className="font-bold text-primary">{children}</strong>,
   a: ({ href, children }) => {
@@ -40,7 +40,7 @@ const components: Components = {
   ul: ({ children }) => <ul className="m-0 flex list-disc flex-col gap-2 pl-6">{children}</ul>,
   ol: ({ children }) => <ol className="m-0 flex list-decimal flex-col gap-2 pl-6">{children}</ol>,
   blockquote: ({ children }) => (
-    <blockquote className="m-0 flex flex-col gap-3 rounded-xl bg-secondary px-6 py-6 text-xl leading-relaxed font-medium text-primary md:px-10 md:py-8">
+    <blockquote className="m-0 flex flex-col gap-2 rounded-xl bg-secondary px-5 py-4 text-base leading-relaxed font-medium text-primary">
       {children}
     </blockquote>
   ),
@@ -55,8 +55,32 @@ const components: Components = {
 
 export function ArticleBody({ markdown }: { markdown: string }) {
   return (
-    <div className="flex max-w-[65ch] flex-col text-lg leading-[1.8] [&>*+*]:mt-6 [&>h2]:mt-14 [&>h2+*]:mt-4 [&>h3]:mt-10 [&>h3+*]:mt-3">
+    // 글 본문 규격: 15px, 줄간격 1.75, 단락 사이 20px, 소제목 앞 32px
+    <div className="flex flex-col text-[0.9375rem] leading-[1.75] break-keep text-foreground [&>*+*]:mt-5 [&>h2]:mt-8 [&>h2+*]:mt-2 [&>h3]:mt-6 [&>h3+*]:mt-2">
       <Markdown components={components}>{markdown}</Markdown>
     </div>
   );
+}
+
+/**
+ * 목록 카드에 보일 본문 앞부분(일반 글자). 마크다운이 있으면 기호를 걷어 내고, 없으면 body 단락을 이어 씁니다.
+ */
+export function articlePreview(slug: string, body: string[], length = 260): string {
+  const markdown = readArticleMarkdown(slug);
+  const text = markdown
+    ? markdown
+        .split("\n")
+        .map((line) =>
+          line
+            .replace(/^#{1,6}\s+/, "")
+            .replace(/^>\s?/, "")
+            .replace(/^[-*]\s+/, "")
+            .replace(/\*\*(.+?)\*\*/g, "$1")
+            .replace(/\[(.+?)\]\(.+?\)/g, "$1")
+            .trim(),
+        )
+        .filter(Boolean)
+        .join(" ")
+    : body.join(" ");
+  return text.length > length ? `${text.slice(0, length).trimEnd()}…` : text;
 }

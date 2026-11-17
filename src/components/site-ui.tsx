@@ -2,7 +2,7 @@ import { Fragment, type ReactNode } from "react";
 import { CameraIcon, MapPinIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
 
-/** 75rem 콘텐츠 폭 + 디자인 시스템의 페이지 여백(--layout-inset) */
+/** 75rem(1200px) 콘텐츠 폭 + 화면 크기별 좌우 여백(--page-inset: 15 / 20 / 32px) */
 export function Container({
   className,
   children,
@@ -13,7 +13,7 @@ export function Container({
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-[75rem] px-6 md:px-[var(--layout-inset)]",
+        "mx-auto w-full max-w-[75rem] px-(--page-inset)",
         className,
       )}
     >

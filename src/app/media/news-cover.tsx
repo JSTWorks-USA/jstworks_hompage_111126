@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import { Placeholder } from "@/components/site-ui";
 import type { NewsItem } from "@/content/site";
 import { cn } from "@/lib/utils";
@@ -9,11 +10,13 @@ export function NewsCover({
   sizes,
   priority,
   className,
+  style,
 }: {
   item: NewsItem;
   sizes: string;
   priority?: boolean;
   className?: string;
+  style?: CSSProperties;
 }) {
   if (!item.cover) {
     return <Placeholder icon="camera" caption="대표 이미지 자리" className={className} />;
@@ -21,7 +24,8 @@ export function NewsCover({
   // 문서처럼 잘리면 안 되는 이미지는 옅은 바탕 가운데에 여백을 두고 통째로 보여 줍니다.
   const contain = item.cover.fit === "contain";
   return (
-    <div className={cn("relative overflow-hidden bg-muted", className)}>
+    // 이미지 뒤 바탕: 아주 연한 흰색(#f9f9f9)
+    <div className={cn("relative overflow-hidden bg-neutral-cool", className)} style={style}>
       <Image
         src={item.cover.src}
         alt={item.cover.alt}

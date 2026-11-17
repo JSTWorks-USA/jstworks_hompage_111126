@@ -53,7 +53,7 @@ function Silhouette({ className }: { className?: string }) {
  * 한 사람당 화면 너비 한 줄.
  * 이름·경력과 사진을 한쪽에, 한 줄 문구를 반대쪽에 두고 줄마다 좌우를 바꿉니다.
  * 사진은 줄 아래 끝에 붙어 있고, 스크롤하면 아래에서 살짝 올라와 자리 잡습니다.
- * 휴대폰에서는 문구 → 이름·경력·사진 순서로 쌓습니다.
+ * 휴대폰·태블릿(1023px 이하)에서는 문구 → 이름·경력·사진 순서로 쌓고, 넓은 화면에서만 좌우로 나누며 줄 높이를 600px 로 맞춥니다.
  */
 function PersonRow({ person, index }: { person: Person; index: number }) {
   const tone = TONE[toneFor(index)];
@@ -70,29 +70,29 @@ function PersonRow({ person, index }: { person: Person; index: number }) {
   return (
     <li ref={ref} className={cn("overflow-hidden", tone.row)}>
       {/* 넓은 화면에서는 한 사람 줄의 높이를 600px 로 맞춥니다 */}
-      <Container className="grid items-end gap-x-(--layout-column-gap) gap-y-8 pt-12 md:min-h-[600px] md:grid-cols-2 md:pt-16">
+      <Container className="grid items-end gap-x-(--layout-column-gap) gap-y-8 pt-12 md:pt-14 lg:min-h-150 lg:grid-cols-2 lg:pt-16">
         {/* 인물: 이름·경력 + 사진 */}
         <div
           className={cn(
-            "flex items-end justify-between gap-6 md:justify-center lg:gap-8",
-            flip && "md:order-2",
+            "flex items-end justify-between gap-6 lg:justify-center lg:gap-8",
+            flip && "lg:order-2",
           )}
         >
-          <div className="flex min-w-0 flex-col gap-4 self-center pb-8 md:gap-6 md:pb-16">
+          <div className="flex min-w-0 flex-col gap-4 self-center pb-8 md:gap-5 lg:gap-6 lg:pb-16">
             <div className="flex flex-col gap-1 md:gap-2">
               {person.unit && (
-                <p className={cn("m-0 text-sm font-medium md:text-lg", tone.subtle)}>{person.unit}</p>
+                <p className={cn("m-0 type-label", tone.subtle)}>{person.unit}</p>
               )}
-              <h2 className="m-0 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-xl font-bold md:gap-x-3 md:text-3xl">
+              <h2 className="m-0 flex flex-wrap items-baseline gap-x-2 gap-y-1 type-title">
                 {person.name}
-                <span className={cn("text-sm font-medium md:text-lg", tone.subtle)}>
+                <span className={cn("type-label", tone.subtle)}>
                   {person.role}
                 </span>
               </h2>
             </div>
             <div className="flex flex-col gap-1 md:gap-2">
-              <h3 className="m-0 text-sm font-bold md:text-lg">경력</h3>
-              <ul className={cn("m-0 list-none p-0 text-sm leading-relaxed md:text-lg", tone.subtle)}>
+              <h3 className="m-0 type-label font-bold">경력</h3>
+              <ul className={cn("m-0 list-none p-0 type-body", tone.subtle)}>
                 {person.career.map((item, i) => (
                   <li key={`${item}-${i}`}>{item}</li>
                 ))}
@@ -121,8 +121,8 @@ function PersonRow({ person, index }: { person: Person; index: number }) {
         {/* 인물별 헤드라인: 여는 따옴표는 첫 줄 왼쪽, 닫는 따옴표는 마지막 줄 끝에 붙습니다. */}
         <blockquote
           className={cn(
-            "order-first m-0 flex max-w-md items-start gap-3 self-center md:order-0 md:max-w-2xl md:justify-self-center md:gap-3 md:pb-16",
-            flip && "md:order-1",
+            "order-first m-0 flex max-w-md items-start gap-3 self-center md:max-w-2xl lg:order-0 lg:justify-self-center lg:pb-16",
+            flip && "lg:order-1",
           )}
         >
           <span
@@ -131,7 +131,7 @@ function PersonRow({ person, index }: { person: Person; index: number }) {
           >
             “
           </span>
-          <p className="m-0 pt-2 text-[2rem] leading-[1.15] break-keep whitespace-pre-line md:text-[2rem] xl:text-[2.625rem]">
+          <p className="m-0 pt-2 text-[2rem] leading-[1.15] break-keep whitespace-pre-line md:text-4xl lg:text-[2rem] xl:text-[2.625rem]">
             <span className={dokdo.className}>{person.quote}</span>
             <span
               aria-hidden="true"

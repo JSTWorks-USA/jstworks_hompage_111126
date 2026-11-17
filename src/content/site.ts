@@ -28,8 +28,8 @@ export const HISTORY_LANES: HistoryLaneInfo[] = [
 export type HistoryItem = { date: string; text: string; note?: string; sub?: string; lane: HistoryLane };
 export const HISTORY: HistoryItem[] = [
   { date: "2025.12.15", text: "조슈아트리웍스 창업, 연구소 설립", lane: "company" },
-  { date: "2026.01.07", text: "캐릭터 굿즈특허 개발 착수", lane: "kganada" },
-  { date: "2026.01.07", text: "아티스트굿즈 특허출원", lane: "gentlevox" },
+  { date: "2026.01.07", text: "캐릭터 굿즈특허 개발 착수", lane: "gentlevox" },
+  { date: "2026.01.07", text: "아티스트굿즈 특허출원", lane: "kganada" },
   {
     date: "2026.03.17",
     text: "미국법인설립",
@@ -46,14 +46,14 @@ export const HISTORY: HistoryItem[] = [
   },
   { date: "2026.08.06", text: "캐릭터 굿즈 특허 출원", lane: "gentlevox" },
   { date: "2026.08.26", text: "아티스트굿즈 특허 등록", lane: "kganada" },
-  { date: "2026.09.23", text: "제우스 3, 제오니스 미국 및 중동 독점 계약 체결", lane: "partner" },
+  { date: "2026.09.23", text: "제우스 III, 제오니스", sub: "미국 및 중동 독점계약 체결", lane: "partner" },
   { date: "2026.10.06", text: "벤처확인기업 등록", lane: "company" },
   { date: "2026.10.21", text: "삼익제약 요리엔", sub: "미국 초도 물량 선적", lane: "partner" },
 ];
 
 /** 연혁 장면 맨 위(가지 끝)에 보여 줄 비전. branches 는 나무 왼쪽부터 붙는 이름표입니다(왼쪽 셋, 오른쪽 셋) */
 export const VISION = {
-  title: "K-IP 커머스 플랫폼",
+  title: "미국향 커머스 플랫폼",
   branches: ["K-Beauty", "K-Charm", "K-Play", "K-Apparel", "K-Living", "K-Food"],
 };
 
@@ -137,15 +137,6 @@ const IP_ITEMS_RAW: IpItem[] = [
     title: "PCT 국제특허",
     date: "2027.01.08",
     document: "국제특허 출원서 이미지 자리",
-  },
-  {
-    status: "certified",
-    badge: "혁신성장유형",
-    title: "벤처확인기업",
-    date: "2026.09.23",
-    document: "벤처확인기업 명판 이미지 자리",
-    image: "/images/certificates/venture-confirmation-plaque.webp",
-    note: [""],
   },
   {
     status: "certified",
@@ -289,6 +280,13 @@ export type Brand = {
   status?: string;
   /** 제품 구성 이미지는 추후 교체합니다 */
   images: { src: string; alt: string }[];
+  /**
+   * 브랜드 줄 배경 사진. 카피 상자가 놓이는 쪽(첫 줄은 왼쪽)이 비어 있는 사진을 씁니다.
+   * width·height: 사진 크기(px)
+   * focus: 화면 가운데에 둘 제품 위치(사진 가로·세로 대비 0~1). 화면 비율이 어떻든 이 점이 가운데에 오고,
+   *        사진 끝이 드러나야 할 만큼 치우치면 끝에 맞춰 멈춥니다(빈 곳이 생기지 않게).
+   */
+  background?: { src: string; alt: string; width: number; height: number; focus: { x: number; y: number } };
 };
 
 export const BRANDS: Brand[] = [
@@ -299,6 +297,15 @@ export const BRANDS: Brand[] = [
     description: "삼익제약의 정수기 YORIEN을 미국 가정의 주방에 소개합니다.",
     status: "2026년 12월 미국 출시 예정",
     images: [{ src: "/images/business/yorien.webp", alt: "YORIEN 정수기" }],
+    // 제품이 가운데 오른쪽에 있고 왼쪽 빈 벽에 카피 상자를 둡니다(로고 글자는 제 방향으로 고쳤습니다).
+    background: {
+      src: "/images/business/yorien-pitcher.jpg",
+      alt: "나무 손잡이가 달린 YORIEN 정수 피처와 물이 담긴 유리잔",
+      width: 2400,
+      height: 1534,
+      // 정수 피처 몸통 가운데
+      focus: { x: 0.6, y: 0.58 },
+    },
   },
 ];
 
@@ -306,6 +313,9 @@ export const BRANDS: Brand[] = [
 
 export type NewsKind = "보도" | "소식";
 export type NewsItem = {
+  /** 글 번호: 주소가 /media/번호 가 됩니다. 새 글은 가장 큰 번호 + 1 을 씁니다(바꾸지 않습니다) */
+  id: number;
+  /** 본문 마크다운 파일 이름(src/content/news/<slug>.md). 예전 주소(/media/slug)는 번호 주소로 넘겨 줍니다 */
   slug: string;
   date: string;
   kind: NewsKind;
@@ -320,6 +330,9 @@ export type NewsItem = {
   cover?: {
     src: string;
     alt: string;
+    /** 사진 원래 크기(px). 글 보기에서 사진을 이 크기 기준으로(늘리지 않고) 보여 줍니다 */
+    width: number;
+    height: number;
     fit?: "cover" | "contain";
     focus?: "center" | "right";
     /** 사진 왼쪽 가운데에 얹는 흰색 로고(가로형 SVG) */
@@ -334,47 +347,68 @@ export type NewsItem = {
 /** 작성 순서는 상관없습니다. 화면에는 아래 NEWS(날짜순)를 씁니다. */
 const NEWS_ITEMS: NewsItem[] = [
   {
-    slug: "ai-fandom-goods-patent",
-    date: "2026.10.14",
+    id: 4,
+    slug: "fandom-goods-patent-sentv",
+    date: "2026.10.12",
     kind: "보도",
-    title: "조슈아트리웍스, AI 팬덤 굿즈 특허 등록…美 스마트 토이 시장 진출",
-    source: "와우테일",
-    href: "https://wowtale.net/2026/10/14/266252/",
+    title: "“피규어가 이름 불러줘요”…조슈아트리웍스, 팬덤 굿즈 특허",
+    source: "서울경제TV",
+    // 기사 사진(서울경제TV, 사진=조슈아트리웍스): K-GANADA™ 로고. 잘리지 않게 통째로 보여 줍니다
     cover: {
-      src: "/images/certificates/patent-10-3012294.webp",
-      alt: "특허증 제10-3012294호",
+      src: "/images/news/fandom-goods-patent-sentv.webp",
+      width: 800,
+      height: 266,
+      alt: "K-GANADA™ 로고",
       fit: "contain",
     },
-    // 상세 본문은 src/content/news/ai-fandom-goods-patent.md 에 있습니다. 아래 body 는 마크다운이 없을 때의 대체 문구입니다.
+    // 상세 본문은 src/content/news/fandom-goods-patent-sentv.md 에 있습니다. 아래 body 는 마크다운이 없을 때의 대체 문구입니다.
     body: [
-      "와우테일이 조슈아트리웍스의 AI 팬덤 굿즈 특허 등록과 미국 스마트 토이 시장 진출 소식을 보도했습니다.",
-      "기사 전문은 와우테일에서 볼 수 있습니다.",
+      "서울경제TV가 조슈아트리웍스의 팬덤 굿즈 특허와 2027년 미국 스마트 토이 시장 진출 계획을 보도했습니다.",
+      "기사 전문은 서울경제TV에서 볼 수 있습니다.",
     ],
   },
   {
+    id: 3,
     slug: "artist-goods-patent",
     date: "2026.08.26",
     kind: "소식",
     title: "아티스트 굿즈 특허 등록",
     source: "JSTWorks",
+    // 특허증 제10-3012294호 (가수의 음원과 연동되는 물품을 이용한 가수 이벤트 영상 제공 방법)
+    cover: {
+      src: "/images/certificates/patent-10-3012294.webp",
+      width: 283,
+      height: 400,
+      alt: "특허증 제10-3012294호",
+      fit: "contain",
+    },
     body: [
       "조슈아트리웍스가 아티스트 굿즈 특허를 등록했습니다.",
       "2026년 1월에 출원한 특허로, 같은 해 8월 등록을 마쳤습니다.",
     ],
   },
   {
+    id: 2,
     slug: "yorien-us-exclusive",
-    date: "2026 3Q",
-    kind: "소식",
-    title: "삼익제약 YORIEN 정수기 미국 독점 영업권 계약",
-    source: "JSTWorks",
-    cover: { src: "/images/business/yorien.webp", alt: "YORIEN 정수기" },
+    date: "2026.10.19",
+    kind: "보도",
+    title: "삼익제약, 프리미엄 정수기 '요리엔 샤블리' 미국 첫 수출",
+    source: "메디칼타임즈",
+    // 사진 파일은 1440×960, 글 보기에서는 720px 폭으로 작게 보여 줍니다(선명도를 위해 2배 크기 파일)
+    cover: {
+      src: "/images/news/yorien-pitcher-kitchen.webp",
+      alt: "주방 조리대 위에 놓인 나무 손잡이 YORIEN 정수 피처",
+      width: 720,
+      height: 480,
+    },
+    // 상세 본문은 src/content/news/yorien-us-exclusive.md 에 있습니다(메디칼타임즈 기사를 정리한 글).
     body: [
-      "삼익제약 YORIEN 정수기의 미국 독점 영업권을 확보했습니다.",
-      "YORIEN은 2026년 12월 Amazon, TikTok Shop, Shopify에서 미국 판매를 시작할 예정입니다.",
+      "메디칼타임즈가 삼익제약 요리엔 샤블리의 미국 첫 수출 소식을 보도했습니다.",
+      "미국 판매 파트너는 조슈아트리웍스입니다.",
     ],
   },
   {
+    id: 1,
     slug: "k-ganada-us-trademark",
     date: "2026.06.08",
     kind: "소식",
@@ -382,6 +416,8 @@ const NEWS_ITEMS: NewsItem[] = [
     source: "USPTO",
     cover: {
       src: "/images/news/k-ganada-us-trademark.webp",
+      width: 1920,
+      height: 826,
       alt: "밤하늘을 배경으로 횃불을 든 자유의 여신상과 옛 미국 문서",
       focus: "right",
       // 이 글 처음에 쓰던 K-GANADA™ 로고를 사진 왼쪽 하늘 위에 얹습니다.
@@ -392,24 +428,6 @@ const NEWS_ITEMS: NewsItem[] = [
       "K-GANADA™ 상표 4건을 미국 특허상표청(USPTO)에 출원했습니다.",
       "출원번호는 99870826, 99870856, 99870920, 99870958입니다.",
     ],
-  },
-  {
-    slug: "gentle-vox-press",
-    date: "[날짜]",
-    kind: "보도",
-    title: "[Gentle Vox 기사 제목]",
-    source: "[매체]",
-    body: ["[기사 요약]"],
-    placeholder: true,
-  },
-  {
-    slug: "k-ganada-store-open",
-    date: "[오픈일]",
-    kind: "소식",
-    title: "[K-GANADA 스토어 오픈 소식]",
-    source: "JSTWorks",
-    body: ["[본문]"],
-    placeholder: true,
   },
 ];
 
