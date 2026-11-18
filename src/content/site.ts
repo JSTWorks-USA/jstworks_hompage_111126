@@ -202,17 +202,29 @@ export const IP_ITEMS: IpItem[] = sortByDateDesc(IP_ITEMS_RAW);
 
 /* ──────────────────────────── 구성원 ──────────────────────────── */
 
+/** People 줄 배경의 선 그림 주제 (src/app/people/person-doodles.tsx) */
+export type DoodleTheme = "export" | "creative" | "global" | "product" | "research" | "patent" | "tech";
+
 export type Person = {
   name: string;
   role: string;
   /** 부문 아래 소속 팀. 있을 때만 이름 위에 작게 표시합니다 (예: 젠틀복스) */
   unit?: string;
   /**
-   * 인물 사진. 배경을 오려 낸 세로 4:5 투명 이미지(예: 800×1000 WebP/PNG)로 교체할 예정입니다.
-   * 줄 아래 끝에 붙여 보여 주므로, 사진 아래쪽(가슴·허리선)이 잘린 상태로 오리면 자연스럽습니다.
-   * 사진이 아직 없으면 비워 두세요. 그 자리에 실루엣이 보입니다.
+   * 인물 사진. 사진이 아직 없으면 비워 두세요. 그 자리에 실루엣이 보입니다.
+   * 배경을 오려 낸 투명 사진(누끼)이면 cutout 에 크기를 함께 적습니다.
    */
   photo?: string;
+  /**
+   * photo 가 배경을 오려 낸 고해상도 투명 이미지일 때 그 원본 크기(px).
+   * 네모 칸 없이 줄 높이에 가깝게 크게, 줄 바닥에 붙여 보여 줍니다.
+   * 머리 위에서 바로 자르고 아래쪽(허리선)은 사진 끝까지 두면 자연스럽습니다.
+   */
+  cutout?: { width: number; height: number };
+  /** 줄 배경색. 비워 두면 기본 색(검정·회색·민트)을 번갈아 씁니다 */
+  background?: string;
+  /** 인물 뒤에 그리는 선 그림 주제 (역할에 맞춘 작은 아이콘들) */
+  doodle?: DoodleTheme;
   alt: string;
   /** 주요 경력. 위에서부터 최근 순 */
   career: string[];
@@ -237,7 +249,10 @@ export const PEOPLE_DIVISIONS: Division[] = [
       {
         name: "이우용",
         role: "대표이사 (CEO)",
-        photo: "/images/people/lee-wooyong.webp",
+        photo: "/images/people/lee-wooyong-cutout.webp",
+        cutout: { width: 775, height: 1200 },
+        background: "#00441E",
+        doodle: "export",
         alt: "이우용 대표이사",
         career: ["덕우전자 미국법인장", "LG전자 해외영업", "미국공인회계사"],
         quote: "좋은 한국 제품이\n미국에서 다시 찾는 제품이 되도록.",
@@ -245,7 +260,10 @@ export const PEOPLE_DIVISIONS: Division[] = [
       {
         name: "길용준",
         role: "CIPO (지식재산)",
-        photo: "/images/people/gil-yongjun.webp",
+        photo: "/images/people/gil-yongjun-cutout.webp",
+        cutout: { width: 726, height: 1200 },
+        background: "#00441E",
+        doodle: "patent",
         alt: "길용준 CIPO",
         career: ["AMD, LG전자, 삼성에버랜드 특허"],
         quote: "아이디어가 자산이 되는 순간까지\n권리로 완성합니다.",
@@ -259,27 +277,36 @@ export const PEOPLE_DIVISIONS: Division[] = [
       {
         name: "박재모",
         role: "Co-founder & Creative",
-        photo: "/images/people/park-jaemo.webp",
+        photo: "/images/people/park-jaemo-cutout.webp",
+        cutout: { width: 1063, height: 1200 },
+        background: "#6300A9",
+        doodle: "creative",
         alt: "박재모 Co-founder & Creative",
         career: ["상암커뮤니케이션즈", "머큐리프로젝트 E.CD"],
-        quote: "한 번의 시선이\n한 번의 선택이 되도록.",
+        quote: "말을 잘하는 것은 쉽다",
       },
       {
         name: "이주황",
         role: "CTO",
-        photo: "/images/people/lee-juhwang.webp",
+        photo: "/images/people/lee-juhwang-cutout.webp",
+        cutout: { width: 724, height: 1200 },
+        background: "#F7F8F9",
+        doodle: "tech",
         alt: "이주황 CTO",
         career: ["현대자동차 R&D", "서울대 기계항공 졸업"],
         quote: "기술은 앞에 서지 않아도\n경험을 바꿀 수 있습니다.",
       },
       {
-        // 사진 준비 전
         name: "윤정원",
         role: "책임연구원",
         unit: "젠틀복스",
+        photo: "/images/people/yoon-jeongwon-cutout.webp",
+        cutout: { width: 801, height: 1200 },
+        background: "#001D3D",
+        doodle: "research",
         alt: "윤정원 책임연구원",
         career: ["브라이트랩", "유즈브레인넷"],
-        quote: "될 때까지 실험하는 일이\n기술을 현실로 만듭니다.",
+        quote: "기술의 가능성을 설계하고,\n현실로 구현합니다.",
       },
     ],
   },
@@ -289,16 +316,22 @@ export const PEOPLE_DIVISIONS: Division[] = [
     people: [
       {
         name: "김종효",
-        role: "COO",
-        photo: "/images/people/kim-jonghyo.webp",
+        role: "COO/전무",
+        photo: "/images/people/kim-jonghyo-cutout.webp",
+        cutout: { width: 650, height: 1200 },
+        background: "#A94400",
+        doodle: "global",
         alt: "김종효 COO",
-        career: ["LG전자 두바이 법인장", "LG전자 호주 주재원"],
-        quote: "시장과 실행 사이에\n빈칸을 남기지 않습니다.",
+        career: ["LG전자 해외영업 30년", "(호주 등 5개국 17년 해외주재)"],
+        quote: "시장과 실행 사이,\n빈틈을 남기지 않습니다.",
       },
       {
         name: "김진욱",
         role: "상품개발 부장",
-        photo: "/images/people/kim-jinwook.webp",
+        photo: "/images/people/kim-jinwook-cutout.webp",
+        cutout: { width: 745, height: 1200 },
+        background: "#F7F8F9",
+        doodle: "product",
         alt: "김진욱 상품개발 부장",
         career: ["플랫코퍼레이션", "키세스"],
         quote: "좋은 제품은 결국\n디테일에서 차이가 납니다.",
