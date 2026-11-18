@@ -244,7 +244,7 @@ function PersonRow({ person, index }: { person: Person; index: number }) {
           >
             “
           </span>
-          <p className="m-0 pt-2 text-[2.5rem] leading-[1.15] break-keep whitespace-pre-line md:text-[3.5rem] lg:text-[2.75rem] xl:text-[3rem] 2xl:text-[3.5rem]">
+          <p className="m-0 pt-2 text-[2rem] leading-[1.15] break-keep whitespace-pre-line md:text-[3rem] lg:text-[2.5rem] xl:text-[2.75rem] 2xl:text-[3rem]">
             <span className={dokdo.className}>{person.quote}</span>
             <span
               aria-hidden="true"
