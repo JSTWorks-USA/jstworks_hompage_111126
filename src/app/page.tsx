@@ -52,7 +52,7 @@ export default function AboutPage() {
                           src={ip.image}
                           alt={ip.document.replace(" 이미지 자리", "")}
                           fill
-                          sizes="(min-width: 1024px) 200px, (min-width: 768px) 30vw, 45vw"
+                          sizes="(min-width: 1600px) 300px, (min-width: 1024px) 19vw, (min-width: 768px) 30vw, 45vw"
                           className="object-contain"
                         />
                       </div>

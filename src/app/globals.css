@@ -114,12 +114,13 @@
 }
 
 /*
- * 화면 크기별 반응형 기준: 모바일(~767px) / 태블릿(768~991px) / PC(992px~, 4K 포함).
- * 배경은 화면 끝까지 꽉 채우고, 콘텐츠는 최대 75rem(1200px) 가운데에 둡니다(Container).
- * --page-inset: 콘텐츠 좌우 여백 15 / 20 / 32px
+ * 화면 크기별 반응형 기준: 모바일(~767px) / 태블릿(768~991px) / PC(992px~) / 넓은 PC(1440px~, 4K 포함).
+ * 배경은 화면 끝까지 꽉 채우고, 콘텐츠는 최대 --content-max(100rem = 1600px, 좌우 여백 포함) 가운데에 둡니다(Container).
+ * --page-inset: 콘텐츠 좌우 여백 15 / 20 / 32 / 48px
  * --section-pad: 섹션 위아래 여백 48 / 64 / 96px (PC 96px 를 기준으로 단계별로 줄임)
  */
 :root {
+  --content-max: 100rem;
   --page-inset: 0.9375rem;
   --section-pad: 3rem;
 }
@@ -141,6 +142,12 @@
   :root {
     --page-inset: 2rem;
     --section-pad: 6rem;
+  }
+}
+/* 1600px 폭을 넓게 쓰는 화면에서는 좌우 여백도 한 단계 넓혀 글이 화면 끝에 붙어 보이지 않게 합니다 */
+@media (min-width: 1440px) {
+  :root {
+    --page-inset: 3rem;
   }
 }
 
@@ -362,11 +369,78 @@
   .shooting-star {
     animation: shooting-star var(--meteor-dur, 11s) linear var(--meteor-delay, 0s) infinite;
   }
+  /* People 선 그림: 둥실(위아래) · 살랑(좌우로 기울기) · 산책(옆으로 왔다 갔다) · 반짝(커졌다 작아짐).
+     그림마다 다른 박자(--doodle-dur)와 어긋남(--doodle-delay)으로 움직여 한꺼번에 같이 움직이지 않습니다 */
+  .doodle-float,
+  .doodle-sway,
+  .doodle-wander,
+  .doodle-twinkle {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation-duration: var(--doodle-dur, 4s);
+    animation-delay: var(--doodle-delay, 0s);
+    animation-timing-function: var(--ease-in-out);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+  }
+  .doodle-float {
+    animation-name: doodle-float;
+  }
+  .doodle-sway {
+    animation-name: doodle-sway;
+  }
+  .doodle-wander {
+    animation-name: doodle-wander;
+  }
+  .doodle-twinkle {
+    animation-name: doodle-twinkle;
+  }
   /* 매출 지점 고리 */
   .root-pulse {
     animation: root-pulse 2.4s var(--ease-out) infinite;
     transform-box: fill-box;
     transform-origin: center;
+  }
+}
+
+/* People 선 그림 움직임 (SVG 안에서는 1rem = 그림 좌표 16칸) */
+@keyframes doodle-float {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 0 -0.875rem;
+  }
+}
+@keyframes doodle-sway {
+  from {
+    rotate: -9deg;
+  }
+  to {
+    rotate: 9deg;
+  }
+}
+@keyframes doodle-wander {
+  0% {
+    translate: -0.75rem 0;
+    rotate: -4deg;
+  }
+  50% {
+    translate: 0 -0.5rem;
+  }
+  100% {
+    translate: 0.75rem 0;
+    rotate: 4deg;
+  }
+}
+@keyframes doodle-twinkle {
+  from {
+    scale: 0.7;
+    opacity: 0.55;
+  }
+  to {
+    scale: 1.15;
+    opacity: 1;
   }
 }
 

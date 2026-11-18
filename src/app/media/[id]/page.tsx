@@ -58,39 +58,42 @@ export default async function ArticlePage({ params }: Props) {
     <article>
       {/* 검색엔진·AI 검색용 기사 정보(JSON-LD) */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(articleJsonLd(item, summaryOf(item))) }} />
-      <Container className="flex flex-col gap-12 py-12 md:py-16">
-        <Link
-          href="/media"
-          className="inline-flex min-h-11 items-center gap-2 self-start text-sm text-muted-foreground no-underline hover:text-foreground"
-        >
-          <ArrowLeftIcon aria-hidden="true" className="size-4" />
-          Media 목록
-        </Link>
+      {/* 페이지 폭(최대 1600px)이 넓어도 본문은 읽기 좋은 폭(52rem)으로 가운데에 둡니다 */}
+      <Container className="py-12 md:py-16">
+        <div className="mx-auto flex w-full max-w-[52rem] flex-col gap-12">
+          <Link
+            href="/media"
+            className="inline-flex min-h-11 items-center gap-2 self-start text-sm text-muted-foreground no-underline hover:text-foreground"
+          >
+            <ArrowLeftIcon aria-hidden="true" className="size-4" />
+            Media 목록
+          </Link>
 
-        <ArticleContent item={item} />
+          <ArticleContent item={item} />
 
-        {(prev || next) && (
-          <nav aria-label="다른 글" className="grid gap-4 border-t border-border pt-8 sm:grid-cols-2">
-            {prev && (
-              <Link
-                href={`/media/${prev.id}`}
-                className="flex flex-col gap-2 rounded-xl p-4 no-underline hover:bg-muted"
-              >
-                <span className="text-sm text-muted-foreground">이전 글</span>
-                <span className="text-base leading-snug">{prev.title}</span>
-              </Link>
-            )}
-            {next && (
-              <Link
-                href={`/media/${next.id}`}
-                className="flex flex-col gap-2 rounded-xl p-4 text-right no-underline hover:bg-muted sm:col-start-2"
-              >
-                <span className="text-sm text-muted-foreground">다음 글</span>
-                <span className="text-base leading-snug">{next.title}</span>
-              </Link>
-            )}
-          </nav>
-        )}
+          {(prev || next) && (
+            <nav aria-label="다른 글" className="grid gap-4 border-t border-border pt-8 sm:grid-cols-2">
+              {prev && (
+                <Link
+                  href={`/media/${prev.id}`}
+                  className="flex flex-col gap-2 rounded-xl p-4 no-underline hover:bg-muted"
+                >
+                  <span className="text-sm text-muted-foreground">이전 글</span>
+                  <span className="text-base leading-snug">{prev.title}</span>
+                </Link>
+              )}
+              {next && (
+                <Link
+                  href={`/media/${next.id}`}
+                  className="flex flex-col gap-2 rounded-xl p-4 text-right no-underline hover:bg-muted sm:col-start-2"
+                >
+                  <span className="text-sm text-muted-foreground">다음 글</span>
+                  <span className="text-base leading-snug">{next.title}</span>
+                </Link>
+              )}
+            </nav>
+          )}
+        </div>
       </Container>
     </article>
   );

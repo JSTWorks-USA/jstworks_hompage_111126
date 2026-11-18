@@ -176,7 +176,13 @@ function PersonRow({ person, index }: { person: Person; index: number }) {
               <h3 className="m-0 text-sm font-bold md:text-base">경력</h3>
               <ul className={cn("m-0 flex list-none flex-col gap-1 p-0 text-[0.9375rem] leading-snug break-keep sm:text-base md:text-xl", tone.subtle)}>
                 {person.career.map((item, i) => (
-                  <li key={`${item}-${i}`}>{item}</li>
+                  // 괄호로 시작하는 줄은 바로 위 경력의 덧붙임이라 한 단계 작게 씁니다
+                  <li
+                    key={`${item}-${i}`}
+                    className={cn(item.startsWith("(") && "text-sm sm:text-[0.9375rem] md:text-lg")}
+                  >
+                    {item}
+                  </li>
                 ))}
               </ul>
             </div>

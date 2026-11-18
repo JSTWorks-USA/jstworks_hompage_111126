@@ -99,7 +99,7 @@ export function ArticleModal({
         initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: reduceMotion ? 0.12 : 0.3, ease: [0.19, 1, 0.22, 1] }}
-        className="relative h-fit min-h-full w-full max-w-[calc(75rem-2*var(--page-inset))] rounded-t-2xl bg-background md:min-h-0 md:rounded-2xl"
+        className="relative h-fit min-h-full w-full max-w-[min(60rem,calc(var(--content-max)-2*var(--page-inset)))] rounded-t-2xl bg-background md:min-h-0 md:rounded-2xl"
       >
         <div className="px-6 pt-8 pb-10 md:px-10 md:pt-10 md:pb-12">{children}</div>
       </motion.div>

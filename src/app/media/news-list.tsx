@@ -62,7 +62,7 @@ function FeedCard({ item, onOpen }: { item: FeedItem; onOpen: (event: MouseEvent
             {item.title}
           </h2>
           {/* 본문 앞부분: 세 줄까지, 아래로 갈수록 흐려집니다 */}
-          <p className="m-0 line-clamp-3 text-[0.9375rem] leading-[1.75] break-keep text-foreground [mask-image:linear-gradient(to_bottom,black_45%,transparent)]">
+          <p className="m-0 line-clamp-3 max-w-[52rem] text-[0.9375rem] leading-[1.75] break-keep text-foreground [mask-image:linear-gradient(to_bottom,black_45%,transparent)]">
             {item.preview}
           </p>
         </div>
