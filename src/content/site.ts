@@ -255,7 +255,7 @@ export const PEOPLE: Person[] = [
     doodle: "creative",
     alt: "박재모 Co-founder & Creative",
     career: ["상암 커뮤니케이션즈", "타이타늄22"],
-    quote: "고객은 좋은 제품만을 구매하진 않는다,\n그로 좋아질 하루를 구매한다",
+    quote: "고객이 사는 건 물건이 아니라,\n그 물건이 바꿀 일상입니다.",
   },
   {
     name: "김종효",

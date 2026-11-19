@@ -123,7 +123,7 @@ export const EN: Record<string, string> = {
   // 헤드라인 (\n 위치에서 줄바꿈)
   "좋은 한국 제품이\n미국에서 다시 찾는 제품이 되도록.": "So great Korean products\nbecome the ones America comes back for.",
   "아이디어가 자산이 되는 순간까지\n권리로 완성합니다.": "We protect every idea\nuntil it becomes an asset.",
-  "고객은 좋은 제품만을 구매하진 않는다,\n그로 좋아질 하루를 구매한다": "Customers don't just buy a good product,\nthey buy the better day it brings.",
+  "고객이 사는 건 물건이 아니라,\n그 물건이 바꿀 일상입니다.": "Customers don’t buy things.\nThey buy the everyday those things change.",
   "기술은 앞에 서지 않아도\n경험을 바꿀 수 있습니다.": "Technology can change the experience\nwithout taking center stage.",
   "기술의 가능성을 설계하고,\n현실로 구현합니다.": "We design what technology can do,\nand make it real.",
   "시장과 실행 사이,\n빈틈을 남기지 않습니다.": "Between market and execution,\nwe leave no gaps.",
