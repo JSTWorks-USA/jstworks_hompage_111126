@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { BASE_OPEN_GRAPH, COMPANY_NAME_KO, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_URL, jsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
+import { BASE_OPEN_GRAPH, COMPANY_NAME_KO, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_URL, TAB_TITLE, jsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { T } from "@/lib/i18n";
 import { LANG_INIT_SCRIPT } from "@/lib/language-init";
 import { inter, nanumGothic } from "./fonts";
@@ -7,10 +7,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: {
-    default: `${SITE_NAME} — 미국향 커머스 플랫폼 | 조슈아트리웍스`,
-    template: "%s | Joshua Tree WORKS",
-  },
+  // 브라우저 탭 제목: 모든 페이지가 "Joshua Tree Works" 하나만 씁니다(하위 페이지는 title 을 넣지 않아 이 값을 물려받음)
+  title: TAB_TITLE,
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
   keywords: SITE_KEYWORDS,

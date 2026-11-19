@@ -7,13 +7,12 @@ import type { BusinessCategory } from "@/content/site";
  */
 
 const PATHS: Record<BusinessCategory, React.ReactNode> = {
-  // 게임 패드
+  // 원·세모·네모가 겹친 블록 놀이 도형
   "K-Play": (
     <>
-      <path d="M7.5 7.5h9a5 5 0 0 1 4.8 6.4l-.9 3.2a2.4 2.4 0 0 1-4.1 1L14.4 16H9.6l-1.9 2.1a2.4 2.4 0 0 1-4.1-1l-.9-3.2a5 5 0 0 1 4.8-6.4z" />
-      <path d="M7.5 10.5v3.5M5.75 12.25h3.5" />
-      <circle cx="15.5" cy="11" r="0.6" fill="currentColor" />
-      <circle cx="17.5" cy="13" r="0.6" fill="currentColor" />
+      <circle cx="5.75" cy="14.15" r="4.25" />
+      <path d="M11.75 5.8 16.65 14.1H6.9z" />
+      <rect x="14" y="9.95" width="8.4" height="8.4" rx="0.3" />
     </>
   ),
   // 립스틱 + 반짝임
@@ -24,12 +23,14 @@ const PATHS: Record<BusinessCategory, React.ReactNode> = {
       <path d="M18.5 3.5v4M16.5 5.5h4" />
     </>
   ),
-  // 집
+  // 숟가락 · 접시 · 젓가락 (한식 상차림)
   "K-Living": (
     <>
-      <path d="M3.5 11 12 4l8.5 7" />
-      <path d="M5.75 9.25V20h12.5V9.25" />
-      <path d="M10 20v-5.25h4V20" />
+      <ellipse cx="3.6" cy="7.8" rx="1.4" ry="2.3" />
+      <path d="M3.6 10.1v8.4" />
+      <circle cx="12.2" cy="12" r="4.8" />
+      <circle cx="12.2" cy="12" r="2.9" />
+      <path d="M19.6 5.5v13M21.8 5.5v13" />
     </>
   ),
   // 티셔츠

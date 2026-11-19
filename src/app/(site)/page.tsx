@@ -16,7 +16,7 @@ import { IP_ITEMS, type IpStatus } from "@/content/site";
 import { T } from "@/lib/i18n";
 import { PAGE_SEO } from "@/lib/seo";
 
-// 첫 화면: 제목은 레이아웃의 기본 제목(사이트 이름 + 한 줄 소개)을 그대로 씁니다.
+// 첫 화면: 탭 제목은 레이아웃의 "Joshua Tree Works" 를 그대로 씁니다.
 export const metadata: Metadata = {
   description: PAGE_SEO.about.description,
   alternates: { canonical: "/" },

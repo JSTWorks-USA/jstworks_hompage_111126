@@ -24,11 +24,11 @@ const summaryOf = (item: (typeof NEWS)[number]) => articlePreview(item.slug, ite
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const item = NEWS[findIndex(id)];
-  if (!item) return { title: "Media" };
+  if (!item) return {};
   const description = summaryOf(item);
   const path = articlePath(item);
+  // 탭 제목은 레이아웃의 "Joshua Tree Works" 그대로. 기사 제목은 링크 공유 미리보기에만 씁니다
   return {
-    title: item.title,
     description,
     alternates: { canonical: path },
     openGraph: {

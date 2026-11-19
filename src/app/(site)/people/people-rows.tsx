@@ -48,10 +48,38 @@ function lineEm(line: string) {
   return Number(em.toFixed(2));
 }
 
-/** 헤드라인의 가장 긴 줄과 마지막 줄(닫는 따옴표가 붙음)의 폭. globals.css 의 .quote-fit 이 이 값으로 글자 크기를 맞춥니다 */
-function quoteFitStyle(quote: string) {
-  const lines = quote.split("\n").map(lineEm);
-  return { "--fit-longest": Math.max(...lines), "--fit-last": lines[lines.length - 1] } as CSSProperties;
+/** 팔을 든 사진처럼 가로가 넓은 사진(폭 ÷ 높이 > 0.8). 이런 줄은 인물 칸을 넓히고 문구 칸을 좁힙니다 */
+const isWide = (person: Person) => !!person.cutout && person.cutout.width / person.cutout.height > 0.8;
+
+/**
+ * 한국어 헤드라인 글자 크기(태블릿·PC): 모든 사람이 같은 크기를 씁니다.
+ * 7명 중 가장 긴 줄이 가장 좁은 문구 칸에도 줄바꿈(\n) 자리에서만 나뉘어 들어가는 크기를 구해 globals.css(.quote-fit)에 넘깁니다.
+ * 100cqi = 한 사람 줄(Container)의 안쪽 폭. 문구 칸 폭 = 넓은 화면은 (100cqi - 칸 사이 간격) × 문구 칸 비율, 세로 태블릿은 100cqi. 둘 다 최대 42rem.
+ * 3rem 은 여는 따옴표와 간격, 6.5rem 은 그에 더해 마지막 줄 끝의 닫는 따옴표 자리입니다.
+ */
+function quoteFitVars(people: Person[]) {
+  const byColumn = new Map<number, { longest: number; last: number }>();
+  let longest = 0;
+  let last = 0;
+  for (const person of people) {
+    const lines = person.quote.split("\n").map(lineEm);
+    const l = Math.max(...lines);
+    const e = lines[lines.length - 1];
+    longest = Math.max(longest, l);
+    last = Math.max(last, e);
+    // 문구 칸 비율: 넓은 사진 줄은 0.75fr / 2fr, 그 밖은 0.85fr / 2fr (아래 grid-cols 와 같은 값)
+    const share = isWide(person) ? 0.375 : 0.425;
+    const g = byColumn.get(share) ?? { longest: 0, last: 0 };
+    byColumn.set(share, { longest: Math.max(g.longest, l), last: Math.max(g.last, e) });
+  }
+  const fit = (width: string, l: number, e: number) => [`calc((${width} - 3rem) / ${l})`, `calc((${width} - 6.5rem) / ${e})`];
+  const wideScreen = [...byColumn].flatMap(([share, g]) =>
+    fit(`min((100cqi - var(--layout-column-gap)) * ${share}, 42rem)`, g.longest, g.last),
+  );
+  return {
+    "--quote-fit-md": `min(${fit("min(100cqi, 42rem)", longest, last).join(", ")})`,
+    "--quote-fit-lg": `min(${wideScreen.join(", ")})`,
+  } as CSSProperties;
 }
 
 function Silhouette({ className }: { className?: string }) {
@@ -83,7 +111,7 @@ function PersonRow({ person, index, active }: { person: Person; index: number; a
   const flip = index % 2 === 1;
   // 팔을 든 사진처럼 가로가 넓은 사진(폭 ÷ 높이 > 0.8)은 폭 상한에 먼저 걸려 키가 작아지고 머리가 다른 줄보다 내려갑니다.
   // 이런 사진은 폭 상한과 인물 칸 비율을 넓혀 다른 사람과 비슷한 높이로 맞춥니다.
-  const wide = !!person.cutout && person.cutout.width / person.cutout.height > 0.8;
+  const wide = isWide(person);
 
   return (
     <li
@@ -98,7 +126,7 @@ function PersonRow({ person, index, active }: { person: Person; index: number; a
       {/* 인물 칸(이름·경력 + 사진)을 문구 칸보다 넓게 잡아 경력이 한 줄로 들어가게 합니다 */}
       <Container
         className={cn(
-          "grid items-end gap-x-(--layout-column-gap) gap-y-8 pt-12 md:pt-14 lg:min-h-150 fold:min-h-[min(37.5rem,calc(100svh-var(--header-height)))] lg:pt-16 fold:pt-16",
+          "grid items-end gap-x-(--layout-column-gap) gap-y-8 pt-12 md:@container md:pt-14 lg:min-h-150 fold:min-h-[min(37.5rem,calc(100svh-var(--header-height)))] lg:pt-16 fold:pt-16",
           wide
             ? flip
               ? "lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)] fold:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)]"
@@ -122,7 +150,7 @@ function PersonRow({ person, index, active }: { person: Person; index: number; a
           <div className="flex min-w-0 flex-col gap-4 self-center pb-8 md:gap-5 lg:flex-[0_1_20rem] fold:flex-[0_1_20rem] lg:gap-6 fold:gap-6 lg:pb-16 fold:pb-16">
             <div className="flex flex-col gap-1 md:gap-2">
               {/* 한국어: 이름 옆에 한글 직책(대표이사 등). 한글 직함(titleKo, 예: 부사장)이 있으면 영문 직책 대신 그것을 씁니다.
-                  영어: 영문 이름 아래 줄에 영문 직책(예: Jaemo Park / Co-founder & Creative) */}
+                  영어: 영문 이름 아래 줄에 영문 직책(예: Jamssi Park / Co-founder & Creative Director) */}
               <h2 className="m-0 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[1.375rem] leading-snug font-bold tracking-[-0.01em] break-keep md:text-[1.75rem] xl:text-[2rem] en:flex-col en:items-start max-sm:en:text-xl">
                 <T>{person.name}</T>
                 {person.titleKo && (
@@ -208,10 +236,9 @@ function PersonRow({ person, index, active }: { person: Person; index: number; a
           className={cn(
             "order-first m-0 flex max-w-md items-start gap-3 self-center md:max-w-2xl lg:order-0 fold:order-0 lg:justify-self-center fold:justify-self-center lg:pb-16 fold:pb-16",
             flip && "lg:order-1 fold:order-1",
-            // 줄 고정: 문구 칸 폭(100cqi)을 재려고 칸 전체 폭을 차지하게 하고, 넓은 화면에서는 내용을 가운데에 둡니다(globals.css .quote-fit)
-            "quote-fit md:w-full md:@container lg:justify-center fold:justify-center",
+            // 한국어 글자 크기를 모든 사람이 같게 맞춥니다(quoteFitVars, globals.css .quote-fit)
+            "quote-fit",
           )}
-          style={quoteFitStyle(person.quote)}
         >
           <span
             aria-hidden="true"
@@ -250,7 +277,7 @@ export function PeopleRows({ people }: { people: Person[] }) {
   useStepToRow(listRef);
   const active = useActiveRow(listRef);
   return (
-    <ul ref={listRef} className="m-0 list-none p-0">
+    <ul ref={listRef} className="m-0 list-none p-0" style={quoteFitVars(people)}>
       {people.map((person, i) => (
         <PersonRow key={person.name} person={person} index={i} active={i === active} />
       ))}

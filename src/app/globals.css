@@ -530,17 +530,19 @@ html[data-lang="EN"] [data-l="ko"] {
 }
 
 /*
- * People 헤드라인 줄 고정: 한국어 문구를 줄바꿈(\n) 자리에서만 나누고, 칸보다 길면 글자를 줄입니다.
- * 100cqi = 문구 칸(blockquote) 폭. 3rem 은 여는 따옴표와 간격, 6.5rem 은 그에 더해 마지막 줄 끝의 닫는 따옴표 자리입니다.
+ * People 헤드라인(한국어, 태블릿·PC): 줄바꿈(\n) 자리에서만 줄을 나누고, 모든 사람이 같은 글자 크기를 씁니다.
+ * --quote-fit-md / --quote-fit-lg 는 people-rows.tsx 의 quoteFitVars 가 7명 중 가장 긴 줄에 맞춰 계산합니다.
  * 원래 크기(--quote-fs)보다 커지지는 않습니다. 휴대폰(767px 이하)과 영어 화면은 칸에 맞춰 줄을 바꾸는 원래 방식 그대로입니다.
  */
 @media (min-width: 768px) {
   html:not([data-lang="EN"]) .quote-fit > p {
     white-space: pre;
-    font-size: min(
-      var(--quote-fs),
-      calc((100cqi - 3rem) / var(--fit-longest)),
-      calc((100cqi - 6.5rem) / var(--fit-last))
-    );
+    font-size: min(var(--quote-fs), var(--quote-fit-md));
+  }
+}
+/* 좌우로 나뉘는 넓은 화면(1024px 이상, 또는 가로로 긴 태블릿·펼친 폴드 = fold 변형과 같은 조건) */
+@media (min-width: 1024px), (min-width: 768px) and (max-width: 1023.98px) and (orientation: landscape) {
+  html:not([data-lang="EN"]) .quote-fit > p {
+    font-size: min(var(--quote-fs), var(--quote-fit-lg));
   }
 }

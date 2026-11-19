@@ -15,6 +15,8 @@ export const SITE_URL = (
 ).replace(/\/$/, "");
 
 export const SITE_NAME = "Joshua Tree WORKS";
+/** 브라우저 탭 제목. 어느 페이지에서나 이 이름 하나만 보입니다(페이지 이름을 앞에 붙이지 않음) */
+export const TAB_TITLE = "Joshua Tree Works";
 export const COMPANY_NAME_KO = "조슈아트리웍스 주식회사";
 export const COMPANY_NAME_EN = "Joshua Tree Works CO., Ltd.";
 export const CONTACT_EMAIL = "info@jstworks.com";
@@ -64,7 +66,7 @@ export const PAGE_SEO = {
   },
   contact: {
     title: "Contact",
-    description: `조슈아트리웍스 연락처와 오시는 길. 한국 본사(서울 강남구 역삼로26길 5)와 미국 법인 H&H USA LLC(17595 Harvard Ave, Suite C, Irvine, CA 92614). 문의: ${CONTACT_EMAIL}`,
+    description: `조슈아트리웍스 연락처와 오시는 길. 한국 본사(서울시 강남구 역삼로26길 5)와 미국 법인 H&H USA LLC(17595 Harvard Ave, Suite C, Irvine, CA 92614). 문의: ${CONTACT_EMAIL}`,
   },
 } as const;
 
@@ -76,11 +78,13 @@ export const BASE_OPEN_GRAPH = {
   alternateLocale: ["en_US"],
 } satisfies NonNullable<Metadata["openGraph"]>;
 
-/** 페이지 메타데이터: 제목·설명·대표 주소(canonical)·링크 공유 미리보기 */
+/**
+ * 페이지 메타데이터: 설명·대표 주소(canonical)·링크 공유 미리보기.
+ * 탭 제목(title)은 넣지 않아 레이아웃의 TAB_TITLE 이 그대로 보입니다. 페이지 이름은 링크 공유 제목에만 씁니다.
+ */
 export function pageMetadata(key: keyof typeof PAGE_SEO, path: string): Metadata {
   const { title, description } = PAGE_SEO[key];
   return {
-    title,
     description,
     alternates: { canonical: path },
     openGraph: { ...BASE_OPEN_GRAPH, url: path, title: `${title} | ${SITE_NAME}`, description },

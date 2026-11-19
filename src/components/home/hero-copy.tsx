@@ -3,7 +3,7 @@ import { T } from "@/lib/i18n";
 
 /**
  * 히어로 문구: "Joshua Tree WORKS" 글자 로고 + "미국향 커머스 플랫폼".
- * 영어(EN) 화면에서는 아래 문구가 "Commerce Platform for US Market" 으로 바뀝니다.
+ * 영어(EN) 화면에서는 아래 문구가 "Commerce platform for the US Market" 으로 바뀝니다.
  *
  * 로고 가로는 PC 500px(31.25rem). 화면이 좁으면 화면 폭의 78%까지 줄어듭니다(휴대폰 390px → 약 304px).
  * 아래 글씨와 사이 간격은 로고 폭에 비례하므로(컨테이너 단위 cqw) 로고와 같은 비율로 함께 작아집니다.

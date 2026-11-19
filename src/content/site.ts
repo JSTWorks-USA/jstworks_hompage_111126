@@ -28,24 +28,24 @@ export const HISTORY_LANES: HistoryLaneInfo[] = [
 export type HistoryItem = { date: string; text: string; note?: string; sub?: string; lane: HistoryLane };
 export const HISTORY: HistoryItem[] = [
   { date: "2025.12.15", text: "조슈아트리웍스 창업, 연구소 설립", lane: "company" },
-  { date: "2026.01.07", text: "캐릭터굿즈 특허 아이디어 발의", lane: "gentlevox" },
-  { date: "2026.01.07", text: "아티스트굿즈 특허출원", lane: "kganada" },
+  { date: "2026.01.07", text: "캐릭터 굿즈 특허 아이디어 발의", lane: "gentlevox" },
+  { date: "2026.01.07", text: "아티스트 굿즈 특허출원", lane: "kganada" },
   {
     date: "2026.03.17",
     text: "미국법인설립",
-    note: "(캘리포니아, 얼바인)",
+    note: "(캘리포니아 얼바인)",
     lane: "company",
   },
-  { date: "2026.03.17", text: "젠틀복스 개발 발의", lane: "gentlevox" },
+  { date: "2026.03.17", text: "젠틀복스 개발 착수", lane: "gentlevox" },
   { date: "2026.06.08", text: "미국 상표권 출원", lane: "kganada" },
   {
     date: "2026.07.20",
-    text: "삼익제약 요리엔정수기",
+    text: "삼익제약 요리엔 정수기",
     sub: "미국 독점영업권계약 체결",
     lane: "partner",
   },
-  { date: "2026.08.06", text: "캐릭터굿즈 특허 출원", lane: "gentlevox" },
-  { date: "2026.08.26", text: "아티스트굿즈 특허 등록", lane: "kganada" },
+  { date: "2026.08.06", text: "캐릭터 굿즈 특허 출원", lane: "gentlevox" },
+  { date: "2026.08.26", text: "아티스트 굿즈 특허 등록", lane: "kganada" },
   {
     date: "2026.09.23",
     text: "뷰티 디바이스",
@@ -54,13 +54,13 @@ export const HISTORY: HistoryItem[] = [
     lane: "partner",
   },
   { date: "2026.10.06", text: "벤처확인기업 등록", lane: "company" },
-  { date: "2026.10.21", text: "삼익제약 요리엔정수기", sub: "초도 물량 미국 선적", lane: "partner" },
+  { date: "2026.10.21", text: "삼익제약 요리엔 정수기", sub: "초도 물량 미국 선적", lane: "partner" },
 ];
 
 /** 연혁 장면 맨 위(가지 끝)에 보여 줄 비전. branches 는 가지 이름표입니다(순서는 장면의 BRANCH_LABELS 와 같음, K-Food 는 아직 없음) */
 export const VISION = {
   /** 비전 위에 작게 붙는 설명 */
-  lead: "검증된 한국브랜드의 독점영업권 및 자사 IP를 결합한",
+  lead: "검증된 한국 브랜드의 독점영업권 및 자사 IP를 결합한",
   title: "미국향 커머스 플랫폼",
   branches: ["K-Beauty", "K-Charm", "K-Play", "K-Apparel", "K-Living"] as BusinessCategory[],
 };
@@ -84,7 +84,7 @@ export const VISION_DETAILS: Partial<Record<BusinessCategory, VisionDetail>> = {
   },
   "K-Living": {
     title: "삼익제약 요리엔 정수기",
-    body: "조슈아트리웍스와 삼익제약은 미국 독점영업권계약을 체결하여 미국시장에 진출합니다.",
+    body: "조슈아트리웍스와 삼익제약은 미국 독점영업권계약을 체결하여 미국 시장에 진출합니다.",
     image: {
       src: "/images/news/yorien-pitcher-kitchen.webp",
       alt: "주방 조리대 위에 놓인 나무 손잡이 YORIEN 정수 피처",
@@ -246,39 +246,39 @@ export const PEOPLE: Person[] = [
     doodle: "export",
     alt: "이우용 대표이사",
     career: ["덕우전자 미국법인장", "LG전자 해외영업", "미국공인회계사"],
-    quote: "좋은 한국 제품이\n미국에서 다시 찾는 제품이 되도록.",
+    quote: "한국의 좋은 제품과\n미국의 일상을 잇습니다.",
   },
   {
     name: "박재모",
-    role: "Co-founder & Creative",
+    role: "Co-founder & Creative Director",
     titleKo: "부사장",
     photo: "/images/people/park-jaemo-cutout.webp",
     cutout: { width: 1063, height: 1200 },
     background: "#6300A9",
     doodle: "creative",
-    alt: "박재모 Co-founder & Creative",
+    alt: "박재모 Co-founder & Creative Director",
     career: ["상암 커뮤니케이션즈 CD", "타이타늄22 CD"],
     quote: "고객이 사는 건 물건이 아니라,\n그 물건이 바꿀 일상입니다.",
   },
   {
     name: "김종효",
-    role: "COO/전무",
+    role: "COO / 전무",
     photo: "/images/people/kim-jonghyo-cutout.webp",
     cutout: { width: 650, height: 1200 },
     background: "#A94400",
     doodle: "global",
     alt: "김종효 COO",
-    career: ["LG전자 해외영업 30년", "(호주 등 5개국 17년 해외주재)"],
+    career: ["LG전자 해외영업 30년", "(호주 등 5개국 17년 해외 주재)"],
     quote: "시장과 실행 사이,\n빈틈을 남기지 않습니다.",
   },
   {
     name: "김진욱",
-    role: "상품개발 부장",
+    role: "상품개발",
     photo: "/images/people/kim-jinwook-cutout.webp",
     cutout: { width: 745, height: 1200 },
     background: "#F7F8F9",
     doodle: "product",
-    alt: "김진욱 상품개발 부장",
+    alt: "김진욱 상품개발",
     career: ["플랫코퍼레이션", "키세스"],
     quote: "좋은 제품은 결국\n디테일에서 차이가 납니다.",
   },
@@ -295,14 +295,14 @@ export const PEOPLE: Person[] = [
   },
   {
     name: "길용준",
-    role: "CIPO (지식재산)",
+    role: "CIPO",
     photo: "/images/people/gil-yongjun-cutout.webp",
     cutout: { width: 726, height: 1200 },
     background: "#00441E",
     doodle: "patent",
     alt: "길용준 CIPO",
     career: ["AMD", "LG전자", "삼성에버랜드"],
-    quote: "아이디어가 자산이 되는 순간까지\n권리로 완성합니다.",
+    quote: "아이디어를 권리로 지켜,\n자산으로 완성합니다.",
   },
   {
     name: "이주황",
@@ -330,9 +330,10 @@ export type Brand = {
   /** Business 카테고리(K-Living 등) */
   kCategory: BusinessCategory;
   category: string;
-  /** 강점을 한 줄로 말하는 카피 (시안) */
-  tagline: string;
-  description: string;
+  /** 강점을 한 줄로 말하는 카피 (시안). 비워 두면 보이지 않습니다 */
+  tagline?: string;
+  /** 소개 문장. 비워 두면 보이지 않습니다 */
+  description?: string;
   /** 일정 등 상태 표시 */
   status?: string;
   /** 제품 구성 이미지는 추후 교체합니다 */
@@ -363,6 +364,42 @@ export const BRANDS: Brand[] = [
       height: 1534,
       // 정수 피처 몸통 가운데
       focus: { x: 0.6, y: 0.58 },
+    },
+  },
+  // K-Beauty: 에이글로벌(일본) 뷰티 디바이스. 일정(status)은 정해지면 채웁니다.
+  {
+    name: "ZEUS III",
+    kCategory: "K-Beauty",
+    category: "에이글로벌 뷰티 디바이스",
+    tagline: "일본 프리미엄 홈에스테틱의 정점",
+    description: "24K 금도금 소자 13개와 6가지 모드로 얼굴부터 바디까지 하루 5분 케어합니다.",
+    images: [],
+    // 기기가 오른쪽 대리석 받침 위에 있고, 왼쪽 금색 구 쪽에 카피 상자를 둡니다.
+    background: {
+      src: "/images/business/zeus-3-stage.webp",
+      alt: "검은 대리석 받침 위에 세워 둔 검정·금색 제우스 III 뷰티 디바이스",
+      width: 1819,
+      height: 865,
+      // 넓은 화면 기준점(0.7)과 같은 가로 위치 → 사진을 키우지 않고 기기가 제자리(오른쪽)에 보입니다
+      focus: { x: 0.7, y: 0.5 },
+    },
+  },
+  {
+    name: "ZEONIS",
+    kCategory: "K-Beauty",
+    category: "에이글로벌 뷰티 디바이스",
+    tagline: "제우스 III의 프리미엄 케어를, 매일 10분",
+    description: "5가지 기능을 동시에 출력하는 128g 무선 디바이스로 일본 A.GLOBAL의 홈에스테틱을 일상에서 만나보세요.",
+    images: [],
+    // 모델이 왼쪽에 있고, 오른쪽 빈 벽에 카피 상자를 둡니다(두 번째 줄이라 상자가 오른쪽).
+    background: {
+      src: "/images/business/zeonis-model.webp",
+      alt: "제오니스 뷰티 디바이스를 턱선에 대고 있는 검은 원피스 차림의 모델",
+      width: 2400,
+      height: 1016,
+      // 머리 위 여백이 짧아 사진 맨 위를 기준(y: 0)으로 고정하고, 화면 비율에 따라 아래쪽만 잘립니다.
+      // 가로는 넓은 화면 기준점(0.3)과 같은 위치 → 모델 얼굴(약 0.33)이 제자리에 보입니다
+      focus: { x: 0.3, y: 0 },
     },
   },
 ];
@@ -405,7 +442,7 @@ export type NewsItem = {
 /** 작성 순서는 상관없습니다. 화면에는 아래 NEWS(날짜순)를 씁니다. */
 const NEWS_ITEMS: NewsItem[] = [
   {
-    // 연혁 2026.03.17 "미국법인설립 (캘리포니아, 얼바인)"과 같은 날짜입니다.
+    // 연혁 2026.03.17 "미국법인설립 (캘리포니아 얼바인)"과 같은 날짜입니다.
     id: 7,
     slug: "us-corporation-founded",
     date: "2026.03.17",
@@ -431,7 +468,7 @@ const NEWS_ITEMS: NewsItem[] = [
       alt: "K-GANADA™ 로고",
       fit: "contain",
     },
-    // 상세 본문은 src/content/news/fandom-goods-patent-sentv.md 에 있습니다. 아래 body 는 마크다운이 없을 때의 대체 문구입니다.
+    // 상세 본문은 src/content/news/fandom-goods-patent-sentv.md 에 있습니다(서울경제TV 기사 원문을 그대로 옮긴 글). 아래 body 는 마크다운이 없을 때의 대체 문구입니다.
     body: [
       "서울경제TV가 조슈아트리웍스의 팬덤 굿즈 특허와 2027년 미국 스마트 토이 시장 진출 계획을 보도했습니다.",
       "기사 전문은 서울경제TV에서 볼 수 있습니다.",
@@ -472,7 +509,7 @@ const NEWS_ITEMS: NewsItem[] = [
       width: 720,
       height: 480,
     },
-    // 상세 본문은 src/content/news/yorien-us-exclusive.md 에 있습니다(메디칼타임즈 기사를 정리한 글).
+    // 상세 본문은 src/content/news/yorien-us-exclusive.md 에 있습니다(메디칼타임즈 기사 원문을 그대로 옮긴 글).
     body: [
       "메디칼타임즈가 삼익제약 요리엔 샤블리의 미국 첫 수출 소식을 보도했습니다.",
       "미국 판매 파트너는 조슈아트리웍스입니다.",
@@ -520,10 +557,10 @@ export const OFFICE_LOCATIONS: {
     name: "조슈아트리웍스 주식회사",
     address: "Joshuatree Building, Yeoksam-ro 26-gil 5, Gangnam-Gu, Seoul, Republic of Korea",
     /** 한국어 화면에서 위 영문 주소 대신 보이는 한글 주소(이때 아래 localAddress 줄은 숨깁니다) */
-    addressKo: "서울시 강남구 역삼로26길 5 (역삼동 770-21), 조슈아트리빌딩   우편번호:06227",
-    localAddress: "서울 강남구 역삼로26길 5, 조슈아트리빌딩",
+    addressKo: "서울시 강남구 역삼로26길 5 (역삼동 770-21), 조슈아트리빌딩   (우편번호:06227)",
+    localAddress: "서울시 강남구 역삼로26길 5, 조슈아트리빌딩",
     /** Google 지도에서 찾을 주소 */
-    mapQuery: "서울 강남구 역삼로26길 5",
+    mapQuery: "서울시 강남구 역삼로26길 5",
   },
   {
     eyebrow: "미국 법인",

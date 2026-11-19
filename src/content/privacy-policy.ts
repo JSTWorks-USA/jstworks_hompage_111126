@@ -28,23 +28,23 @@ export const PRIVACY_POLICY = {
   },
   en: {
     title: "Privacy Policy",
-    intro: "Joshua Tree Works Co., Ltd. (\"the Company\") handles the personal information you send through the inquiry form as follows.",
+    intro: "Joshua Tree Works Co., Ltd. (the \"Company\") processes personal information received through the inquiry form as follows.",
     sections: [
-      { title: "1. What we collect", body: "Inquiry type, name, company, email address, phone number, and message" },
-      { title: "2. Why we use it", body: "To review and answer your inquiry and to contact you about partnership or investment discussions" },
+      { title: "1. Personal Information Collected", body: "Inquiry type, name, company name, email address, phone number, and message" },
+      { title: "2. Purpose of Collection and Use", body: "To review and respond to inquiries, and to contact you for partnership or investment consultations" },
       {
-        title: "3. How long we keep it",
-        body: "We keep it for one year after your inquiry is resolved and then delete it without delay, unless another law requires a different retention period.",
+        title: "3. Retention and Use Period",
+        body: "We retain personal information for one year from the date the inquiry is resolved and then destroy it without delay. If another law specifies a retention period, we follow that period.",
       },
       {
-        title: "4. Service providers",
-        body: "Your inquiry is delivered to our company email through the email delivery service Web3Forms, which does not use it for any other purpose.",
+        title: "4. Entrustment of Processing",
+        body: "Inquiries are delivered to the Company's email through Web3Forms, an email delivery service. Web3Forms does not use personal information for any purpose other than delivery.",
       },
       {
-        title: "5. Your right to decline",
-        body: "You may decline to consent. Without consent, however, we cannot receive your inquiry.",
+        title: "5. Right to Refuse Consent",
+        body: "You may refuse to consent to the collection and use of your personal information. However, if you do not consent, you cannot submit an inquiry.",
       },
-      { title: "6. Contact", body: "For privacy questions, email info@jstworks.com." },
+      { title: "6. Contact", body: "For inquiries regarding personal information, please email info@jstworks.com." },
     ] satisfies PolicySection[],
   },
 };
