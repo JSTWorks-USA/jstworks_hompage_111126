@@ -419,6 +419,7 @@ const NEWS_ITEMS: NewsItem[] = [
     kind: "보도",
     title: "“피규어가 이름 불러줘요”…조슈아트리웍스, 팬덤 굿즈 특허",
     source: "서울경제TV",
+    href: "https://www.sentv.co.kr/article/view/sentv202610120184",
     // 기사 사진(서울경제TV, 사진=조슈아트리웍스): K-GANADA™ 로고. 잘리지 않게 통째로 보여 줍니다
     cover: {
       src: "/images/news/fandom-goods-patent-sentv.webp",
@@ -460,6 +461,7 @@ const NEWS_ITEMS: NewsItem[] = [
     kind: "보도",
     title: "삼익제약, 프리미엄 정수기 '요리엔 샤블리' 미국 첫 수출",
     source: "메디칼타임즈",
+    href: "https://www.medicaltimes.com/Main/News/NewsView.html?ID=1171234",
     // 사진 파일은 1440×960, 글 보기에서는 720px 폭으로 작게 보여 줍니다(선명도를 위해 2배 크기 파일)
     cover: {
       src: "/images/news/yorien-pitcher-kitchen.webp",

@@ -1,10 +1,9 @@
 import Image from "next/image";
 import { ArrowUpRightIcon } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import type { NewsItem } from "@/content/site";
 import { NEWS_SUMMARY_EN } from "@/content/en";
-import { Bi, T, en, keepWords } from "@/lib/i18n";
+import { T, keepWords } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { ArticleBody, readArticleMarkdown } from "./article-body";
 import { NewsCover } from "./news-cover";
@@ -97,23 +96,27 @@ export function ArticleContent({
         </div>
       )}
 
-      {/* 보도 글: 본문 끝에 출처를 글자로 남깁니다(원문 링크가 있으면 링크 버튼도 함께) */}
+      {/* 보도 글: 본문 끝에 출처를 남깁니다. 원문 링크가 있으면 출처 이름을 누르면 기사 원문이 새 창에서 열립니다 */}
       {item.kind === "보도" && (
         <p className="m-0 border-t border-border pt-5 type-meta text-muted-foreground">
-          <T>출처:</T> <T>{item.source}</T>
+          <T>출처:</T>{" "}
+          {item.href ? (
+            <a
+              href={item.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-foreground underline underline-offset-4 hover:text-primary"
+            >
+              <T>{item.source}</T>
+              <ArrowUpRightIcon aria-hidden="true" className="size-3.5" />
+              <span className="sr-only">
+                <T>(새 창에서 열림)</T>
+              </span>
+            </a>
+          ) : (
+            <T>{item.source}</T>
+          )}
         </p>
-      )}
-
-      {item.href && (
-        <Button asChild variant="outline" className="self-start">
-          <a href={item.href} target="_blank" rel="noopener noreferrer">
-            <Bi ko={`${item.source}에서 원문 보기`} en={`Read the original on ${en(item.source)}`} />
-            <ArrowUpRightIcon aria-hidden="true" className="size-4" />
-            <span className="sr-only">
-              <T>(새 창에서 열림)</T>
-            </span>
-          </a>
-        </Button>
       )}
     </div>
   );
