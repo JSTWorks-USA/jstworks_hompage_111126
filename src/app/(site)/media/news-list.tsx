@@ -5,6 +5,9 @@ import { useEffect, useState, useSyncExternalStore, type MouseEvent, type ReactN
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { NewsItem, NewsKind } from "@/content/site";
+import { NEWS_SUMMARY_EN } from "@/content/en";
+import { Bi, T } from "@/lib/i18n";
+import { useT } from "@/lib/language";
 import { cn } from "@/lib/utils";
 import { ArticleModal } from "./article-modal";
 import { NewsCover } from "./news-cover";
@@ -46,10 +49,12 @@ function FeedCard({ item, onOpen }: { item: FeedItem; onOpen: (event: MouseEvent
         className="flex flex-col gap-3 rounded-xl border border-border bg-background p-6 pb-18 text-foreground no-underline transition-colors hover:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none md:flex-row md:gap-8 md:p-8 md:pb-20"
       >
         <div className="flex min-w-0 flex-1 flex-col gap-3">
-          <p className="m-0 text-sm font-medium">{item.source}</p>
+          <p className="m-0 text-sm font-medium">
+            <T>{item.source}</T>
+          </p>
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[0.8125rem] text-muted-foreground">
             <Badge variant={item.kind === "보도" ? "primary" : "outline"} size="default">
-              {item.kind}
+              <T>{item.kind}</T>
             </Badge>
             <span className="tabular-nums">{item.date}</span>
           </div>
@@ -59,11 +64,11 @@ function FeedCard({ item, onOpen }: { item: FeedItem; onOpen: (event: MouseEvent
               item.placeholder && "text-muted-foreground",
             )}
           >
-            {item.title}
+            <T>{item.title}</T>
           </h2>
           {/* 본문 앞부분: 세 줄까지, 아래로 갈수록 흐려집니다 */}
           <p className="m-0 line-clamp-3 max-w-[52rem] text-[0.9375rem] leading-[1.75] break-keep text-foreground [mask-image:linear-gradient(to_bottom,black_45%,transparent)]">
-            {item.preview}
+            {NEWS_SUMMARY_EN[item.id] ? <Bi ko={item.preview} en={NEWS_SUMMARY_EN[item.id]} /> : item.preview}
           </p>
         </div>
         {item.cover && (
@@ -84,6 +89,7 @@ function FeedCard({ item, onOpen }: { item: FeedItem; onOpen: (event: MouseEvent
  * 고른 탭은 주소(?type=보도)에 남아, 새로 고침하거나 링크를 공유해도 같은 탭이 열립니다.
  */
 export function NewsList({ items, articles }: { items: FeedItem[]; articles: Record<string, ReactNode> }) {
+  const t = useT();
   // 서버와 첫 화면은 "전체" 목록을 그려 두고(검색엔진·첫 화면에 글이 바로 보이도록), 주소에 탭이 있으면 바로 그 탭으로 바뀝니다.
   // 탭은 주소만 바꾸고(replaceState) 서버에 다시 요청하지 않습니다.
   const filter = useSyncExternalStore(
@@ -144,7 +150,7 @@ export function NewsList({ items, articles }: { items: FeedItem[]; articles: Rec
 
   return (
     <div className="flex flex-col gap-8">
-      <div role="group" aria-label="글 종류" className="flex flex-wrap gap-2">
+      <div role="group" aria-label={t("글 종류")} className="flex flex-wrap gap-2">
         {FILTERS.map((key) => {
           const selected = key === filter;
           return (
@@ -157,7 +163,7 @@ export function NewsList({ items, articles }: { items: FeedItem[]; articles: Rec
               onClick={() => selectFilter(key)}
               className="cursor-pointer"
             >
-              {key}
+              <T>{key}</T>
             </Button>
           );
         })}
@@ -177,12 +183,12 @@ export function NewsList({ items, articles }: { items: FeedItem[]; articles: Rec
           onClick={() => setShown((current) => ({ ...current, [filter]: current[filter] + PAGE_SIZE }))}
           className="cursor-pointer self-center"
         >
-          더보기
+          <T>더보기</T>
         </Button>
       )}
 
       {openItem && (
-        <ArticleModal title={openItem.title} onClose={closeArticle}>
+        <ArticleModal title={t(openItem.title)} onClose={closeArticle}>
           {articles[openItem.slug]}
         </ArticleModal>
       )}

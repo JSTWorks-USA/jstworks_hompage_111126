@@ -1,34 +1,30 @@
 "use client";
 
-import { motion, useReducedMotion, type Transition } from "motion/react";
 import { Button } from "@/components/ui/button";
-import { setLang, useLang } from "@/lib/language";
+import { setLang, useLang, useT } from "@/lib/language";
 import { cn } from "@/lib/utils";
-
-/** 선택을 확인하는 움직임이라 튕기지 않고 바로 멈추는 스프링(임계 감쇠)을 씁니다. */
-const KNOB_SPRING: Transition = { type: "spring", stiffness: 520, damping: 46, mass: 1 };
 
 /**
  * KO / EN 언어 전환 버튼.
  * 테두리 안 어디를 눌러도 한국어 ↔ 영어가 번갈아 바뀌고, 흰 손잡이가 선택된 쪽으로 미끄러집니다.
- * 영문 문구가 준비된 곳(예: 푸터 한국 주소)만 영어로 바뀌고, 나머지 본문은 아직 한국어 그대로입니다.
+ * 손잡이 위치와 글자 색은 <html data-lang> 을 CSS(en: 변형)로 읽어, 영어를 고른 사람이 새로고침해도
+ * 손잡이가 KO 에서 EN 으로 미끄러지는 모습이 보이지 않습니다.
  * onDark: 홈 히어로 위 투명 헤더일 때 반투명 흰 테두리로 바꿉니다.
  */
 export function LanguageToggle({ onDark = false }: { onDark?: boolean }) {
   const lang = useLang();
-  const reduceMotion = useReducedMotion();
+  const t = useT();
   const english = lang === "EN";
 
-  const labelClass = (active: boolean) =>
-    cn(
-      "relative z-10 flex h-6 w-8 items-center justify-center text-xs font-medium transition-[color,scale] duration-base motion-safe:group-active:scale-95",
-      // 선택된 쪽은 흰 손잡이 위의 검은 글자, 다른 쪽은 흐린 글자(마우스를 올리면 진해짐)
-      active
-        ? "text-foreground"
-        : onDark
-          ? "text-night-foreground/75 group-hover:text-night-foreground"
-          : "text-muted-foreground group-hover:text-foreground",
-    );
+  const base =
+    "relative z-10 flex h-6 w-8 items-center justify-center text-xs font-medium transition-[color,scale] duration-base motion-safe:group-active:scale-95";
+  // 선택된 쪽은 흰 손잡이 위의 검은 글자, 다른 쪽은 흐린 글자(마우스를 올리면 진해짐)
+  const idle = onDark
+    ? "text-night-foreground/75 group-hover:text-night-foreground"
+    : "text-muted-foreground group-hover:text-foreground";
+  const idleEn = onDark
+    ? "en:text-night-foreground/75 en:group-hover:text-night-foreground"
+    : "en:text-muted-foreground en:group-hover:text-foreground";
 
   return (
     <Button
@@ -39,7 +35,7 @@ export function LanguageToggle({ onDark = false }: { onDark?: boolean }) {
       role="switch"
       aria-checked={english}
       // 이름은 켜졌을 때의 결과로 고정하고, 현재 언어는 켜짐/꺼짐으로 읽힙니다.
-      aria-label="영어로 보기 (EN)"
+      aria-label={t("영어로 보기 (EN)")}
       onClick={() => setLang(english ? "KO" : "EN")}
       className="group shrink-0 cursor-pointer"
     >
@@ -51,18 +47,15 @@ export function LanguageToggle({ onDark = false }: { onDark?: boolean }) {
             : "border-border bg-secondary",
         )}
       >
-        <motion.span
+        {/* 칸 너비(2rem) + 칸 사이 간격(0.125rem) 만큼 오른쪽으로. 움직임 줄이기 설정에서는 바로 옮깁니다 */}
+        <span
           aria-hidden="true"
-          className="absolute top-0.5 left-0.5 h-6 w-8 rounded-lg bg-background shadow-sm"
-          initial={false}
-          // 칸 너비(2rem) + 칸 사이 간격(0.125rem) 만큼 오른쪽으로
-          animate={{ x: english ? "2.125rem" : "0rem" }}
-          transition={reduceMotion ? { duration: 0 } : KNOB_SPRING}
+          className="absolute top-0.5 left-0.5 h-6 w-8 rounded-lg bg-background shadow-sm transition-transform duration-300 ease-out motion-reduce:transition-none en:translate-x-[2.125rem]"
         />
-        <span aria-hidden="true" className={labelClass(!english)}>
+        <span aria-hidden="true" className={cn(base, "text-foreground", idleEn)}>
           KO
         </span>
-        <span aria-hidden="true" className={labelClass(english)}>
+        <span aria-hidden="true" className={cn(base, idle, "en:text-foreground en:group-hover:text-foreground")}>
           EN
         </span>
       </span>

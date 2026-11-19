@@ -5,9 +5,9 @@ import { cn } from "@/lib/utils"
 // Clean editorial feel — no color accents, just luminance contrast
 
 export interface TimelineItem {
-  title: string
-  description?: string
-  timestamp?: string
+  title: React.ReactNode
+  description?: React.ReactNode
+  timestamp?: React.ReactNode
   icon?: React.ReactNode
 }
 

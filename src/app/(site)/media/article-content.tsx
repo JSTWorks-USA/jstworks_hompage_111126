@@ -3,6 +3,8 @@ import { ArrowUpRightIcon } from "@/components/icons";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { NewsItem } from "@/content/site";
+import { NEWS_SUMMARY_EN } from "@/content/en";
+import { Bi, T, en, keepWords } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { ArticleBody, readArticleMarkdown } from "./article-body";
 import { NewsCover } from "./news-cover";
@@ -30,11 +32,13 @@ export function ArticleContent({
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-4">
-        <p className="m-0 text-sm font-medium text-foreground">{item.source}</p>
+        <p className="m-0 text-sm font-medium text-foreground">
+          <T>{item.source}</T>
+        </p>
         <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[0.8125rem] text-muted-foreground">
             <Badge variant={item.kind === "보도" ? "primary" : "outline"} size="default">
-              {item.kind}
+              <T>{item.kind}</T>
             </Badge>
             <span className="tabular-nums">{item.date}</span>
           </div>
@@ -46,7 +50,7 @@ export function ArticleContent({
             item.placeholder && "text-muted-foreground",
           )}
         >
-          {item.title}
+          <T>{item.title}</T>
         </Title>
       </header>
 
@@ -73,6 +77,14 @@ export function ArticleContent({
           />
         ))}
 
+      {/* 영어(EN) 화면: 본문은 한국어로만 있어, 영어 요약과 안내를 본문 위에 둡니다 */}
+      {NEWS_SUMMARY_EN[item.id] && (
+        <div data-l="en" lang="en" className="flex flex-col gap-3 rounded-xl bg-secondary px-5 py-4">
+          <p className="m-0 text-[0.9375rem] leading-[1.75]">{keepWords(NEWS_SUMMARY_EN[item.id])}</p>
+          <p className="m-0 type-meta text-muted-foreground">The full article below is available in Korean only.</p>
+        </div>
+      )}
+
       {markdown ? (
         <ArticleBody markdown={markdown} />
       ) : (
@@ -87,15 +99,19 @@ export function ArticleContent({
 
       {/* 보도 글: 본문 끝에 출처를 글자로 남깁니다(원문 링크가 있으면 링크 버튼도 함께) */}
       {item.kind === "보도" && (
-        <p className="m-0 border-t border-border pt-5 type-meta text-muted-foreground">출처: {item.source}</p>
+        <p className="m-0 border-t border-border pt-5 type-meta text-muted-foreground">
+          <T>출처:</T> <T>{item.source}</T>
+        </p>
       )}
 
       {item.href && (
         <Button asChild variant="outline" className="self-start">
           <a href={item.href} target="_blank" rel="noopener noreferrer">
-            {item.source}에서 원문 보기
+            <Bi ko={`${item.source}에서 원문 보기`} en={`Read the original on ${en(item.source)}`} />
             <ArrowUpRightIcon aria-hidden="true" className="size-4" />
-            <span className="sr-only">(새 창에서 열림)</span>
+            <span className="sr-only">
+              <T>(새 창에서 열림)</T>
+            </span>
           </a>
         </Button>
       )}

@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, type KeyboardEvent, type ReactNode } from "react";
 import { ArrowLeftIcon, XmarkIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/language";
 
 /**
  * Media 목록에서 글을 누르면 목록 위에 뜨는 창. 주소는 /media/번호 로 바뀌어 그대로 공유할 수 있고,
@@ -21,6 +22,7 @@ export function ArticleModal({
   onClose: () => void;
   children: ReactNode;
 }) {
+  const t = useT();
   const reduceMotion = useReducedMotion();
   const panelRef = useRef<HTMLDivElement>(null);
   const opener = useRef<Element | null>(null);
@@ -77,7 +79,7 @@ export function ArticleModal({
         type="button"
         variant="secondary"
         size="iconLg"
-        aria-label="이전 페이지"
+        aria-label={t("이전 페이지")}
         onClick={close}
         className="fixed top-3 left-3 z-10 cursor-pointer md:top-5 md:left-5"
       >
@@ -87,7 +89,7 @@ export function ArticleModal({
         type="button"
         variant="secondary"
         size="iconLg"
-        aria-label="닫기"
+        aria-label={t("닫기")}
         onClick={close}
         className="fixed top-3 right-3 z-10 cursor-pointer md:top-5 md:right-5"
       >

@@ -10,6 +10,7 @@ import { MobileMenu } from "./mobile-menu";
 import { TreeMark } from "./logo";
 import { PrimaryNav } from "./primary-nav";
 import { Container } from "./site-ui";
+import { useT } from "@/lib/language";
 
 function subscribeScroll(onChange: () => void) {
   window.addEventListener("scroll", onChange, { passive: true });
@@ -33,6 +34,7 @@ function useAtTop() {
  * 홈 첫 화면에서는 밤하늘 히어로 위에 투명하게 겹치고, 조금이라도 스크롤하면 흰 배경으로 바뀝니다.
  */
 export function SiteHeader() {
+  const t = useT();
   const pathname = usePathname();
   const atTop = useAtTop();
   const onDark = pathname === "/" && atTop;
@@ -51,7 +53,7 @@ export function SiteHeader() {
       <Container className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 py-3 md:min-h-18 md:flex-nowrap md:gap-x-6 md:py-0">
         <Link
           href="/"
-          aria-label="Joshua Tree WORKS 홈"
+          aria-label={t("Joshua Tree WORKS 홈")}
           className={cn(
             "inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center no-underline transition-colors duration-base",
             onDark ? "text-night-foreground" : "text-primary",

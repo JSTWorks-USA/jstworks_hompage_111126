@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ShareAndroidIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { T } from "@/lib/i18n";
 
 /**
  * 공유하기: 누르면 글 주소(/media/번호)를 복사하고 "링크 복사됨"을 2초 동안 보여 줍니다.
@@ -52,7 +53,9 @@ export function ShareButton({
       className={cn("cursor-pointer gap-1.5", className)}
     >
       <ShareAndroidIcon aria-hidden="true" className="size-4" />
-      <span aria-live="polite">{copied ? "링크 복사됨" : "공유하기"}</span>
+      <span aria-live="polite">
+        <T>{copied ? "링크 복사됨" : "공유하기"}</T>
+      </span>
     </Button>
   );
 }

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { TreeMark } from "./logo";
 import { NAV_ITEMS } from "./site-nav";
+import { useT } from "@/lib/language";
 
 const EASE_OUT = [0.19, 1, 0.22, 1] as const;
 
@@ -19,6 +20,7 @@ const EASE_OUT = [0.19, 1, 0.22, 1] as const;
  * onDark: 홈 히어로 위 투명 헤더일 때 햄버거 아이콘을 흰색으로 둡니다.
  */
 export function MobileMenu({ onDark = false, className }: { onDark?: boolean; className?: string }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const reduceMotion = useReducedMotion();
@@ -84,7 +86,7 @@ export function MobileMenu({ onDark = false, className }: { onDark?: boolean; cl
         type="button"
         variant="ghost"
         size="iconLg"
-        aria-label="메뉴 열기"
+        aria-label={t("메뉴 열기")}
         aria-expanded={open}
         aria-controls="mobile-menu"
         onClick={() => setOpen(true)}
@@ -103,7 +105,7 @@ export function MobileMenu({ onDark = false, className }: { onDark?: boolean; cl
             id="mobile-menu"
             role="dialog"
             aria-modal="true"
-            aria-label="메뉴"
+            aria-label={t("메뉴")}
             onKeyDown={onKeyDown}
             initial={reduceMotion ? { opacity: 0 } : { x: "-100%" }}
             animate={reduceMotion ? { opacity: 1 } : { x: 0 }}
@@ -115,7 +117,7 @@ export function MobileMenu({ onDark = false, className }: { onDark?: boolean; cl
             <div className="flex items-center justify-between px-(--page-inset) py-3">
               <Link
                 href="/"
-                aria-label="Joshua Tree WORKS 홈"
+                aria-label={t("Joshua Tree WORKS 홈")}
                 onClick={() => setOpen(false)}
                 className="inline-flex min-h-11 min-w-11 items-center justify-center text-primary"
               >
@@ -125,7 +127,7 @@ export function MobileMenu({ onDark = false, className }: { onDark?: boolean; cl
                 type="button"
                 variant="ghost"
                 size="iconLg"
-                aria-label="메뉴 닫기"
+                aria-label={t("메뉴 닫기")}
                 onClick={close}
                 className="cursor-pointer"
               >
@@ -134,7 +136,7 @@ export function MobileMenu({ onDark = false, className }: { onDark?: boolean; cl
             </div>
 
             {/* 메뉴 항목: 화면 가운데에 세로로 */}
-            <nav aria-label="주 메뉴" className="flex flex-1 items-center justify-center pb-16">
+            <nav aria-label={t("주 메뉴")} className="flex flex-1 items-center justify-center pb-16">
               <ul className="m-0 flex list-none flex-col items-center gap-2 p-0">
                 {NAV_ITEMS.map((item, i) => {
                   const active =

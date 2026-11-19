@@ -9,3 +9,4 @@ export { MailIcon } from "./mail";
 export { MenuIcon } from "./menu";
 export { XmarkIcon } from "./xmark";
 export { ShareAndroidIcon } from "./share-android";
+export { CheckIcon } from "./check";

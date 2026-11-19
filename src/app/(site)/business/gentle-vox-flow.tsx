@@ -1,5 +1,6 @@
 import { Fragment, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { T } from "@/lib/i18n";
 
 /*
  * 젠틀복스 작동 흐름: 4단계(녹음 → 전달 → 재생 → 안심) + 핵심 특허기술 3가지 + 사용 예.
@@ -107,10 +108,10 @@ export function GentleVoxFlow({ product, className }: { product: ReactNode; clas
         {product}
         <div className="flex flex-col gap-3">
           <h4 id="gv-flow-title" className="m-0 type-title text-balance">
-            앱으로 남긴 진심, 큐브로 듣는 안부
+            <T>앱으로 남긴 진심, 큐브로 듣는 안부</T>
           </h4>
           <p className="m-0 max-w-[34em] type-body text-muted-foreground">
-            젠틀복스 앱에 안부를 녹음하면, 가족의 큐브에서 내 목소리가 흘러나옵니다.
+            <T>젠틀복스 앱에 안부를 녹음하면, 가족의 큐브에서 내 목소리가 흘러나옵니다.</T>
           </p>
         </div>
       </div>
@@ -133,9 +134,11 @@ export function GentleVoxFlow({ product, className }: { product: ReactNode; clas
               <div className="flex min-w-0 flex-col gap-0.5 lg:gap-1">
                 <h5 className="m-0 flex items-baseline gap-2 type-title">
                   <span className="type-meta font-normal text-muted-foreground tabular-nums lg:hidden">{i + 1}</span>
-                  {step.title}
+                  <T>{step.title}</T>
                 </h5>
-                <p className="m-0 type-body text-muted-foreground">{step.body}</p>
+                <p className="m-0 type-body text-muted-foreground">
+                  <T>{step.body}</T>
+                </p>
               </div>
             </li>
           </Fragment>
@@ -146,18 +149,28 @@ export function GentleVoxFlow({ product, className }: { product: ReactNode; clas
       <ul aria-label="주요 핵심기술" className="m-0 grid list-none gap-x-8 gap-y-5 p-0 md:grid-cols-3 short:gap-y-3">
         {PATENTS.map((patent) => (
           <li key={patent.label} className="flex flex-col gap-1 border-t border-border pt-4 short:pt-3">
-            <span className="type-meta text-muted-foreground">{patent.label}</span>
-            <span className="type-title">{patent.title}</span>
-            <span className="type-body text-muted-foreground">{patent.body}</span>
+            <span className="type-meta text-muted-foreground">
+              <T>{patent.label}</T>
+            </span>
+            {/* 영어 제목(Hyper-personalized 등)은 단어가 길어, 세 칸이 좁은 태블릿에서는 한 단계 작게 씁니다 */}
+            <span className="type-title md:max-lg:en:text-lg">
+              <T>{patent.title}</T>
+            </span>
+            <span className="type-body text-muted-foreground">
+              <T>{patent.body}</T>
+            </span>
           </li>
         ))}
       </ul>
 
       <div className="flex flex-col gap-1 rounded-xl bg-muted px-6 py-4 short:py-3">
-        <p className="m-0 type-meta text-muted-foreground">예: 요양원에 계신 엄마</p>
+        <p className="m-0 type-meta text-muted-foreground">
+          <T>예: 요양원에 계신 엄마</T>
+        </p>
         <p className="m-0 type-body">
-          딸이 앱에 안부를 남기면 엄마의 큐브에서 딸 목소리가 나오고, 엄마가 스위치를 누르면 딸에게
-          “엄마 잘 지내니 걱정 마” 알림이 도착합니다.
+          <T>
+            {"딸이 앱에 안부를 남기면 엄마의 큐브에서 딸 목소리가 나오고, 엄마가 스위치를 누르면 딸에게 “엄마 잘 지내니 걱정 마” 알림이 도착합니다."}
+          </T>
         </p>
       </div>
     </section>

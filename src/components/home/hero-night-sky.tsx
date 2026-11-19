@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef } from "react";
+import { useT } from "@/lib/language";
 import { HeroCopy } from "./hero-copy";
 
 type Star = {
@@ -41,6 +42,7 @@ function flareAnchor(canvas: HTMLCanvasElement) {
  * 움직임을 줄이도록 설정한 사용자에게는 정지한 별만 그립니다.
  */
 export function HeroNightSky() {
+  const t = useT();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -227,7 +229,7 @@ export function HeroNightSky() {
     >
       <Image
         src="/images/hero/joshua-tree-night-silhouette.jpg"
-        alt="은하수가 보이는 밤하늘 아래 조슈아 트리 실루엣"
+        alt={t("은하수가 보이는 밤하늘 아래 조슈아 트리 실루엣")}
         fill
         preload
         sizes="100vw"

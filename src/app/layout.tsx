@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
 import { BASE_OPEN_GRAPH, COMPANY_NAME_KO, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_URL, jsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
+import { T } from "@/lib/i18n";
+import { LANG_INIT_SCRIPT } from "@/lib/language-init";
 import { inter, nanumGothic } from "./fonts";
 import "./globals.css";
 
@@ -33,7 +33,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ko" className={`${inter.variable} ${nanumGothic.variable}`}>
+    // 영어(EN)를 고른 사람은 그리기 전에 스크립트가 lang·data-lang 을 바꾸므로 그 차이는 경고하지 않습니다
+    <html lang="ko" className={`${inter.variable} ${nanumGothic.variable}`} suppressHydrationWarning>
+      <head>
+        {/* 고른 언어(KO/EN)를 첫 화면 전에 표시합니다. 새로고침해도 한국어가 잠깐 보이지 않습니다 */}
+        <script dangerouslySetInnerHTML={{ __html: LANG_INIT_SCRIPT }} />
+      </head>
       <body>
         {/* 검색엔진·AI 검색용 회사·웹사이트 정보(JSON-LD) */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd([organizationJsonLd(), websiteJsonLd()]) }} />
@@ -41,11 +46,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2.5 focus:text-sm focus:text-primary-foreground"
         >
-          본문으로 건너뛰기
+          <T>본문으로 건너뛰기</T>
         </a>
-        <SiteHeader />
-        <main id="main">{children}</main>
-        <SiteFooter />
+        {/* 머리글·본문·바닥글은 (site)/layout.tsx 에 있습니다 */}
+        {children}
       </body>
     </html>
   );

@@ -6,6 +6,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { Container, PageHeader } from "@/components/site-ui";
 import { OFFICE_LOCATIONS } from "@/content/site";
 import { InquiryForm } from "./inquiry-form";
+import { T } from "@/lib/i18n";
 
 export const metadata: Metadata = pageMetadata("contact", "/contact");
 
@@ -34,16 +35,16 @@ export default function ContactPage() {
               <CardHeader className="gap-2 space-y-0">
                 {/* 페이지 h1 바로 아래 단계라 CardTitle(h3) 대신 h2를 씁니다 */}
                 <h2 className="m-0 type-title">
-                  {office.name}
+                  <T>{office.name}</T>
                 </h2>
                 <p className="m-0 type-label text-muted-foreground">
-                  {office.eyebrow}
+                  <T>{office.eyebrow}</T>
                 </p>
               </CardHeader>
               <CardContent className="flex flex-1 flex-col gap-2">
                 <p className="m-0 type-body">{office.address}</p>
                 <p className="m-0 type-meta text-muted-foreground">
-                  {office.localAddress}
+                  <T>{office.localAddress}</T>
                 </p>
               </CardContent>
             </Card>

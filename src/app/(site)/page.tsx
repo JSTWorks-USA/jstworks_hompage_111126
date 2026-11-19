@@ -13,6 +13,7 @@ import {
 import { SectionHeader } from "@/components/ui/section-header";
 import { Container, Placeholder } from "@/components/site-ui";
 import { IP_ITEMS, type IpStatus } from "@/content/site";
+import { T } from "@/lib/i18n";
 import { PAGE_SEO } from "@/lib/seo";
 
 // 첫 화면: 제목은 레이아웃의 기본 제목(사이트 이름 + 한 줄 소개)을 그대로 씁니다.
@@ -65,11 +66,11 @@ export default function AboutPage() {
                   </div>
                   <CardHeader className="gap-2 space-y-0 p-3 md:p-4">
                     <CardTitle className="text-[0.9375rem] leading-snug font-medium break-keep">
-                      {ip.title}
+                      <T>{ip.title}</T>
                     </CardTitle>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
                       <Badge variant={ipBadgeVariant[ip.status]} size="default">
-                        {ip.badge}
+                        <T>{ip.badge}</T>
                       </Badge>
                       <CardDescription className="text-[0.8125rem] tabular-nums">
                         {ip.date}

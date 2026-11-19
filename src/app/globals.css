@@ -16,6 +16,15 @@
   }
 }
 
+/* 영어(EN) 화면: KO/EN 버튼이 <html data-lang="EN"> 을 붙입니다. 영어일 때만 다른 모양을 줄 때 en: 을 씁니다 */
+@custom-variant en (&:where(html[data-lang="EN"], html[data-lang="EN"] *));
+
+/* 한국어·영어 문구(<T>, <Bi>): 지금 언어가 아닌 쪽을 숨깁니다(화면 낭독기도 읽지 않음) */
+html:not([data-lang="EN"]) [data-l="en"],
+html[data-lang="EN"] [data-l="ko"] {
+  display: none !important;
+}
+
 /*
  * Better Design 커스텀 시스템 "bright-eye" 토큰 (JSTWorks 브랜드 기반)
  * https://better-design.com/projects/1d571de3-1e8e-4d21-90c8-3c56a03dee3c
@@ -95,7 +104,13 @@
   /* 지평선 가까운 밤하늘, 조슈아 트리 실루엣 */
   --horizon: oklch(0.2 0.04 230);
   --tree: oklch(0.16 0.03 155);
-  --subtle: oklch(0.6334 0 0);
+  --subtle: oklch(87.302% 0.0001 271.152);
+  /* People 인물별 색: 흰 줄 위 따옴표·선 그림에만 씁니다 */
+  --people-green: var(--green);
+  --people-violet: #6300a9;
+  --people-rust: #a94400;
+  --people-navy: #001d3d;
+  --accent-amber: #f2a65a;
   --footer: var(--black);
   --footer-foreground: var(--white);
   --footer-line: oklch(1 0 0 / 0.16);
@@ -369,31 +384,16 @@
   .shooting-star {
     animation: shooting-star var(--meteor-dur, 11s) linear var(--meteor-delay, 0s) infinite;
   }
-  /* People 선 그림: 둥실(위아래) · 살랑(좌우로 기울기) · 산책(옆으로 왔다 갔다) · 반짝(커졌다 작아짐).
-     그림마다 다른 박자(--doodle-dur)와 어긋남(--doodle-delay)으로 움직여 한꺼번에 같이 움직이지 않습니다 */
-  .doodle-float,
-  .doodle-sway,
-  .doodle-wander,
-  .doodle-twinkle {
+  /* People 선 그림: 줄이 화면에 들어오면 아이콘들이 사진 뒤(--pop-x, --pop-y 만큼 떨어진 곳)에서
+     한두 개씩 슝 튀어나와 제자리에 섭니다. 몇 개씩, 언제 나올지는 person-doodles.tsx 가 매번 무작위로 정하고(--pop-delay),
+     모든 아이콘이 2초 안에 다 나옵니다. 움직임을 줄인 사용자에게는 처음부터 제자리에 멈춘 그림이 보입니다. */
+  .doodle-pop {
+    opacity: 0;
     transform-box: fill-box;
     transform-origin: center;
-    animation-duration: var(--doodle-dur, 4s);
-    animation-delay: var(--doodle-delay, 0s);
-    animation-timing-function: var(--ease-in-out);
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
   }
-  .doodle-float {
-    animation-name: doodle-float;
-  }
-  .doodle-sway {
-    animation-name: doodle-sway;
-  }
-  .doodle-wander {
-    animation-name: doodle-wander;
-  }
-  .doodle-twinkle {
-    animation-name: doodle-twinkle;
+  [data-doodles-play] .doodle-pop {
+    animation: doodle-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) var(--pop-delay, 0s) both;
   }
   /* 매출 지점 고리 */
   .root-pulse {
@@ -403,43 +403,19 @@
   }
 }
 
-/* People 선 그림 움직임 (SVG 안에서는 1rem = 그림 좌표 16칸) */
-@keyframes doodle-float {
+/* People 선 그림 튀어나오기 (SVG 안에서는 1px = 그림 좌표 1칸) */
+@keyframes doodle-pop {
   from {
+    translate: calc(var(--pop-x, 0) * 1px) calc(var(--pop-y, 0) * 1px);
+    scale: 0.2;
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  to {
     translate: 0 0;
-  }
-  to {
-    translate: 0 -0.875rem;
-  }
-}
-@keyframes doodle-sway {
-  from {
-    rotate: -9deg;
-  }
-  to {
-    rotate: 9deg;
-  }
-}
-@keyframes doodle-wander {
-  0% {
-    translate: -0.75rem 0;
-    rotate: -4deg;
-  }
-  50% {
-    translate: 0 -0.5rem;
-  }
-  100% {
-    translate: 0.75rem 0;
-    rotate: 4deg;
-  }
-}
-@keyframes doodle-twinkle {
-  from {
-    scale: 0.7;
-    opacity: 0.55;
-  }
-  to {
-    scale: 1.15;
+    scale: 1;
     opacity: 1;
   }
 }

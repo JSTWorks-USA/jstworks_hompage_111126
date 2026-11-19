@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import Markdown, { type Components } from "react-markdown";
+import { T } from "@/lib/i18n";
 
 /**
  * 글 본문 마크다운: src/content/news/<slug>.md
@@ -33,7 +34,11 @@ const components: Components = {
         {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
       >
         {children}
-        {external && <span className="sr-only"> (새 창에서 열림)</span>}
+        {external && (
+          <span className="sr-only">
+            <T>{" (새 창에서 열림)"}</T>
+          </span>
+        )}
       </a>
     );
   },

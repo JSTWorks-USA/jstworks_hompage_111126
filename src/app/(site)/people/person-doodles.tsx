@@ -1,12 +1,15 @@
-import type { CSSProperties, ReactNode } from "react";
+"use client";
+
+import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import type { DoodleTheme } from "@/content/site";
 import { cn } from "@/lib/utils";
 
 /**
  * 인물 뒤에 깔리는 손그림 느낌의 선 그림.
  * 그 사람 역할에 맞춘 아이콘 네 개와, 별·동그라미·X·더하기·물결 같은 작은 장식을 흩뿌립니다.
- * 그림마다 둥실(위아래) · 살랑(기울기) · 산책(옆으로 왔다 갔다) · 반짝(크기) 움직임을
- * 서로 다른 박자로 줘서 귀엽게 살아 움직이게 합니다. 움직임을 줄인 사용자에게는 멈춘 그림만 보입니다(globals.css).
+ * 줄이 화면에 들어올 때마다 그림들이 사진 뒤에서 한두 개씩 슝슝 튀어나와 제자리에 섭니다.
+ * 한 번에 몇 개가 나올지는 매번 무작위이고, 모든 그림이 2초 안에 다 나옵니다(화면 밖으로 나가면 다시 숨었다가 다음에 또 나옴).
+ * 움직임을 줄인 사용자에게는 처음부터 제자리에 멈춘 그림이 보입니다(globals.css).
  *
  * 좌표: 600×600, 상자 위쪽에 붙여 그립니다. 인물 머리는 가운데(가로 220~380) 위쪽에 있으므로
  * 그림은 머리 양옆 위쪽과 좌우 가장자리에 둡니다. 각 아이콘은 100×100 칸에 그린 뒤 원하는 자리·크기로 옮깁니다.
@@ -172,37 +175,65 @@ const THEME: Record<DoodleTheme, [IconName, IconName, IconName, IconName]> = {
   tech: ["gear", "code", "chip", "bolt"],
 };
 
-type Motion = "float" | "sway" | "wander" | "twinkle";
+/** 아이콘이 튀어나오기 시작하는 곳: 사진(인물 몸통) 뒤 가운데 */
+const ORIGIN = { x: 300, y: 300 };
+/** 한 아이콘이 튀어나오는 데 걸리는 시간(초, globals.css 의 doodle-pop 과 같게) */
+const POP_SECONDS = 0.55;
+/** 모든 아이콘이 다 나오는 데 걸리는 시간(초) */
+const ALL_WITHIN_SECONDS = 2;
+/** 한 번에 같이 튀어나오는 아이콘 수: 1 ~ 이 값 사이에서 무작위 */
+const MAX_PER_BURST = 3;
 
 /**
- * 움직이는 묶음. 바깥 g 는 CSS 로 움직이고(transform-box: fill-box 로 그림 자기 중심 기준),
+ * 튀어나오는 묶음. at 은 이 그림의 가운데 좌표(600×600 기준)이고,
+ * 사진 뒤 가운데(ORIGIN)에서 at 까지의 거리를 --pop-x/--pop-y 로 넘겨 거기서부터 제자리로 날아오게 합니다.
  * 안쪽 내용은 자기 자리(transform 속성)를 그대로 지킵니다.
  */
-function Move({
-  motion,
-  dur,
-  delay = 0,
+function Pop({
+  at,
   children,
   stroke,
   strokeWidth,
 }: {
-  motion: Motion;
-  dur: number;
-  delay?: number;
+  at: [number, number];
   children: ReactNode;
   stroke?: string;
   strokeWidth?: number;
 }) {
   return (
     <g
-      className={`doodle-${motion}`}
-      style={{ "--doodle-dur": `${dur}s`, "--doodle-delay": `${delay}s` } as CSSProperties}
-      stroke={stroke}
+      className="doodle-pop"
+      // 색은 CSS 변수(토큰)로 오므로 SVG 속성 대신 style 로 넣습니다(속성에는 var() 를 쓸 수 없음)
+      style={{ "--pop-x": ORIGIN.x - at[0], "--pop-y": ORIGIN.y - at[1], ...(stroke ? { stroke } : {}) } as CSSProperties}
       strokeWidth={strokeWidth}
     >
       {children}
     </g>
   );
+}
+
+/**
+ * 아이콘들이 튀어나올 시각을 매번 무작위로 정합니다.
+ * 순서를 섞은 뒤 1~MAX_PER_BURST 개씩 묶고, 묶음마다 같은 시각에 함께 나오게 합니다.
+ * 마지막 묶음도 ALL_WITHIN_SECONDS 안에 다 나오도록 시작 시각을 고르게 나눕니다.
+ */
+function scheduleBursts(items: SVGGElement[]) {
+  const order = [...items];
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  const bursts: SVGGElement[][] = [];
+  for (let i = 0; i < order.length; ) {
+    const size = 1 + Math.floor(Math.random() * MAX_PER_BURST);
+    bursts.push(order.slice(i, i + size));
+    i += size;
+  }
+  const lastStart = ALL_WITHIN_SECONDS - POP_SECONDS;
+  bursts.forEach((burst, i) => {
+    const start = bursts.length > 1 ? (lastStart * i) / (bursts.length - 1) : 0;
+    burst.forEach((item) => item.style.setProperty("--pop-delay", `${start.toFixed(2)}s`));
+  });
 }
 
 function Icon({ name, x, y, size }: { name: IconName; x: number; y: number; size: number }) {
@@ -230,69 +261,69 @@ const Cross = ({ x, y, r }: { x: number; y: number; r: number }) => (
 function Scatter({ accent }: { accent: string }) {
   return (
     <>
-      {/* 머리 위 반짝이는 별들 */}
-      <Move motion="twinkle" dur={1.8} delay={0.2}>
+      {/* 머리 위 별들 */}
+      <Pop at={[200, 34]}>
         <Twinkle x={200} y={34} r={13} />
-      </Move>
-      <Move motion="twinkle" dur={2.4} delay={1.1} stroke={accent}>
+      </Pop>
+      <Pop at={[404, 22]} stroke={accent}>
         <Twinkle x={404} y={22} r={10} />
-      </Move>
-      <Move motion="twinkle" dur={2.1} delay={0.6}>
+      </Pop>
+      <Pop at={[572, 170]}>
         <Twinkle x={572} y={170} r={11} />
-      </Move>
+      </Pop>
 
-      {/* 동그라미 · 더하기 · X 가 둥실 떠다니고 살랑 흔들립니다 */}
-      <Move motion="float" dur={3.2} delay={0.4}>
+      {/* 동그라미 · 더하기 · X */}
+      <Pop at={[504, 210]}>
         <circle cx="504" cy="210" r="11" />
-      </Move>
-      <Move motion="float" dur={2.8} delay={1.4}>
+      </Pop>
+      <Pop at={[150, 186]}>
         <Plus x={150} y={186} r={10} />
-      </Move>
-      <Move motion="float" dur={3.6} delay={0.9} stroke={accent}>
+      </Pop>
+      <Pop at={[34, 250]} stroke={accent}>
         <circle cx="34" cy="250" r="9" />
-      </Move>
-      <Move motion="sway" dur={2.6} delay={0.3}>
+      </Pop>
+      <Pop at={[541, 259]}>
         <Cross x={541} y={259} r={9} />
-      </Move>
-      <Move motion="sway" dur={3} delay={1.6} stroke={accent}>
+      </Pop>
+      <Pop at={[568, 428]} stroke={accent}>
         <Cross x={568} y={428} r={8} />
-      </Move>
-      <Move motion="float" dur={3.4} delay={0.7}>
+      </Pop>
+      <Pop at={[556, 356]}>
         <circle cx="556" cy="356" r="8" />
-      </Move>
-      <Move motion="float" dur={2.9} delay={2} stroke={accent}>
+      </Pop>
+      <Pop at={[520, 474]} stroke={accent}>
         <circle cx="520" cy="474" r="12" />
-      </Move>
-      <Move motion="sway" dur={3.3} delay={0.5} stroke={accent}>
+      </Pop>
+      <Pop at={[556, 548]} stroke={accent}>
         <Cross x={556} y={548} r={8} />
-      </Move>
-      <Move motion="float" dur={3.1} delay={1.2}>
+      </Pop>
+      <Pop at={[44, 372]}>
         <Plus x={44} y={372} r={8} />
-      </Move>
+      </Pop>
 
-      {/* 물결 한 줄이 옆으로 산책합니다 */}
-      <Move motion="wander" dur={4.2} delay={0.8}>
+      {/* 물결 한 줄 */}
+      <Pop at={[62, 160]}>
         <path d="M14 166Q30 150 46 166T78 166T110 166" />
-      </Move>
+      </Pop>
 
       {/* 왼쪽 아래 빛줄기 */}
-      <Move motion="twinkle" dur={2.2} delay={0.4}>
+      <Pop at={[74, 527]}>
         <path d="M58 492 30 524M84 508 70 562M108 502 118 548" />
-      </Move>
+      </Pop>
 
       {/* 점 */}
-      <Move motion="twinkle" dur={1.6} delay={0.9}>
+      <Pop at={[170, 40]}>
         <circle cx="170" cy="40" r="3.5" fill="currentColor" stroke="none" />
-      </Move>
-      <Move motion="twinkle" dur={1.9} delay={0.2}>
-        <circle cx="430" cy="190" r="3.5" fill={accent} stroke="none" />
-      </Move>
-      <Move motion="twinkle" dur={2.3} delay={1.5}>
+      </Pop>
+      <Pop at={[430, 190]}>
+        <circle cx="430" cy="190" r="3.5" stroke="none" style={{ fill: accent }} />
+      </Pop>
+      <Pop at={[140, 150]}>
         <circle cx="140" cy="150" r="3" fill="currentColor" stroke="none" />
-      </Move>
-      <Move motion="twinkle" dur={1.7} delay={1}>
-        <circle cx="586" cy="300" r="3" fill={accent} stroke="none" />
-      </Move>
+      </Pop>
+      <Pop at={[586, 300]}>
+        <circle cx="586" cy="300" r="3" stroke="none" style={{ fill: accent }} />
+      </Pop>
     </>
   );
 }
@@ -310,14 +341,39 @@ export function PersonDoodles({
   style?: CSSProperties;
 }) {
   const [topLeft, topRight, sideLeft, sideRight] = THEME[theme];
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  // 줄이 화면에 충분히 들어오면 튀어나오기를 (무작위 순서로) 처음부터 다시 틀고,
+  // 화면 밖으로 완전히 나가면 숨겨 두어 다음에 들어올 때 또 튀어나오게 합니다.
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.intersectionRatio >= 0.35) {
+          if (svg.hasAttribute("data-doodles-play")) return;
+          scheduleBursts(Array.from(svg.querySelectorAll<SVGGElement>(".doodle-pop")));
+          svg.setAttribute("data-doodles-play", "");
+        } else if (!entry.isIntersecting) {
+          svg.removeAttribute("data-doodles-play");
+        }
+      },
+      { threshold: [0, 0.35] },
+    );
+    observer.observe(svg);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <svg
+      ref={svgRef}
       viewBox="0 0 600 600"
       // 상자가 세로로 길면 위쪽(머리 양옆)에 붙여 그립니다
       preserveAspectRatio="xMidYMin meet"
       aria-hidden="true"
       focusable="false"
-      className={cn("pointer-events-none", className)}
+      // 튀어나올 때 살짝 크게 튕기는 순간이 그림 가장자리에서 잘리지 않게 바깥으로 넘쳐도 보이게 둡니다
+      className={cn("pointer-events-none overflow-visible", className)}
       style={style}
       fill="none"
       stroke="currentColor"
@@ -327,18 +383,18 @@ export function PersonDoodles({
     >
       <Scatter accent={accent} />
       {/* 아이콘은 줄여 그리므로 선을 그만큼 굵게 줘서 장식과 같은 굵기로 보이게 합니다 */}
-      <Move motion="sway" dur={3.4} delay={0.2} strokeWidth={3.6}>
+      <Pop at={[82, 102]} strokeWidth={3.6}>
         <Icon name={topLeft} x={40} y={60} size={84} />
-      </Move>
-      <Move motion="wander" dur={4.6} stroke={accent} strokeWidth={2.3}>
+      </Pop>
+      <Pop at={[497, 109]} stroke={accent} strokeWidth={2.3}>
         <Icon name={topRight} x={432} y={44} size={130} />
-      </Move>
-      <Move motion="float" dur={3.8} delay={1.1} stroke={accent} strokeWidth={4.2}>
+      </Pop>
+      <Pop at={[52, 310]} stroke={accent} strokeWidth={4.2}>
         <Icon name={sideLeft} x={16} y={274} size={72} />
-      </Move>
-      <Move motion="sway" dur={3} delay={0.7} strokeWidth={4.2}>
+      </Pop>
+      <Pop at={[552, 336]} strokeWidth={4.2}>
         <Icon name={sideRight} x={516} y={300} size={72} />
-      </Move>
+      </Pop>
     </svg>
   );
 }

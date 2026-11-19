@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { NAV_ITEMS } from "./site-nav";
+import { useT } from "@/lib/language";
 
 /**
  * 주 메뉴. 현재 페이지는 글자만 브랜드 녹색으로 바꿔 표시하고, 나머지 메뉴는 기본 색을 유지합니다.
@@ -17,10 +18,11 @@ export function PrimaryNav({
   className?: string;
   onDark?: boolean;
 }) {
+  const t = useT();
   const pathname = usePathname();
 
   return (
-    <nav aria-label="주 메뉴" className={className}>
+    <nav aria-label={t("주 메뉴")} className={className}>
       <ul className="m-0 flex list-none items-center p-0 md:gap-1">
         {NAV_ITEMS.map((item) => {
           const active =

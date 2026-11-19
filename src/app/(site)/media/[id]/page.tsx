@@ -7,6 +7,7 @@ import { NEWS } from "@/content/site";
 import { BASE_OPEN_GRAPH, SITE_NAME, articleJsonLd, articlePath, isoDate, jsonLd } from "@/lib/seo";
 import { articlePreview } from "../article-body";
 import { ArticleContent } from "../article-content";
+import { T } from "@/lib/i18n";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -66,7 +67,7 @@ export default async function ArticlePage({ params }: Props) {
             className="inline-flex min-h-11 items-center gap-2 self-start text-sm text-muted-foreground no-underline hover:text-foreground"
           >
             <ArrowLeftIcon aria-hidden="true" className="size-4" />
-            Media 목록
+            <T>Media 목록</T>
           </Link>
 
           <ArticleContent item={item} />
@@ -78,8 +79,12 @@ export default async function ArticlePage({ params }: Props) {
                   href={`/media/${prev.id}`}
                   className="flex flex-col gap-2 rounded-xl p-4 no-underline hover:bg-muted"
                 >
-                  <span className="text-sm text-muted-foreground">이전 글</span>
-                  <span className="text-base leading-snug">{prev.title}</span>
+                  <span className="text-sm text-muted-foreground">
+                    <T>이전 글</T>
+                  </span>
+                  <span className="text-base leading-snug">
+                    <T>{prev.title}</T>
+                  </span>
                 </Link>
               )}
               {next && (
@@ -87,8 +92,12 @@ export default async function ArticlePage({ params }: Props) {
                   href={`/media/${next.id}`}
                   className="flex flex-col gap-2 rounded-xl p-4 text-right no-underline hover:bg-muted sm:col-start-2"
                 >
-                  <span className="text-sm text-muted-foreground">다음 글</span>
-                  <span className="text-base leading-snug">{next.title}</span>
+                  <span className="text-sm text-muted-foreground">
+                    <T>다음 글</T>
+                  </span>
+                  <span className="text-base leading-snug">
+                    <T>{next.title}</T>
+                  </span>
                 </Link>
               )}
             </nav>

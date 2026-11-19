@@ -5,6 +5,8 @@ import { motion, useReducedMotion } from "motion/react";
 import { useLayoutEffect, useRef, useState } from "react";
 import { CategoryIcon } from "@/components/category-icon";
 import type { BusinessCategory, VisionDetail } from "@/content/site";
+import { T } from "@/lib/i18n";
+import { useT } from "@/lib/language";
 import { cn } from "@/lib/utils";
 
 export const BUBBLE_ID = "history-bubble";
@@ -45,6 +47,7 @@ export function HistoryBubble({
   onPointerLeave?: () => void;
 }) {
   const reduceMotion = useReducedMotion();
+  const t = useT();
   const float = placement.mode === "float" ? placement : null;
   const above = float?.bottom !== undefined;
   // 꼬리가 왼쪽 사진(아이콘) 칸 아래에 오면(오른쪽으로 펼친 K-Charm·K-Apparel) 꼬리도 그 칸과 같은 색으로 칠합니다.
@@ -89,7 +92,7 @@ export function HistoryBubble({
           {detail?.image ? (
             <Image
               src={detail.image.src}
-              alt={detail.image.alt}
+              alt={t(detail.image.alt)}
               fill
               sizes="(min-width: 768px) 176px, 112px"
               className={detail.image.fit === "contain" ? "object-contain p-2" : "object-cover"}
@@ -102,14 +105,18 @@ export function HistoryBubble({
         </div>
         {detail ? (
           <div className="flex min-w-0 flex-col justify-center gap-2 p-4 md:p-5">
-            <p className="m-0 text-base leading-snug font-bold md:text-lg">{detail.title}</p>
-            <p className="m-0 text-sm leading-relaxed text-primary-foreground/90">{detail.body}</p>
+            <p className="m-0 text-base leading-snug font-bold md:text-lg">
+              <T>{detail.title}</T>
+            </p>
+            <p className="m-0 text-sm leading-relaxed text-primary-foreground/90">
+              <T>{detail.body}</T>
+            </p>
           </div>
         ) : (
           <div className="flex min-w-0 flex-col justify-center gap-2 p-4 md:p-5">
             <p className="m-0 text-base leading-snug font-bold whitespace-nowrap md:text-lg">{category}</p>
             <p className="m-0 self-start rounded-full bg-primary-foreground/15 px-3 py-1 text-xs leading-snug">
-              준비중
+              <T>준비중</T>
             </p>
           </div>
         )}

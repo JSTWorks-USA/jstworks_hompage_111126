@@ -1,5 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
+import { T } from "@/lib/i18n"
 
 // Luxe SectionHeader: page section title — refined typography, optional badge/action
 // Eyebrow text (small caps tracking-widest) + title + description pattern
@@ -38,11 +39,11 @@ function SectionHeader({
           </p>
         )}
         <h2 className="text-2xl font-semibold text-foreground tracking-tight leading-none">
-          {title}
+          <T>{title}</T>
         </h2>
         {description && (
           <p className={cn("text-sm text-muted-foreground leading-relaxed", align === "center" && "max-w-md")}>
-            {description}
+            <T>{description}</T>
           </p>
         )}
       </div>

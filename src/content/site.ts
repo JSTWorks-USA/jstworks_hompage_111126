@@ -208,8 +208,8 @@ export type DoodleTheme = "export" | "creative" | "global" | "product" | "resear
 export type Person = {
   name: string;
   role: string;
-  /** 부문 아래 소속 팀. 있을 때만 이름 위에 작게 표시합니다 (예: 젠틀복스) */
-  unit?: string;
+  /** 한국어 화면에서 이름 옆에 영문 직책(role) 대신 보이는 한글 직함(예: 부사장). 영어 화면에서는 role 이 보입니다 */
+  titleKo?: string;
   /**
    * 인물 사진. 사진이 아직 없으면 비워 두세요. 그 자리에 실루엣이 보입니다.
    * 배경을 오려 낸 투명 사진(누끼)이면 cutout 에 크기를 함께 적습니다.
@@ -226,129 +226,93 @@ export type Person = {
   /** 인물 뒤에 그리는 선 그림 주제 (역할에 맞춘 작은 아이콘들) */
   doodle?: DoodleTheme;
   alt: string;
-  /** 주요 경력. 위에서부터 최근 순. 괄호로 시작하는 줄(예: "(호주 등 …)")은 위 줄의 덧붙임으로 한 단계 작게 보입니다 */
+  /** 주요 경력. 위에서부터 최근 순. 괄호로 시작하는 줄(예: "(호주 등 …)")은 위 줄의 덧붙임으로 두 단계 작게 보입니다 */
   career: string[];
   /** 사진 반대편에 크게 보이는 인물별 헤드라인. 줄바꿈(\n) 위치 그대로 보여 줍니다. */
   quote: string;
 };
 
-export type Division = {
-  /** 페이지 안 위치 주소(#id). 하단 메뉴에서 이 부문으로 바로 이동합니다 */
-  id: string;
-  name: string;
-  /** 조직도 순서: 부문장 → 부문 구성원 */
-  people: Person[];
-};
-
-/** 조직도 순서대로 묶은 구성원. 부문 이름이 People 페이지의 구분 제목이 됩니다. */
-export const PEOPLE_DIVISIONS: Division[] = [
-  {
-    id: "management",
-    name: "경영",
-    people: [
-      {
-        name: "이우용",
-        role: "대표이사 (CEO)",
-        photo: "/images/people/lee-wooyong-cutout.webp",
-        cutout: { width: 775, height: 1200 },
-        background: "#00441E",
-        doodle: "export",
-        alt: "이우용 대표이사",
-        career: ["덕우전자 미국법인장", "LG전자 해외영업", "미국공인회계사"],
-        quote: "좋은 한국 제품이\n미국에서 다시 찾는 제품이 되도록.",
-      },
-      {
-        name: "길용준",
-        role: "CIPO (지식재산)",
-        photo: "/images/people/gil-yongjun-cutout.webp",
-        cutout: { width: 726, height: 1200 },
-        background: "#00441E",
-        doodle: "patent",
-        alt: "길용준 CIPO",
-        career: ["AMD, LG전자, 삼성에버랜드 특허"],
-        quote: "아이디어가 자산이 되는 순간까지\n권리로 완성합니다.",
-      },
-    ],
-  },
-  {
-    id: "brand",
-    name: "브랜드부문",
-    people: [
-      {
-        name: "박재모",
-        role: "Co-founder & Creative",
-        photo: "/images/people/park-jaemo-cutout.webp",
-        cutout: { width: 1063, height: 1200 },
-        background: "#6300A9",
-        doodle: "creative",
-        alt: "박재모 Co-founder & Creative",
-        career: ["상암커뮤니케이션즈", "머큐리프로젝트 E.CD"],
-        quote: "말을 잘하는 것은 쉽다",
-      },
-      {
-        name: "이주황",
-        role: "CTO",
-        photo: "/images/people/lee-juhwang-cutout.webp",
-        cutout: { width: 724, height: 1200 },
-        background: "#F7F8F9",
-        doodle: "tech",
-        alt: "이주황 CTO",
-        career: ["현대자동차 R&D", "서울대 기계항공 졸업"],
-        quote: "기술은 앞에 서지 않아도\n경험을 바꿀 수 있습니다.",
-      },
-      {
-        name: "윤정원",
-        role: "책임연구원",
-        unit: "젠틀복스",
-        photo: "/images/people/yoon-jeongwon-cutout.webp",
-        cutout: { width: 801, height: 1200 },
-        background: "#001D3D",
-        doodle: "research",
-        alt: "윤정원 책임연구원",
-        career: ["브라이트랩", "유즈브레인넷"],
-        quote: "기술의 가능성을 설계하고,\n현실로 구현합니다.",
-      },
-    ],
-  },
-  {
-    id: "global-sales",
-    name: "해외영업부문",
-    people: [
-      {
-        name: "김종효",
-        role: "COO/전무",
-        photo: "/images/people/kim-jonghyo-cutout.webp",
-        cutout: { width: 650, height: 1200 },
-        background: "#A94400",
-        doodle: "global",
-        alt: "김종효 COO",
-        career: ["LG전자 해외영업 30년", "(호주 등 5개국 17년 해외주재)"],
-        quote: "시장과 실행 사이,\n빈틈을 남기지 않습니다.",
-      },
-      {
-        name: "김진욱",
-        role: "상품개발 부장",
-        photo: "/images/people/kim-jinwook-cutout.webp",
-        cutout: { width: 745, height: 1200 },
-        background: "#F7F8F9",
-        doodle: "product",
-        alt: "김진욱 상품개발 부장",
-        career: ["플랫코퍼레이션", "키세스"],
-        quote: "좋은 제품은 결국\n디테일에서 차이가 납니다.",
-      },
-    ],
-  },
-];
-/** People 페이지에 보여 주는 순서 (부문과 상관없이 이 순서대로 한 줄씩) */
-const PEOPLE_ORDER = ["이우용", "박재모", "김종효", "김진욱", "윤정원", "길용준", "이주황"];
-
-const ALL_PEOPLE = PEOPLE_DIVISIONS.flatMap((division) => division.people);
+/** People 페이지 구성원. 홈페이지 화면에 보이는 순서 그대로, 위에서부터 한 사람씩 한 줄로 보입니다. */
 export const PEOPLE: Person[] = [
-  ...PEOPLE_ORDER.flatMap((name) => ALL_PEOPLE.filter((person) => person.name === name)),
-  // 순서 목록에 없는 사람은 맨 뒤에 원래 순서대로 붙입니다
-  ...ALL_PEOPLE.filter((person) => !PEOPLE_ORDER.includes(person.name)),
+  {
+    name: "이우용",
+    role: "대표이사",
+    photo: "/images/people/lee-wooyong-cutout.webp",
+    cutout: { width: 775, height: 1200 },
+    background: "#00441E",
+    doodle: "export",
+    alt: "이우용 대표이사",
+    career: ["덕우전자 미국법인장", "LG전자 해외영업", "미국공인회계사"],
+    quote: "좋은 한국 제품이\n미국에서 다시 찾는 제품이 되도록.",
+  },
+  {
+    name: "박재모",
+    role: "Co-founder & Creative",
+    titleKo: "부사장",
+    photo: "/images/people/park-jaemo-cutout.webp",
+    cutout: { width: 1063, height: 1200 },
+    background: "#6300A9",
+    doodle: "creative",
+    alt: "박재모 Co-founder & Creative",
+    career: ["상암 커뮤니케이션즈", "타이타늄22"],
+    quote: "고객은 좋은 제품만을 구매하진 않는다,\n그로 좋아질 하루를 구매한다",
+  },
+  {
+    name: "김종효",
+    role: "COO/전무",
+    photo: "/images/people/kim-jonghyo-cutout.webp",
+    cutout: { width: 650, height: 1200 },
+    background: "#A94400",
+    doodle: "global",
+    alt: "김종효 COO",
+    career: ["LG전자 해외영업 30년", "(호주 등 5개국 17년 해외주재)"],
+    quote: "시장과 실행 사이,\n빈틈을 남기지 않습니다.",
+  },
+  {
+    name: "김진욱",
+    role: "상품개발 부장",
+    photo: "/images/people/kim-jinwook-cutout.webp",
+    cutout: { width: 745, height: 1200 },
+    background: "#F7F8F9",
+    doodle: "product",
+    alt: "김진욱 상품개발 부장",
+    career: ["플랫코퍼레이션", "키세스"],
+    quote: "좋은 제품은 결국\n디테일에서 차이가 납니다.",
+  },
+  {
+    name: "윤정원",
+    role: "책임연구원",
+    photo: "/images/people/yoon-jeongwon-cutout.webp",
+    cutout: { width: 801, height: 1200 },
+    background: "#001D3D",
+    doodle: "research",
+    alt: "윤정원 책임연구원",
+    career: ["브라이트랩", "유즈브레인넷"],
+    quote: "기술의 가능성을 설계하고,\n현실로 구현합니다.",
+  },
+  {
+    name: "길용준",
+    role: "CIPO (지식재산)",
+    photo: "/images/people/gil-yongjun-cutout.webp",
+    cutout: { width: 726, height: 1200 },
+    background: "#00441E",
+    doodle: "patent",
+    alt: "길용준 CIPO",
+    career: ["AMD", "LG전자", "삼성에버랜드"],
+    quote: "아이디어가 자산이 되는 순간까지\n권리로 완성합니다.",
+  },
+  {
+    name: "이주황",
+    role: "CTO",
+    photo: "/images/people/lee-juhwang-cutout.webp",
+    cutout: { width: 724, height: 1200 },
+    background: "#F7F8F9",
+    doodle: "tech",
+    alt: "이주황 CTO",
+    career: ["현대자동차 R&D", "서울대 기계항공 졸업"],
+    quote: "기술은 앞에 서지 않아도\n경험을 바꿀 수 있습니다.",
+  },
 ];
-
 
 /* ──────────────────────────── 비즈니스 카테고리 ──────────────────────────── */
 

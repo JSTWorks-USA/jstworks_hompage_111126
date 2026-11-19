@@ -22,6 +22,8 @@ import { TREE_PATH } from "@/components/logo";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Timeline } from "@/components/ui/timeline";
 import { Container, KeepTogether } from "@/components/site-ui";
+import { Bi, T, en } from "@/lib/i18n";
+import { useT } from "@/lib/language";
 import {
   HISTORY,
   HISTORY_LANES,
@@ -63,16 +65,22 @@ const LANE = Object.fromEntries(HISTORY_LANES.map((lane) => [lane.id, lane])) as
   (typeof HISTORY_LANES)[number]
 >;
 
-/** "2026.08.26" → { label: "2026년 8월", iso: "2026-08" }. 일은 보여 주지 않습니다 */
+const MONTHS_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/** "2026.08.26" → { label: "2026년 8월", labelEn: "Aug 2026", iso: "2026-08" }. 일은 보여 주지 않습니다 */
 function yearMonth(date: string) {
   const [year, month] = date.split(".");
-  return { label: `${year}년 ${Number(month)}월`, iso: `${year}-${month}` };
+  return {
+    label: `${year}년 ${Number(month)}월`,
+    labelEn: `${MONTHS_EN[Number(month) - 1]} ${year}`,
+    iso: `${year}-${month}`,
+  };
 }
 
 type Milestone = {
   kind: "milestone";
   key: string;
-  when: { label: string; iso: string };
+  when: { label: string; labelEn: string; iso: string };
   text: string;
   note?: string;
   sub?: string;
@@ -94,6 +102,9 @@ const MILESTONES: Milestone[] = HISTORY.map((item, i) => ({
 /** 한 줄로 이어 쓴 연혁 (화면 낭독기·정적 연혁용) */
 const fullText = (m: Milestone) =>
   [m.text, m.note].filter(Boolean).join(" ") + (m.sub ? ` / ${m.sub}` : "");
+/** 같은 글의 영어(EN) */
+const fullTextEn = (m: Milestone) =>
+  [m.text, m.note].filter((s): s is string => Boolean(s)).map(en).join(" ") + (m.sub ? ` / ${en(m.sub)}` : "");
 
 const STEPS: Step[] = [...MILESTONES, { kind: "vision", key: "vision" }];
 
@@ -868,8 +879,11 @@ function StepPanel({ step }: { step: Step }) {
   if (step.kind === "vision") {
     return (
       <div className="flex flex-col items-center gap-2 text-center">
-        <p className="m-0 type-meta text-balance text-night-foreground/75 squat:text-[0.6875rem]">{VISION.lead}</p>
-        <p className="m-0 text-4xl leading-tight font-bold whitespace-nowrap md:text-[2.5rem] squat:text-xl">
+        <p className="m-0 type-meta text-balance text-night-foreground/75 squat:text-[0.6875rem]">
+          <T>{VISION.lead}</T>
+        </p>
+        {/* 영어는 한국어보다 길어 휴대폰에서 두 줄로 나눕니다 */}
+        <p className="m-0 text-4xl leading-tight font-bold whitespace-nowrap md:text-[2.5rem] squat:text-xl en:text-balance en:whitespace-normal en:text-[1.75rem] md:en:text-[2rem] squat:en:text-xl">
           <KeepTogether text={VISION.title} />
         </p>
       </div>
@@ -880,7 +894,10 @@ function StepPanel({ step }: { step: Step }) {
       <p className="m-0 flex items-center gap-2 type-meta text-mint-line">
         <LaneMark lane={step.lane} />
         <span>
-          <time dateTime={step.when.iso}>{step.when.label}</time> · {LANE[step.lane].label}
+          <time dateTime={step.when.iso}>
+            <Bi ko={step.when.label} en={step.when.labelEn} />
+          </time>{" "}
+          · <T>{LANE[step.lane].label}</T>
         </span>
       </p>
       <p className="m-0 type-title">
@@ -889,7 +906,7 @@ function StepPanel({ step }: { step: Step }) {
         {step.note && " "}
         {step.note && (
           <span className="inline-block type-meta font-normal whitespace-nowrap text-night-foreground/75">
-            {step.note}
+            <T>{step.note}</T>
           </span>
         )}
         {step.sub && (
@@ -981,17 +998,23 @@ function StaticHistory() {
                 <Timeline
                   className="max-w-[40rem]"
                   items={group.items.map((m) => ({
-                    title: fullText(m),
-                    timestamp: `${Number(m.when.iso.split("-")[1])}월`,
-                    description: LANE[m.lane].label,
+                    title: <Bi ko={fullText(m)} en={fullTextEn(m)} />,
+                    timestamp: (
+                      <Bi ko={`${Number(m.when.iso.split("-")[1])}월`} en={MONTHS_EN[Number(m.when.iso.split("-")[1]) - 1]} />
+                    ),
+                    description: <T>{LANE[m.lane].label}</T>,
                   }))}
                 />
               </li>
             ))}
           </ol>
           <div className="flex max-w-[40rem] flex-col gap-3">
-            <p className="m-0 type-meta text-muted-foreground">{VISION.lead}</p>
-            <h3 className="m-0 type-title">{VISION.title}</h3>
+            <p className="m-0 type-meta text-muted-foreground">
+              <T>{VISION.lead}</T>
+            </p>
+            <h3 className="m-0 type-title">
+              <T>{VISION.title}</T>
+            </h3>
             <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
               {VISION.branches.map((label, i) => (
                 <li key={`${label}-${i}`} className="rounded-full border border-border px-3 py-1 text-sm">
@@ -1022,6 +1045,7 @@ const STORY_END = 6 / 7;
  */
 export function HistoryRoots() {
   const reduceMotion = usePrefersReducedMotion();
+  const t = useT();
   const trackRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
@@ -1233,7 +1257,7 @@ export function HistoryRoots() {
   return (
     <section
       id="history"
-      {...(reduceMotion ? { "aria-label": "연혁" } : { "aria-labelledby": "history-title" })}
+      {...(reduceMotion ? { "aria-label": t("연혁") } : { "aria-labelledby": "history-title" })}
       className="relative"
     >
       {reduceMotion ? (
@@ -1246,17 +1270,27 @@ export function HistoryRoots() {
           <ol className="sr-only">
             {MILESTONES.map((m) => (
               <li key={m.key}>
-                {m.when.label} {LANE[m.lane].label}: {fullText(m)}
+                <Bi
+                  ko={`${m.when.label} ${LANE[m.lane].label}: ${fullText(m)}`}
+                  en={`${m.when.labelEn} ${en(LANE[m.lane].label)}: ${fullTextEn(m)}`}
+                />
               </li>
             ))}
             <li>
-              {VISION.lead} {VISION.title}:{" "}
-              {VISION.branches
-                .map((branch) => {
-                  const detail = VISION_DETAILS[branch];
-                  return detail ? `${branch} (${detail.title}: ${detail.body})` : `${branch} (준비중)`;
-                })
-                .join(", ")}
+              <Bi
+                ko={`${VISION.lead} ${VISION.title}: ${VISION.branches
+                  .map((branch) => {
+                    const detail = VISION_DETAILS[branch];
+                    return detail ? `${branch} (${detail.title}: ${detail.body})` : `${branch} (준비중)`;
+                  })
+                  .join(", ")}`}
+                en={`${en(VISION.lead)} ${en(VISION.title)}: ${VISION.branches
+                  .map((branch) => {
+                    const detail = VISION_DETAILS[branch];
+                    return detail ? `${branch} (${en(detail.title)}: ${en(detail.body)})` : `${branch} (${en("준비중")})`;
+                  })
+                  .join(", ")}`}
+              />
             </li>
           </ol>
           <div
@@ -1279,7 +1313,9 @@ export function HistoryRoots() {
                 <h2 id="history-title" className="m-0 text-2xl font-semibold tracking-tight">
                   History
                 </h2>
-                <p className="m-0 text-sm text-mint-line">연혁</p>
+                <p className="m-0 text-sm text-mint-line">
+                  <T>연혁</T>
+                </p>
               </div>
 
               <div
@@ -1287,6 +1323,8 @@ export function HistoryRoots() {
                 className={cn(
                   // 넓은 화면에서는 이 카드에 비전만 나오므로, 퍼진 카탈로그 이름표와 겹치지 않게 조금 더 아래에 둡니다
                   "relative w-full rounded-xl bg-night/75 p-6 backdrop-blur-md md:mb-[18vh] md:w-104 lg:mb-[8vh]",
+                  // 영어 비전 문구는 한국어보다 길어 카드를 조금 넓혀 두 줄 안에 넣습니다(K-Beauty 이름표와 겹치지 않게)
+                  "md:en:w-120",
                   // 휴대폰 가로: 작게 줄여 왼쪽 아래에 붙입니다
                   "squat:mb-0 squat:w-auto squat:self-start squat:px-5 squat:py-3",
                   // 연혁 카드: 넓은 화면은 점 옆(SpotCard), 세로 태블릿은 오른쪽 쌓임 카드(MilestoneStack)로 보여 줍니다

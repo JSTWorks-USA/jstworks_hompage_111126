@@ -8,6 +8,7 @@ import { Container, KeepTogether, PageHeader } from "@/components/site-ui";
 import { BRANDS, BUSINESS_CATEGORIES, type Brand, type BusinessCategory } from "@/content/site";
 import { BusinessCategories } from "./business-categories";
 import { GentleVoxFlow } from "./gentle-vox-flow";
+import { Bi, T } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = pageMetadata("business", "/business");
@@ -56,8 +57,12 @@ function IpSection() {
                   Gentle Vox
                 </h3>
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                  <p className="m-0 type-label text-muted-foreground">스마트 오디오 토이</p>
-                  <Badge>2027 하반기 출시 예정</Badge>
+                  <p className="m-0 type-label text-muted-foreground">
+                    <T>스마트 오디오 토이</T>
+                  </p>
+                  <Badge>
+                    <T>2027 하반기 출시 예정</T>
+                  </Badge>
                 </div>
               </div>
             }
@@ -73,10 +78,21 @@ function IpSection() {
  * 넓은 화면에서는 섹션 제목 띠와 첫 브랜드 사진이 한 화면(헤더 아래 높이)에 함께 보입니다.
  */
 function BrandsSection({ brands, category }: { brands: Brand[]; category: BusinessCategory }) {
+  // 첫 브랜드 사진의 가로:세로 비율. 세로로 긴 창(세로 모니터·창을 좁고 길게 연 경우)에서
+  // 한 화면을 채우려고 사진 칸이 원본 비율보다 길어지면 사진이 크게 확대되어 일부만 보이므로,
+  // 사진 칸 높이를 "화면 너비 ÷ 사진 비율"(원본 비율 그대로의 높이)까지만 늘립니다.
+  const first = brands[0]?.background;
   return (
     <section
       aria-label="타사 제품 독점영업권"
-      className="md:flex md:min-h-[calc(100svh-var(--header-height))] md:flex-col"
+      // 5.5rem = 위 제목 띠 높이(88px)
+      className={cn(
+        "md:flex md:flex-col",
+        first
+          ? "md:min-h-[min(calc(100svh-var(--header-height)),calc(5.5rem+100vw/var(--photo-ratio)))]"
+          : "md:min-h-[calc(100svh-var(--header-height))]",
+      )}
+      style={first ? ({ "--photo-ratio": (first.width / first.height).toFixed(4) } as CSSProperties) : undefined}
     >
       <div className="bg-secondary">
         <Container className="py-(--section-pad) md:py-8">
@@ -119,7 +135,9 @@ function BrandsSection({ brands, category }: { brands: Brand[]; category: Busine
                       <h3 id={headingId} className="m-0 type-title">
                         {brand.name}
                       </h3>
-                      <p className="m-0 type-label text-mint-line">{brand.category}</p>
+                      <p className="m-0 type-label text-mint-line">
+                        <T>{brand.category}</T>
+                      </p>
                     </div>
                     <p className="m-0 type-title text-balance">
                       <KeepTogether text={brand.tagline} />
@@ -129,7 +147,7 @@ function BrandsSection({ brands, category }: { brands: Brand[]; category: Busine
                     </p>
                     {brand.status && (
                       <Badge size="lg" variant="inverse" className="self-start">
-                        {brand.status}
+                        <T>{brand.status}</T>
                       </Badge>
                     )}
                   </div>
@@ -148,7 +166,9 @@ function EmptyCategory({ category }: { category: BusinessCategory }) {
   return (
     <Container className="pb-(--section-pad) md:pb-12">
       <div className="flex flex-col items-center gap-2 rounded-xl bg-muted px-6 py-16 text-center">
-        <p className="m-0 type-title">{category} 제품을 준비하고 있습니다</p>
+        <p className="m-0 type-title">
+          <Bi ko={`${category} 제품을 준비하고 있습니다`} en={`${category} products are coming soon`} />
+        </p>
       </div>
     </Container>
   );
