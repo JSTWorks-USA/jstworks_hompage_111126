@@ -528,3 +528,19 @@ html[data-lang="EN"] [data-l="ko"] {
     --tw-ring-color: color-mix(in oklch, var(--destructive) 35%, transparent);
   }
 }
+
+/*
+ * People 헤드라인 줄 고정(site.ts 의 quoteKeepLines): 한국어 문구를 줄바꿈(\n) 자리에서만 나누고, 칸보다 길면 글자를 줄입니다.
+ * 100cqi = 문구 칸(blockquote) 폭. 3rem 은 여는 따옴표와 간격, 6.5rem 은 그에 더해 마지막 줄 끝의 닫는 따옴표 자리입니다.
+ * 원래 크기(--quote-fs)보다 커지지는 않습니다. 휴대폰(767px 이하)과 영어 화면은 칸에 맞춰 줄을 바꾸는 원래 방식 그대로입니다.
+ */
+@media (min-width: 768px) {
+  html:not([data-lang="EN"]) .quote-fit > p {
+    white-space: pre;
+    font-size: min(
+      var(--quote-fs),
+      calc((100cqi - 3rem) / var(--fit-longest)),
+      calc((100cqi - 6.5rem) / var(--fit-last))
+    );
+  }
+}

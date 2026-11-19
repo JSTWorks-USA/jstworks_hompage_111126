@@ -230,6 +230,11 @@ export type Person = {
   career: string[];
   /** 사진 반대편에 크게 보이는 인물별 헤드라인. 줄바꿈(\n) 위치 그대로 보여 줍니다. */
   quote: string;
+  /**
+   * true 이면 한국어 헤드라인이 태블릿·PC(768px 이상)에서 줄바꿈(\n) 자리에서만 줄을 바꿉니다.
+   * 한 줄이 칸보다 길면 줄을 더 나누는 대신 글자를 필요한 만큼만 작게 보여 줍니다. 휴대폰과 영어는 지금처럼 칸에 맞춰 줄을 바꿉니다.
+   */
+  quoteKeepLines?: boolean;
 };
 
 /** People 페이지 구성원. 홈페이지 화면에 보이는 순서 그대로, 위에서부터 한 사람씩 한 줄로 보입니다. */
@@ -256,6 +261,7 @@ export const PEOPLE: Person[] = [
     alt: "박재모 Co-founder & Creative",
     career: ["상암 커뮤니케이션즈", "타이타늄22"],
     quote: "고객이 사는 건 물건이 아니라,\n그 물건이 바꿀 일상입니다.",
+    quoteKeepLines: true,
   },
   {
     name: "김종효",

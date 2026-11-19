@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useRef } from "react";
+import { type CSSProperties, useRef } from "react";
 import { Container } from "@/components/site-ui";
 import type { Person } from "@/content/site";
 import { T } from "@/lib/i18n";
@@ -38,6 +38,22 @@ function rowTheme(person: Person, active: boolean) {
 }
 
 /** 사진이 아직 없는 사람 자리. 사진과 같은 크기로 줄 아래 끝에 붙는 상반신 실루엣입니다. */
+/**
+ * 헤드라인 한 줄의 대략적인 폭(글자 크기의 몇 배인지). 실제 글꼴로 잰 값보다 조금 넉넉하게 잡았습니다
+ * (한글 0.94, 띄어쓰기 0.21, 쉼표·마침표 0.25 → 0.95, 0.22, 0.3). quoteKeepLines 인 줄의 글자 크기를 정할 때 씁니다.
+ */
+function lineEm(line: string) {
+  let em = 0;
+  for (const ch of line) em += /[가-힣]/.test(ch) ? 0.95 : ch === " " ? 0.22 : /[.,!?·]/.test(ch) ? 0.3 : 0.62;
+  return Number(em.toFixed(2));
+}
+
+/** quoteKeepLines: 가장 긴 줄과 마지막 줄(닫는 따옴표가 붙음)의 폭. globals.css 의 .quote-fit 이 이 값으로 글자 크기를 맞춥니다 */
+function quoteFitStyle(quote: string) {
+  const lines = quote.split("\n").map(lineEm);
+  return { "--fit-longest": Math.max(...lines), "--fit-last": lines[lines.length - 1] } as CSSProperties;
+}
+
 function Silhouette({ className }: { className?: string }) {
   return (
     <svg
@@ -192,7 +208,10 @@ function PersonRow({ person, index, active }: { person: Person; index: number; a
           className={cn(
             "order-first m-0 flex max-w-md items-start gap-3 self-center md:max-w-2xl lg:order-0 fold:order-0 lg:justify-self-center fold:justify-self-center lg:pb-16 fold:pb-16",
             flip && "lg:order-1 fold:order-1",
+            // 줄 고정: 문구 칸 폭(100cqi)을 재려고 칸 전체 폭을 차지하게 하고, 넓은 화면에서는 내용을 가운데에 둡니다(globals.css .quote-fit)
+            person.quoteKeepLines && "quote-fit md:w-full md:@container lg:justify-center fold:justify-center",
           )}
+          style={person.quoteKeepLines ? quoteFitStyle(person.quote) : undefined}
         >
           <span
             aria-hidden="true"
@@ -204,7 +223,8 @@ function PersonRow({ person, index, active }: { person: Person; index: number; a
           {/* 슬로건 굵기: 한국어·영어 모두 font-bold(700).
               작은 PC(1024~1279px)에서는 문구 칸이 좁아 40px 고정이면 "고객은 좋은 / 제품만을 구매하진 / 않는다," 처럼
               뜻 중간에서 잘게 끊기므로, 화면 폭에 맞춰 약 30px(1024px)~39px(1279px)로 줄여 넓은 화면과 같은 위치에서 줄이 바뀌게 합니다 */}
-          <p className="m-0 pt-2 text-[2rem] leading-[1.15] font-bold break-keep whitespace-pre-line md:text-[3rem] lg:text-[calc(3.6vw-0.45rem)] fold:text-[calc(3.6vw-0.45rem)] xl:text-[2.75rem] 2xl:text-[3rem]">
+          {/* 글자 크기는 --quote-fs 변수로 줍니다(줄 고정 문구가 이 값보다 커지지 않도록 globals.css 에서 함께 씁니다) */}
+          <p className="m-0 pt-2 text-(length:--quote-fs) leading-[1.15] font-bold break-keep whitespace-pre-line [--quote-fs:2rem] md:[--quote-fs:3rem] lg:[--quote-fs:calc(3.6vw-0.45rem)] fold:[--quote-fs:calc(3.6vw-0.45rem)] xl:[--quote-fs:2.75rem] 2xl:[--quote-fs:3rem]">
             <T>{person.quote}</T>
             <span
               aria-hidden="true"
