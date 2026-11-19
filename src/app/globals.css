@@ -30,6 +30,9 @@ html[data-lang="EN"] [data-l="ko"] {
  * https://better-design.com/projects/1d571de3-1e8e-4d21-90c8-3c56a03dee3c
  */
 :root {
+  /* 휴대폰·PC 다크 모드에서도 밝은 화면 그대로(브라우저 자동 어둡게 끄기, 입력 칸·스크롤바도 밝은 모양) */
+  color-scheme: only light;
+
   /*
    * JSTWorks 기본 색상표 (2026-11 확정)
    * Primary — The Four Greens / Surface & Background / Text & Semantic

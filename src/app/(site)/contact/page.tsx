@@ -6,7 +6,8 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { Container, PageHeader } from "@/components/site-ui";
 import { OFFICE_LOCATIONS } from "@/content/site";
 import { InquiryForm } from "./inquiry-form";
-import { T } from "@/lib/i18n";
+import { Bi, T } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = pageMetadata("contact", "/contact");
 
@@ -42,8 +43,12 @@ export default function ContactPage() {
                 </p>
               </CardHeader>
               <CardContent className="flex flex-1 flex-col gap-2">
-                <p className="m-0 type-body">{office.address}</p>
-                <p className="m-0 type-meta text-muted-foreground">
+                {/* 한국 본사: 한국어 화면은 한글 주소 한 줄, 영어 화면은 영문 주소 + 지역 줄.
+                    미국 법인: 언어와 관계없이 영문 주소 + 지역 줄 */}
+                <p className="m-0 type-body">
+                  {office.addressKo ? <Bi ko={office.addressKo} en={office.address} /> : office.address}
+                </p>
+                <p className={cn("m-0 type-meta text-muted-foreground", office.addressKo && "hidden en:block")}>
                   <T>{office.localAddress}</T>
                 </p>
               </CardContent>

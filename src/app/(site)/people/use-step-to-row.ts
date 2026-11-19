@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type RefObject } from "react";
+import { useEffect, useSyncExternalStore, type RefObject } from "react";
 import { usePrefersReducedMotion } from "@/lib/use-prefers-reduced-motion";
 
 /** 이만큼(px) 스크롤해야 다음 사람으로 넘어갑니다. 덜 움직이면 지금 사람 자리에 그대로 둡니다 */
@@ -21,6 +21,24 @@ const NOTCH_GAP_MS = 40;
 /** 맨 위·바닥글에서 들어올 때, 그 방향 첫 사람이 이 범위(보이는 높이 대비) 안에 있어야 붙잡습니다 */
 const ENTER_RATIO = 0.9;
 
+/** 휴대폰 화면(사이트 반응형 기준: 767px 이하) */
+const MOBILE_QUERY = "(max-width: 767.98px)";
+
+function subscribeMobile(onChange: () => void) {
+  const mq = window.matchMedia(MOBILE_QUERY);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+
+/** 휴대폰 화면인지. 서버와 첫 화면은 false 로 그리고, 그 뒤 실제 화면 폭으로 바뀝니다 */
+function useIsMobile(): boolean {
+  return useSyncExternalStore(
+    subscribeMobile,
+    () => window.matchMedia(MOBILE_QUERY).matches,
+    () => false,
+  );
+}
+
 /**
  * People: 일정 거리(THRESHOLD) 이상 스크롤하면 그 방향 다음 사람 줄의 세로 가운데로 한 번에 옮깁니다.
  *
@@ -28,13 +46,15 @@ const ENTER_RATIO = 0.9;
  * - 터치·키보드·스크롤바: 평소처럼 움직이고, 멈췄을 때 기준보다 덜 움직였으면 지금 사람으로 되돌리고, 넘었으면 다음 사람으로 맞춥니다.
  * - 첫 사람 위(We are)·마지막 사람 아래(바닥글)로는 붙잡지 않고 평소처럼 스크롤합니다.
  * - 움직임 줄이기 설정을 켠 사람에게는 동작하지 않습니다(평소 스크롤).
+ * - 휴대폰 화면(767px 이하)에서도 동작하지 않습니다(평소 스크롤). 창 폭이 바뀌면 바로 켜고 끕니다.
  */
 export function useStepToRow(listRef: RefObject<HTMLElement | null>) {
   const reduceMotion = usePrefersReducedMotion();
+  const mobile = useIsMobile();
 
   useEffect(() => {
     const list = listRef.current;
-    if (!list || reduceMotion) return;
+    if (!list || reduceMotion || mobile) return;
 
     /** 지금 가운데에 맞춰 둔 사람(없으면 null: 맨 위·바닥글 쪽) */
     let current: number | null = null;
@@ -231,5 +251,5 @@ export function useStepToRow(listRef: RefObject<HTMLElement | null>) {
       if (hasScrollEnd) window.removeEventListener("scrollend", onScrollEnd);
       else window.removeEventListener("scroll", onScroll);
     };
-  }, [listRef, reduceMotion]);
+  }, [listRef, reduceMotion, mobile]);
 }

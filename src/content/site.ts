@@ -502,11 +502,20 @@ export const NEWS: NewsItem[] = sortByDateDesc(NEWS_ITEMS, (item) => item.placeh
 
 /* ──────────────────────────── 오시는 길 ──────────────────────────── */
 
-export const OFFICE_LOCATIONS = [
+export const OFFICE_LOCATIONS: {
+  eyebrow: string;
+  name: string;
+  address: string;
+  addressKo?: string;
+  localAddress: string;
+  mapQuery: string;
+}[] = [
   {
     eyebrow: "한국 본사",
     name: "조슈아트리웍스 주식회사",
     address: "Joshuatree Building, Yeoksam-ro 26-gil 5, Gangnam-Gu, Seoul, Republic of Korea",
+    /** 한국어 화면에서 위 영문 주소 대신 보이는 한글 주소(이때 아래 localAddress 줄은 숨깁니다) */
+    addressKo: "서울시 강남구 역삼로26길 5 (역삼동 770-21), 조슈아트리빌딩   우편번호:06227",
     localAddress: "서울 강남구 역삼로26길 5, 조슈아트리빌딩",
     /** Google 지도에서 찾을 주소 */
     mapQuery: "서울 강남구 역삼로26길 5",
