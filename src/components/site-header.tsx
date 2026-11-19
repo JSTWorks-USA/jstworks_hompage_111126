@@ -30,7 +30,7 @@ function useAtTop() {
 /**
  * 상단 헤더.
  * 데스크톱: 로고 | (메뉴 + 언어) 두 묶음.
- * 모바일(768px 미만): 로고 | 햄버거 버튼, 그 아래 오른쪽에 언어 전환. 메뉴는 햄버거를 누르면 왼쪽에서 밀려 나옵니다.
+ * 모바일(768px 미만): 로고 | 햄버거 버튼 한 줄. 메뉴는 햄버거를 누르면 왼쪽에서 밀려 나오고, 언어 전환(KO/EN)은 그 메뉴 안 닫기(X) 버튼 아래에 있습니다.
  * 홈 첫 화면에서는 밤하늘 히어로 위에 투명하게 겹치고, 조금이라도 스크롤하면 흰 배경으로 바뀝니다.
  */
 export function SiteHeader() {
@@ -63,7 +63,7 @@ export function SiteHeader() {
           <TreeMark width={29} height={34} className="block" />
         </Link>
 
-        {/* 모바일: 언어 전환 자리에 햄버거 버튼 */}
+        {/* 모바일: 햄버거 버튼(언어 전환은 메뉴 안에) */}
         <MobileMenu onDark={onDark} className="md:hidden" />
 
         {/* 데스크톱: 메뉴 + 언어 전환 */}
@@ -72,10 +72,6 @@ export function SiteHeader() {
           <LanguageToggle onDark={onDark} />
         </div>
 
-        {/* 모바일: 햄버거 버튼 아래 오른쪽에 언어 전환 */}
-        <div className="flex w-full justify-end md:hidden">
-          <LanguageToggle onDark={onDark} />
-        </div>
       </Container>
     </header>
   );

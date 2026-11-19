@@ -7,6 +7,7 @@ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { MenuIcon, XmarkIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { LanguageToggle } from "./language-toggle";
 import { TreeMark } from "./logo";
 import { NAV_ITEMS } from "./site-nav";
 import { useT } from "@/lib/language";
@@ -16,6 +17,7 @@ const EASE_OUT = [0.19, 1, 0.22, 1] as const;
 /**
  * 모바일(768px 미만) 메뉴.
  * 햄버거 버튼을 누르면 화면 전체를 덮는 메뉴가 왼쪽에서 밀려 들어오고, 메뉴 항목은 가운데 정렬됩니다.
+ * 닫기(X) 버튼 아래에 언어 전환(KO/EN) 버튼이 있습니다.
  * 닫기: X 버튼, Esc 키, 메뉴 항목 선택. 열려 있는 동안 뒤 페이지는 스크롤되지 않고, 키보드 초점은 메뉴 안에서만 돕니다.
  * onDark: 홈 히어로 위 투명 헤더일 때 햄버거 아이콘을 흰색으로 둡니다.
  */
@@ -133,6 +135,14 @@ export function MobileMenu({ onDark = false, className }: { onDark?: boolean; cl
               >
                 <XmarkIcon className="size-7" aria-hidden="true" />
               </Button>
+            </div>
+
+            {/* 언어 전환(KO/EN): 닫기(X) 버튼 바로 아래, 같은 오른쪽 끝에 맞춥니다 */}
+            {/* 한영 버튼의 누르는 영역이 보이는 알약보다 넓어(88px) 8px 안쪽으로 당겨, 알약 오른쪽 끝을 X 아이콘 오른쪽 끝에 맞춥니다 */}
+            <div className="flex justify-end px-(--page-inset)">
+              <div className="mr-2">
+                <LanguageToggle />
+              </div>
             </div>
 
             {/* 메뉴 항목: 화면 가운데에 세로로 */}
