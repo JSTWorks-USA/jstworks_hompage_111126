@@ -14,16 +14,14 @@ import { useStepToRow } from "./use-step-to-row";
 /**
  * 줄 바탕은 모두 흰색이고, 지금 보고 있는 사람(화면 세로 가운데에 가장 가까운 줄)의 바탕만 Main Green 으로 켜집니다.
  * 사람마다 정한 색(site.ts 의 background)은 따옴표와 선 그림에만 씁니다.
- * 밝은 종이색(#F7F8F9 · #FAF9F7)은 흰 바탕에서 보이지 않아 People Green 으로 씁니다.
+ * 밝은 종이색(#F7F8F9)은 흰 바탕에서 보이지 않아 People Green 으로 씁니다. 여기에 없는 색은 DEFAULT_PALETTE 를 씁니다.
  */
 const PEOPLE_PALETTE: Record<string, { ink: string; accent: string }> = {
   "#00441E": { ink: "var(--people-green)", accent: "var(--accent-amber)" },
-  "#00441D": { ink: "var(--people-green)", accent: "var(--accent-amber)" },
   "#6300A9": { ink: "var(--people-violet)", accent: "var(--accent-amber)" },
   "#A94400": { ink: "var(--people-rust)", accent: "var(--people-navy)" },
   "#001D3D": { ink: "var(--people-navy)", accent: "var(--accent-amber)" },
   "#F7F8F9": { ink: "var(--people-green)", accent: "var(--people-rust)" },
-  "#FAF9F7": { ink: "var(--people-green)", accent: "var(--people-rust)" },
 };
 const DEFAULT_PALETTE = { ink: "var(--people-green)", accent: "var(--people-rust)" };
 /** 켜진 줄(녹색 바탕): 따옴표·선 그림을 녹색 위에서 보이는 민트·앰버로 */
@@ -37,7 +35,6 @@ function rowTheme(person: Person, active: boolean) {
   return (person.background && PEOPLE_PALETTE[person.background.toUpperCase()]) || DEFAULT_PALETTE;
 }
 
-/** 사진이 아직 없는 사람 자리. 사진과 같은 크기로 줄 아래 끝에 붙는 상반신 실루엣입니다. */
 /**
  * 헤드라인 한 줄의 대략적인 폭(글자 크기의 몇 배인지). 실제 글꼴로 잰 값보다 조금 넉넉하게 잡았습니다
  * (한글 0.94, 띄어쓰기 0.21, 쉼표·마침표 0.25 → 0.95, 0.22, 0.3). 헤드라인 글자 크기를 칸에 맞출 때 씁니다.
@@ -82,6 +79,7 @@ function quoteFitVars(people: Person[]) {
   } as CSSProperties;
 }
 
+/** 사진이 아직 없는 사람 자리. 사진과 같은 크기로 줄 아래 끝에 붙는 상반신 실루엣입니다. */
 function Silhouette({ className }: { className?: string }) {
   return (
     <svg
@@ -205,6 +203,8 @@ function PersonRow({ person, index, active }: { person: Person; index: number; a
                 alt={t(person.alt)}
                 width={person.cutout.width}
                 height={person.cutout.height}
+                // 첫 사람 사진은 첫 화면에 바로 보이므로 미루지 않고 바로 받습니다(나머지는 스크롤해 가까워질 때)
+                loading={index === 0 ? "eager" : undefined}
                 sizes={wide ? "(min-width: 1280px) 460px, (min-width: 1024px) 400px, (min-width: 768px) 400px, (min-width: 640px) 56vw, 52vw" : "(min-width: 1280px) 360px, (min-width: 1024px) 320px, (min-width: 768px) 340px, (min-width: 640px) 300px, 52vw"}
                 className={cn(
                   "relative block h-auto drop-shadow-[0_0.75rem_1.5rem_rgb(0_0_0/0.35)] max-h-72 w-auto max-w-[48vw] sm:max-h-96 md:max-h-[28rem] lg:max-h-[28rem] fold:max-h-[min(28rem,calc(100svh-var(--header-height)-4rem))] xl:max-h-[32rem]",
@@ -248,10 +248,11 @@ function PersonRow({ person, index, active }: { person: Person; index: number; a
             “
           </span>
           {/* 슬로건 굵기: 한국어·영어 모두 font-bold(700).
-              작은 PC(1024~1279px)에서는 문구 칸이 좁아 40px 고정이면 "고객은 좋은 / 제품만을 구매하진 / 않는다," 처럼
-              뜻 중간에서 잘게 끊기므로, 화면 폭에 맞춰 약 30px(1024px)~39px(1279px)로 줄여 넓은 화면과 같은 위치에서 줄이 바뀌게 합니다 */}
-          {/* 글자 크기는 --quote-fs 변수로 줍니다(줄 고정 문구가 이 값보다 커지지 않도록 globals.css 에서 함께 씁니다) */}
-          <p className="m-0 pt-2 text-(length:--quote-fs) leading-[1.15] font-bold break-keep whitespace-pre-line [--quote-fs:2rem] md:[--quote-fs:3rem] lg:[--quote-fs:calc(3.6vw-0.45rem)] fold:[--quote-fs:calc(3.6vw-0.45rem)] xl:[--quote-fs:2.75rem] 2xl:[--quote-fs:3rem]">
+              글자 크기는 --quote-fs 변수로 줍니다: 휴대폰 32px, 태블릿 48px, 작은 PC(1024~1279px)는 화면 폭에 맞춰 약 30~39px, PC 44px, 큰 PC 48px.
+              한국어(태블릿·PC)는 이 값을 넘지 않는 범위에서 줄바꿈 자리에서만 줄이 나뉘도록 globals.css(.quote-fit)가 더 줄입니다.
+              영문은 한 단계(4px) 작게 씁니다. 태블릿·PC 영문은 정해 둔 줄바꿈(\n)을 쓰지 않고 문장을 이어 줄 길이를 고르게 나눕니다
+              (긴 첫 줄이 칸에 다 안 들어가 "products" 처럼 한 단어만 떨어진 뒤 다시 줄이 바뀌는 일을 막음). 휴대폰은 그대로 */}
+          <p className="m-0 pt-2 text-(length:--quote-fs) leading-[1.15] en:text-[calc(var(--quote-fs)-0.25rem)] md:en:whitespace-normal md:en:text-balance font-bold break-keep whitespace-pre-line [--quote-fs:2rem] md:[--quote-fs:3rem] lg:[--quote-fs:calc(3.6vw-0.45rem)] fold:[--quote-fs:calc(3.6vw-0.45rem)] xl:[--quote-fs:2.75rem] 2xl:[--quote-fs:3rem]">
             <T>{person.quote}</T>
             <span
               aria-hidden="true"

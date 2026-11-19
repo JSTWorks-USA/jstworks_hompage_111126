@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { ArrowLeftIcon } from "@/components/icons";
+import { Region } from "@/components/localized";
 import { Container } from "@/components/site-ui";
 import { NEWS } from "@/content/site";
 import { BASE_OPEN_GRAPH, SITE_NAME, articleJsonLd, articlePath, isoDate, jsonLd } from "@/lib/seo";
@@ -10,6 +11,10 @@ import { ArticleContent } from "../article-content";
 import { T } from "@/lib/i18n";
 
 type Props = { params: Promise<{ id: string }> };
+
+// 글 페이지는 주소의 글 번호(params)를 읽어야 그릴 수 있어 Next.js 의 "즉시 전환" 검사(개발 때 콘솔 경고)에서 뺍니다.
+// 글은 모두 빌드 때 미리 만들어 두므로(generateStaticParams) 실제 이동 속도에는 영향이 없습니다.
+export const instant = false;
 
 /** 주소 값(번호)에 맞는 글. 예전 글자 주소(slug)도 찾아 줍니다 */
 const findIndex = (key: string) => NEWS.findIndex((n) => String(n.id) === key || n.slug === key);
@@ -73,7 +78,7 @@ export default async function ArticlePage({ params }: Props) {
           <ArticleContent item={item} />
 
           {(prev || next) && (
-            <nav aria-label="다른 글" className="grid gap-4 border-t border-border pt-8 sm:grid-cols-2">
+            <Region as="nav" label="다른 글" className="grid gap-4 border-t border-border pt-8 sm:grid-cols-2">
               {prev && (
                 <Link
                   href={`/media/${prev.id}`}
@@ -100,7 +105,7 @@ export default async function ArticlePage({ params }: Props) {
                   </span>
                 </Link>
               )}
-            </nav>
+            </Region>
           )}
         </div>
       </Container>

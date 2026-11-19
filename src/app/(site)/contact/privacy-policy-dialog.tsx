@@ -55,7 +55,7 @@ export function PrivacyPolicyDialog({ dialogRef }: { dialogRef: RefObject<HTMLDi
           </div>
         </div>
         <div className="flex justify-end border-t border-border px-6 py-4">
-          <Button type="button" size="lg" onClick={close} className="cursor-pointer px-6">
+          <Button type="button" size="lgWide" onClick={close} className="cursor-pointer">
             <T>확인</T>
           </Button>
         </div>

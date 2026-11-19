@@ -4,6 +4,7 @@ import type { CSSProperties, ReactNode } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { SectionHeader } from "@/components/ui/section-header";
+import { LocalizedImage, Region } from "@/components/localized";
 import { Container, KeepTogether, PageHeader } from "@/components/site-ui";
 import { BRANDS, BUSINESS_CATEGORIES, type Brand, type BusinessCategory } from "@/content/site";
 import { BusinessCategories } from "./business-categories";
@@ -38,7 +39,7 @@ function focusCover(ratio: number, focus: { x: number; y: number }): CSSProperti
  * - 칸이 사진보다 가로로 짧으면(일반 화면·휴대폰) 사진이 칸을 꽉 채우고 넘치는 좌우만 잘립니다.
  *   이때 사진 위치는 focusCover 와 같은 기준점 규칙(--tx)을 따르되, 칸 끝이 드러나지 않게 멈춥니다.
  * - 칸이 사진보다 가로로 길면(와이드 모니터) 사진을 더 키우지 않고 전체를 보여 줍니다.
- *   사진은 카피 상자 반대쪽(photoSide) 끝에 붙고, 남는 쪽은 흐린 같은 사진(BlurFill)이 채웁니다.
+ *   사진은 카피 상자 반대쪽(photoSide) 끝에 붙고, 남는 쪽은 흐리게 깐 같은 사진(BrandsSection 의 첫 번째 Image)이 채웁니다.
  *   사진 안쪽 가장자리는 남는 폭만큼(최대 8rem) 서서히 투명해져 흐린 배경과 이어집니다.
  */
 function fitHeight(ratio: number, focus: { x: number; y: number }, photoSide: "left" | "right"): CSSProperties {
@@ -57,7 +58,7 @@ const GENTLE_VOX_CATEGORY: BusinessCategory = "K-Play";
 /** 자사 IP: Gentle Vox (제품 외형은 비공개 — 사진 없이 카피와 작동 흐름으로 소개합니다) */
 function IpSection() {
   return (
-    <section id="ip-contents" aria-label="자사 IP">
+    <Region id="ip-contents" label="자사 IP">
       {/* 제목 띠: 아래 '타사 제품 독점영업권' 제목 띠와 같은 크기·색 */}
       <div className="bg-secondary">
         <Container className="py-(--section-pad) md:py-8">
@@ -89,33 +90,24 @@ function IpSection() {
           />
         </article>
       </Container>
-    </section>
+    </Region>
   );
 }
 
 /**
  * 타사 제품 독점영업권: 가로 전체 이미지 위에 반투명 카피 박스를 좌·우 번갈아 둡니다.
- * 넓은 화면에서는 섹션 제목 띠와 첫 브랜드 사진이 한 화면(헤더 아래 높이)에 함께 보입니다.
+ * 넓은 화면에서는 섹션 제목 띠와 첫 브랜드 사진이 한 화면(헤더 아래 높이)에 함께 보입니다(줄 높이는 아래 article 에서 정합니다).
  */
 function BrandsSection({ brands, category }: { brands: Brand[]; category: BusinessCategory }) {
-  // 첫 브랜드 사진의 가로:세로 비율. 세로로 긴 창(세로 모니터·창을 좁고 길게 연 경우)에서
-  // 한 화면을 채우려고 사진 칸이 원본 비율보다 길어지면 사진이 크게 확대되어 일부만 보이므로,
-  // 사진 칸 높이를 "화면 너비 ÷ 사진 비율"(원본 비율 그대로의 높이)까지만 늘립니다.
-  const first = brands[0]?.background;
   // 브랜드가 여럿이면(K-Beauty) 와이드 모니터에서 사진을 가로폭에 맞춰 크게 키우지 않고 사진 전체를 보여 줍니다(fitHeight).
   // 하나면(YORIEN) 지금처럼 칸을 꽉 채웁니다(focusCover).
   const fitWhole = brands.length > 1;
   return (
-    <section
-      aria-label="타사 제품 독점영업권"
-      // 5.5rem = 위 제목 띠 높이(88px)
-      className={cn(
-        "md:flex md:flex-col",
-        first
-          ? "md:min-h-[min(calc(100svh-var(--header-height)),calc(5.5rem+100vw/var(--photo-ratio)))]"
-          : "md:min-h-[calc(100svh-var(--header-height))]",
-      )}
-      style={first ? ({ "--photo-ratio": (first.width / first.height).toFixed(4) } as CSSProperties) : undefined}
+    <Region
+      label="타사 제품 독점영업권"
+      // 사진이 있는 줄은 아래 article 이 줄마다 높이를 정합니다. 첫 브랜드에 사진이 없을 때만 섹션이 한 화면을 채우고
+      // 브랜드 줄들이 그 높이를 나눠 씁니다.
+      className={cn("md:flex md:flex-col", !brands[0]?.background && "md:min-h-[calc(100svh-var(--header-height))]")}
     >
       <div className="bg-secondary">
         <Container className="py-(--section-pad) md:py-8">
@@ -130,7 +122,8 @@ function BrandsSection({ brands, category }: { brands: Brand[]; category: Busine
           return (
             <li key={brand.name} className="md:flex md:flex-1 md:flex-col">
               {/* 휴대폰: 사진 위, 카피 상자 아래 / 넓은 화면: 사진을 배경으로 깔고 빈 쪽에 카피 상자 */}
-              {/* 넓은 화면의 줄 높이(최소 24rem): 브랜드마다 "화면 높이 - 제목 띠"와 "사진 비율 그대로의 높이" 중 작은 값.
+              {/* 넓은 화면의 줄 높이(최소 24rem): 브랜드마다 "화면 높이 - 제목 띠(5.5rem = 88px)"와 "사진 비율 그대로의 높이
+                  (화면 너비 ÷ 사진 비율)" 중 작은 값. 세로로 긴 창에서 사진 칸이 원본 비율보다 길어져 사진이 크게 확대되는 일을 막고,
                   브랜드가 여럿이어도 한 화면을 나눠 쓰지 않고 각자 이 높이를 씁니다 */}
               <article
                 aria-labelledby={headingId}
@@ -164,7 +157,7 @@ function BrandsSection({ brands, category }: { brands: Brand[]; category: Busine
                         className="hidden scale-110 object-cover blur-2xl md:block"
                       />
                     )}
-                    <Image
+                    <LocalizedImage
                       src={brand.background.src}
                       alt={brand.background.alt}
                       width={brand.background.width}
@@ -216,7 +209,7 @@ function BrandsSection({ brands, category }: { brands: Brand[]; category: Busine
           );
         })}
       </ul>
-    </section>
+    </Region>
   );
 }
 

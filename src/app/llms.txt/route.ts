@@ -1,10 +1,8 @@
-import { HISTORY, IP_ITEMS, OFFICE_LOCATIONS, PEOPLE } from "@/content/site";
+import { CONTACT_EMAIL, HISTORY, IP_ITEMS, NEWS, OFFICE_LOCATIONS, PEOPLE } from "@/content/site";
 import {
-  CONTACT_EMAIL,
   COMPANY_NAME_EN,
   COMPANY_NAME_KO,
   PAGE_SEO,
-  PUBLISHED_NEWS,
   SITE_DESCRIPTION,
   SITE_NAME,
   SITE_URL,
@@ -26,7 +24,7 @@ export function GET() {
     ] as const
   ).map(([name, path, description]) => `- [${name}](${SITE_URL}${path}): ${description}`);
 
-  const news = PUBLISHED_NEWS.map(
+  const news = NEWS.map(
     (item) => `- [${item.title}](${SITE_URL}${articlePath(item)}): ${item.date} · ${item.kind} · ${item.source}`,
   );
   const history = HISTORY.map((item) =>

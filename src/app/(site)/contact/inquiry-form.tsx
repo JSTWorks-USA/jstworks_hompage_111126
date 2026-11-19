@@ -1,15 +1,16 @@
 "use client";
 
 import { useRef, useState, type FormEvent, type KeyboardEvent } from "react";
-import { CheckIcon } from "@/components/icons";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
+import { CONTACT_EMAIL } from "@/content/site";
 import { applyPhoneFormat, isValidPhone } from "@/lib/korean-phone";
 import { Bi, T } from "@/lib/i18n";
-import { useT } from "@/lib/language";
+import { useLang, useT } from "@/lib/language";
 import { PrivacyPolicyDialog } from "./privacy-policy-dialog";
 import { cn } from "@/lib/utils";
 
@@ -34,7 +35,6 @@ const MIN_MESSAGE = 30;
 const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
 const WEB3FORMS_ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY ?? "";
 const MAIL_SUBJECT = "[JSTWorks 홈페이지 문의]";
-const CONTACT_EMAIL = "info@jstworks.com";
 
 type Status = "idle" | "sending" | "sent" | "failed";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -49,6 +49,13 @@ const MESSAGES = {
   message: `최소 ${MIN_MESSAGE}자 이상 입력하세요!!`,
   consent: "개인정보처리방침에 동의해 주세요",
 };
+/** 문의 내용 칸 안의 안내 문구 */
+const MESSAGE_HINT = `최소 ${MIN_MESSAGE}자 이상 입력하세요.`;
+/**
+ * 글자 수(MIN_MESSAGE)가 들어가는 두 문구(위 안내 문구와 MESSAGES.message)의 영어.
+ * 영어 사전(en.ts)은 한국어 원문이 열쇠라 숫자를 바꾸면 열쇠가 어긋나므로, 이 문구만 여기에서 숫자와 함께 만듭니다.
+ */
+const MIN_MESSAGE_EN = `Please enter at least ${MIN_MESSAGE} characters.`;
 
 type Values = Record<Field, string>;
 
@@ -85,7 +92,7 @@ function FieldError({ id, message, className }: { id: string; message?: string; 
   if (!message) return null;
   return (
     <p id={id} className={cn("m-0 text-sm text-destructive", className)}>
-      <T>{message}</T>
+      {message === MESSAGES.message ? <Bi ko={message} en={MIN_MESSAGE_EN} /> : <T>{message}</T>}
     </p>
   );
 }
@@ -97,6 +104,7 @@ function FieldError({ id, message, className }: { id: string; message?: string; 
  */
 export function InquiryForm() {
   const t = useT();
+  const english = useLang() === "EN";
   const formRef = useRef<HTMLFormElement>(null);
   const [kind, setKind] = useState("");
   const [messageLength, setMessageLength] = useState(0);
@@ -348,7 +356,7 @@ export function InquiryForm() {
           aria-invalid={errors.message ? true : undefined}
           aria-describedby={cn("inquiry-message-count", describedBy("message"))}
           // 안내 문구는 입력 칸 안에 검정색 굵은 글씨로 보여 줍니다
-          placeholder={t(`최소 ${MIN_MESSAGE}자 이상 입력하세요.`)}
+          placeholder={english ? MIN_MESSAGE_EN : MESSAGE_HINT}
           className={`min-h-40 py-3 placeholder:font-bold placeholder:text-foreground ${field}`}
         />
         {/* 입력 칸 아래: 왼쪽에 오류(붉은 글씨), 오른쪽에 입력한 글자수. 좁은 화면에서 한 줄에 다 안 들어가면
@@ -368,7 +376,7 @@ export function InquiryForm() {
       </div>
 
       {/* 스팸 방지용 숨김 체크박스(Web3Forms botcheck). 화면·키보드·화면 낭독기 모두에서 숨깁니다.
-          봇이 실제 체크박스로 인식하도록 키트의 Input 을 체크박스로 씁니다(키트에 Checkbox 컴포넌트가 없음). */}
+          봇이 실제 체크박스로 인식하도록 키트의 Input 을 체크박스로 씁니다(보이는 상자를 그리는 Checkbox 부품은 숨김 칸에 맞지 않습니다). */}
       <Input
         type="checkbox"
         name="botcheck"
@@ -382,25 +390,17 @@ export function InquiryForm() {
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
         <div className="flex flex-col gap-1">
           <div className="flex items-center">
-            {/* 체크 상자를 감싼 44px 누름 영역. 처음에는 체크하지 않은 상태입니다 */}
-            <label htmlFor="inquiry-consent" className="relative -ml-3 grid size-11 shrink-0 cursor-pointer place-items-center">
-              <input
-                id="inquiry-consent"
-                type="checkbox"
-                name="consent"
-                required
-                aria-label={t("개인정보처리방침에 동의합니다")}
-                aria-invalid={errors.consent ? true : undefined}
-                aria-describedby={describedBy("consent")}
-                // 실제 체크 상자는 44px 누름 영역 전체(보이지 않음), 눈에 보이는 20px 상자는 아래 span 이 그립니다
-                className="peer absolute inset-0 m-0 size-full cursor-pointer appearance-none rounded-full"
-              />
-              <span
-                aria-hidden="true"
-                className="pointer-events-none size-5 rounded-[0.3125rem] border-2 border-subtle bg-background transition-colors peer-checked:border-foreground peer-checked:bg-foreground peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring peer-aria-invalid:border-destructive"
-              />
-              <CheckIcon aria-hidden="true" className="pointer-events-none absolute size-4 text-background opacity-0 peer-checked:opacity-100" />
-            </label>
+            {/* 체크 상자(보이는 상자 20px, 누르는 영역 44px). 처음에는 체크하지 않은 상태입니다.
+                누름 영역이 글 왼쪽 끝보다 12px 넓어, 보이는 상자가 위 입력 칸들과 왼쪽 끝이 맞도록 그만큼 당깁니다 */}
+            <Checkbox
+              id="inquiry-consent"
+              name="consent"
+              required
+              aria-label={t("개인정보처리방침에 동의합니다")}
+              aria-invalid={errors.consent ? true : undefined}
+              aria-describedby={describedBy("consent")}
+              className="-ml-3"
+            />
             <p className="m-0 text-[0.9375rem] text-foreground">
               {/* 영어: "I agree to the Privacy Policy" / 한국어: "개인정보처리방침에 동의합니다" (밑줄 친 부분을 누르면 내용 창) */}
               <label htmlFor="inquiry-consent" className="hidden cursor-pointer en:inline">
@@ -409,8 +409,9 @@ export function InquiryForm() {
               <Button
                 type="button"
                 variant="link"
+                size="inline"
                 onClick={() => policyRef.current?.showModal()}
-                className="h-auto cursor-pointer p-0 -my-[0.6875rem] py-[0.6875rem] align-baseline text-[0.9375rem] font-medium underline underline-offset-4"
+                className="cursor-pointer underline"
               >
                 <T>개인정보처리방침</T>
               </Button>

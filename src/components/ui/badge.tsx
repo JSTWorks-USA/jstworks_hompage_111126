@@ -30,6 +30,8 @@ const badgeVariants = cva(
         sm:      "h-4 px-2 text-[0.625rem]",
         default: "h-5 px-2.5 text-xs",
         lg:      "h-6 px-3 text-xs",
+        // 좁은 칸용: 글이 길면 배지 안에서 줄을 바꿔 테두리 밖으로 넘치지 않습니다. 영어는 글이 길어 한 단계 작게 씁니다
+        wrap:    "h-auto min-h-5 max-w-full px-2.5 py-0.5 text-center text-xs leading-tight en:px-2 en:text-[0.6875rem] en:tracking-normal",
       },
     },
     defaultVariants: {

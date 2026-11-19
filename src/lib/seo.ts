@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { NEWS, OFFICE_LOCATIONS, PEOPLE, dateKey, type NewsItem } from "@/content/site";
+import { CONTACT_EMAIL, OFFICE_LOCATIONS, PEOPLE, dateKey, type NewsItem } from "@/content/site";
 
 /**
  * 검색엔진(SEO)·AI 검색(GEO)용 사이트 정보.
@@ -19,7 +19,6 @@ export const SITE_NAME = "Joshua Tree WORKS";
 export const TAB_TITLE = "Joshua Tree Works";
 export const COMPANY_NAME_KO = "조슈아트리웍스 주식회사";
 export const COMPANY_NAME_EN = "Joshua Tree Works CO., Ltd.";
-export const CONTACT_EMAIL = "info@jstworks.com";
 
 /** 사이트 전체 설명(검색 결과 아래 문구·링크 공유 미리보기·AI 요약에 쓰입니다) */
 export const SITE_DESCRIPTION =
@@ -103,9 +102,6 @@ export function isoDate(date: string): string | undefined {
 /** 글 주소 (/media/번호) */
 export const articlePath = (item: Pick<NewsItem, "id">) => `/media/${item.id}`;
 
-/** 공개된 글만 (자리 표시 항목 제외) */
-export const PUBLISHED_NEWS = NEWS.filter((item) => !item.placeholder);
-
 /**
  * JSON-LD 를 <script> 에 넣을 문자열로 바꿉니다.
  * "<" 를 유니코드로 바꿔, 데이터 안의 문자열이 </script> 로 스크립트를 끊지 못하게 합니다(Next.js 권장 방식).
@@ -115,7 +111,8 @@ export function jsonLd(data: unknown): string {
 }
 
 const [korea, usa] = OFFICE_LOCATIONS;
-const ceo = PEOPLE.find((person) => person.role.includes("CEO"));
+// 대표: 직함이 "대표이사"(또는 CEO)인 사람. 직함 표기를 바꾸면 여기도 맞춰야 회사 정보에 대표가 빠지지 않습니다
+const ceo = PEOPLE.find((person) => /대표이사|CEO/.test(person.role));
 
 /** 회사(Organization) 구조화 데이터: 이름·로고·주소·연락처·대표·설립일 */
 export function organizationJsonLd() {

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { HeroNightSky } from "@/components/home/hero-night-sky";
 import { HistoryRoots } from "@/components/home/history-roots";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
+import { LocalizedImage, Region } from "@/components/localized";
 import { Container, Placeholder } from "@/components/site-ui";
 import { IP_ITEMS, type IpStatus } from "@/content/site";
 import { T } from "@/lib/i18n";
@@ -37,7 +37,7 @@ export default function AboutPage() {
       <HistoryRoots />
 
       {/* Patents & Trademarks */}
-      <section id="patents" aria-label="특허, 상표권, 인증">
+      <Region id="patents" label="특허, 상표권, 인증">
         <Container className="flex flex-col gap-[var(--layout-section-gap)] py-(--section-pad)">
           <SectionHeader title="Patents & Trademarks" description="특허와 상표권, 인증" />
           {/* 휴대폰 두 칸, 태블릿 세 칸, 넓은 화면 다섯 칸 */}
@@ -49,7 +49,7 @@ export default function AboutPage() {
                   <div className="bg-muted p-3">
                     {ip.image ? (
                       <div className="relative aspect-[210/297] overflow-hidden bg-background shadow-sm">
-                        <Image
+                        <LocalizedImage
                           src={ip.image}
                           alt={ip.document.replace(" 이미지 자리", "")}
                           fill
@@ -60,6 +60,7 @@ export default function AboutPage() {
                     ) : (
                       <Placeholder
                         caption={ip.document}
+                        icon={ip.status !== "planned"}
                         className="aspect-[210/297] bg-background shadow-sm"
                       />
                     )}
@@ -69,7 +70,9 @@ export default function AboutPage() {
                       <T>{ip.title}</T>
                     </CardTitle>
                     <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-                      <Badge variant={ipBadgeVariant[ip.status]} size="default">
+                      {/* 영어는 배지 글이 길어("USPTO trademark filed") 좁은 카드 폭을 넘으므로 글자를 조금 줄이고(한국어는 그대로),
+                          그래도 모자라면 배지 안에서 줄을 바꿔 테두리 밖으로 넘치지 않게 합니다(Badge 의 wrap 크기) */}
+                      <Badge variant={ipBadgeVariant[ip.status]} size="wrap">
                         <T>{ip.badge}</T>
                       </Badge>
                       <CardDescription className="text-[0.8125rem] tabular-nums">
@@ -93,7 +96,7 @@ export default function AboutPage() {
             ))}
           </ul>
         </Container>
-      </section>
+      </Region>
     </>
   );
 }

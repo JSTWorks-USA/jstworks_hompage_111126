@@ -8,7 +8,6 @@ import type { NewsItem, NewsKind } from "@/content/site";
 import { NEWS_SUMMARY_EN } from "@/content/en";
 import { Bi, T } from "@/lib/i18n";
 import { useT } from "@/lib/language";
-import { cn } from "@/lib/utils";
 import { ArticleModal } from "./article-modal";
 import { NewsCover } from "./news-cover";
 import { ShareButton } from "./share-button";
@@ -58,12 +57,7 @@ function FeedCard({ item, onOpen }: { item: FeedItem; onOpen: (event: MouseEvent
             </Badge>
             <span className="tabular-nums">{item.date}</span>
           </div>
-          <h2
-            className={cn(
-              "m-0 text-[1.375rem] leading-snug font-bold tracking-[-0.01em] break-keep",
-              item.placeholder && "text-muted-foreground",
-            )}
-          >
+          <h2 className="m-0 text-[1.375rem] leading-snug font-bold tracking-[-0.01em] break-keep">
             <T>{item.title}</T>
           </h2>
           {/* 본문 앞부분: 세 줄까지, 아래로 갈수록 흐려집니다 */}

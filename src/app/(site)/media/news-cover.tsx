@@ -1,9 +1,10 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
+import { LocalizedImage } from "@/components/localized";
 import type { NewsItem } from "@/content/site";
 import { cn } from "@/lib/utils";
 
-/** 보도·소식 대표 이미지. 이미지가 없으면 자리 표시를 보여 줍니다. */
+/** 보도·소식 대표 이미지(대표 이미지가 없는 글에서는 아무것도 그리지 않습니다). 사진 설명(alt)은 지금 언어로 바뀝니다. */
 export function NewsCover({
   item,
   sizes,
@@ -25,7 +26,7 @@ export function NewsCover({
   return (
     // 이미지 뒤 바탕: 아주 연한 흰색(#f9f9f9)
     <div className={cn("relative overflow-hidden bg-neutral-cool", className)} style={style}>
-      <Image
+      <LocalizedImage
         src={item.cover.src}
         alt={item.cover.alt}
         fill

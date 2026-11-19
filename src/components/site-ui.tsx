@@ -23,15 +23,12 @@ export function Container({
   );
 }
 
-/** 서브 페이지 머리말: 제목 + 한 줄 설명 */
+/** 서브 페이지 머리말: 페이지 제목 */
 export function PageHeader({
   title,
-  description,
   bordered = true,
 }: {
   title: string;
-  /** 아래 섹션·필터를 되풀이하지 않을 때만 씁니다 */
-  description?: string;
   /** 머리 아래 구분선 */
   bordered?: boolean;
 }) {
@@ -41,24 +38,21 @@ export function PageHeader({
         <h1 className="m-0 text-[2.5rem] leading-[1.05] font-bold tracking-[-0.03em] md:text-[3.5rem]">
           <T>{title}</T>
         </h1>
-        {description && (
-          <p className="m-0 text-lg text-muted-foreground">
-            <T>{description}</T>
-          </p>
-        )}
       </Container>
     </header>
   );
 }
 
-
-/** 사진·지도가 들어갈 자리 표시 */
+/** 사진·문서가 들어갈 자리 표시 */
 export function Placeholder({
   caption,
   className,
+  icon = true,
 }: {
   caption: string;
   className?: string;
+  /** false 면 카메라 아이콘 없이 글만 보여 줍니다(예: 아직 서류가 없는 "예정중" 항목) */
+  icon?: boolean;
 }) {
   return (
     <figure
@@ -67,7 +61,7 @@ export function Placeholder({
         className,
       )}
     >
-      <CameraIcon aria-hidden="true" className="size-7" />
+      {icon && <CameraIcon aria-hidden="true" className="size-7" />}
       <figcaption>
         <T>{caption}</T>
       </figcaption>

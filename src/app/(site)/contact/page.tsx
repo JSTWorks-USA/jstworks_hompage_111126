@@ -4,9 +4,10 @@ import { MailIcon } from "@/components/icons";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Container, PageHeader } from "@/components/site-ui";
-import { OFFICE_LOCATIONS } from "@/content/site";
+import { LocalizedFrame, Region } from "@/components/localized";
+import { CONTACT_EMAIL, OFFICE_LOCATIONS } from "@/content/site";
 import { InquiryForm } from "./inquiry-form";
-import { Bi, T } from "@/lib/i18n";
+import { Bi, T, en } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = pageMetadata("contact", "/contact");
@@ -16,7 +17,7 @@ export default function ContactPage() {
     <>
       <PageHeader title="Contact" />
 
-      <section id="location" aria-label="오시는 길">
+      <Region id="location" label="오시는 길">
         <Container className="grid gap-[var(--layout-column-gap)] py-(--section-pad) md:grid-cols-2">
           {OFFICE_LOCATIONS.map((office) => (
             <Card key={office.name} className="flex flex-col overflow-hidden">
@@ -25,8 +26,9 @@ export default function ContactPage() {
                   지도를 위로 8rem 더 크게 그리고 그만큼 잘라 가립니다.
                   아래쪽 Google 로고·저작권 표시는 약관상 가리면 안 되므로 위만 자릅니다. */}
               <div className="relative aspect-video overflow-hidden bg-muted">
-                <iframe
+                <LocalizedFrame
                   title={`${office.name} 위치 지도`}
+                  titleEn={`${en(office.name)} location map`}
                   src={`https://www.google.com/maps?q=${encodeURIComponent(office.mapQuery)}&hl=ko&z=16&output=embed`}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
@@ -55,9 +57,9 @@ export default function ContactPage() {
             </Card>
           ))}
         </Container>
-      </section>
+      </Region>
 
-      <section id="inquiry" aria-label="문의하기" className="bg-secondary">
+      <Region id="inquiry" label="문의하기" className="bg-secondary">
         <Container className="grid gap-x-16 gap-y-12 py-(--section-pad) lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
           <div className="flex flex-col gap-6">
             <SectionHeader
@@ -65,11 +67,11 @@ export default function ContactPage() {
               description="협업, 투자, 일반 문의를 남겨 주세요."
             />
             <a
-              href="mailto:info@jstworks.com"
+              href={`mailto:${CONTACT_EMAIL}`}
               className="inline-flex min-h-11 items-center gap-3 self-start text-base text-primary underline underline-offset-4"
             >
               <MailIcon aria-hidden="true" className="size-5" />
-              info@jstworks.com
+              {CONTACT_EMAIL}
             </a>
           </div>
           <Card>
@@ -78,7 +80,7 @@ export default function ContactPage() {
             </CardContent>
           </Card>
         </Container>
-      </section>
+      </Region>
     </>
   );
 }

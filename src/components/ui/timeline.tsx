@@ -36,7 +36,7 @@ function Timeline({ items, className, ...props }: TimelineProps) {
                 )}
               </div>
               {!isLast && (
-                <div className="mt-1 w-px flex-1 min-h-[2rem] bg-border" />
+                <div className="mt-1 w-px flex-1 min-h-8 bg-border" />
               )}
             </div>
             {/* Content */}

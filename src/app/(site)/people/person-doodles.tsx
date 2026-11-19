@@ -203,8 +203,11 @@ function Pop({
   return (
     <g
       className="doodle-pop"
-      // 색은 CSS 변수(토큰)로 오므로 SVG 속성 대신 style 로 넣습니다(속성에는 var() 를 쓸 수 없음)
-      style={{ "--pop-x": ORIGIN.x - at[0], "--pop-y": ORIGIN.y - at[1], ...(stroke ? { stroke } : {}) } as CSSProperties}
+      // 색은 CSS 변수(토큰)로 오므로 SVG 속성 대신 style 로 넣습니다(속성에는 var() 를 쓸 수 없음).
+      // 거리는 그림 좌표 그대로입니다(SVG 안에서는 1px = 그림 좌표 1칸).
+      style={
+        { "--pop-x": `${ORIGIN.x - at[0]}px`, "--pop-y": `${ORIGIN.y - at[1]}px`, ...(stroke ? { stroke } : {}) } as CSSProperties
+      }
       strokeWidth={strokeWidth}
     >
       {children}

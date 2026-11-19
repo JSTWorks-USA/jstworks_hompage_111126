@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
-import { PUBLISHED_NEWS, SITE_URL, articlePath, isoDate } from "@/lib/seo";
+import { NEWS } from "@/content/site";
+import { SITE_URL, articlePath, isoDate } from "@/lib/seo";
 
 /** 검색엔진에 알려 주는 사이트 주소 목록 (/sitemap.xml) */
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -10,7 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/media`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${SITE_URL}/contact`, changeFrequency: "yearly", priority: 0.6 },
   ];
-  const articles: MetadataRoute.Sitemap = PUBLISHED_NEWS.map((item) => ({
+  const articles: MetadataRoute.Sitemap = NEWS.map((item) => ({
     url: `${SITE_URL}${articlePath(item)}`,
     lastModified: isoDate(item.date),
     changeFrequency: "yearly",

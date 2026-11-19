@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode } from "react";
+import { Region } from "@/components/localized";
 import { cn } from "@/lib/utils";
 import { T } from "@/lib/i18n";
 
@@ -8,11 +9,9 @@ import { T } from "@/lib/i18n";
  * 넓은 화면에서는 4단계가 한 줄로 이어지고, 좁은 화면에서는 세로로 쌓입니다.
  */
 
-/** 아이콘 선·채움: 흰 면에 검은 선, 강조 선도 검은색 */
+/** 아이콘 그리기: S 검은 선, F 흰 면 + 검은 선, D 검은 채움 */
 const S = "fill-none stroke-foreground stroke-[2.4] [stroke-linecap:round] [stroke-linejoin:round]";
 const F = "fill-background stroke-foreground stroke-[2.4] [stroke-linejoin:round]";
-const A = "fill-none stroke-foreground stroke-[2.4] [stroke-linecap:round] [stroke-linejoin:round]";
-const AF = "fill-foreground";
 const D = "fill-foreground";
 /** 아이콘 안쪽 칸(마이크·말풍선): 흰 면에 검은 선 */
 const S_SURFACE = "fill-background stroke-foreground stroke-[2.4] [stroke-linecap:round] [stroke-linejoin:round]";
@@ -29,7 +28,7 @@ const STEPS: Step[] = [
         <rect className={F} x="17" y="5" width="26" height="50" rx="6" />
         <rect className={S_SURFACE} x="26.5" y="17" width="7" height="13" rx="3.5" />
         <path className={S} d="M22.5 27a7.5 7.5 0 0 0 15 0M30 34.5V40M26 40h8" />
-        <path className={A} d="M49 24v8M54 20v16M11 24v8M6 20v16" />
+        <path className={S} d="M49 24v8M54 20v16M11 24v8M6 20v16" />
       </svg>
     ),
   },
@@ -40,7 +39,7 @@ const STEPS: Step[] = [
     icon: (
       <svg viewBox="0 0 60 60">
         <path className={F} d="M17 44a11 11 0 0 1-1.5-21.9A15 15 0 0 1 44.6 20 12 12 0 0 1 44 44z" />
-        <path className={A} d="M30 38V26M24.5 31l5.5-5.5 5.5 5.5" />
+        <path className={S} d="M30 38V26M24.5 31l5.5-5.5 5.5 5.5" />
       </svg>
     ),
   },
@@ -56,7 +55,7 @@ const STEPS: Step[] = [
             [15, 24, 33].map((cx) => <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="2" />),
           )}
         </g>
-        <path className={A} d="M47 24a8 8 0 0 1 0 12M52 19a15 15 0 0 1 0 22" />
+        <path className={S} d="M47 24a8 8 0 0 1 0 12M52 19a15 15 0 0 1 0 22" />
       </svg>
     ),
   },
@@ -70,7 +69,7 @@ const STEPS: Step[] = [
         <path className={S} d="M17 47h8" />
         <rect className={S_SURFACE} x="24" y="5" width="31" height="24" rx="7" />
         <path
-          className={AF}
+          className={D}
           d="M39.5 23.5c-5-3.4-7.5-6-7.5-8.8a3.9 3.9 0 0 1 7.5-1.5 3.9 3.9 0 0 1 7.5 1.5c0 2.8-2.5 5.4-7.5 8.8z"
         />
       </svg>
@@ -146,7 +145,7 @@ export function GentleVoxFlow({ product, className }: { product: ReactNode; clas
       </ol>
 
       {/* 핵심 특허기술: 상자 대신 위쪽 선으로만 나눕니다(위 단계 목록과 겹치지 않게) */}
-      <ul aria-label="주요 핵심기술" className="m-0 grid list-none gap-x-8 gap-y-5 p-0 md:grid-cols-3 short:gap-y-3">
+      <Region as="ul" label="주요 핵심기술" className="m-0 grid list-none gap-x-8 gap-y-5 p-0 md:grid-cols-3 short:gap-y-3">
         {PATENTS.map((patent) => (
           <li key={patent.label} className="flex flex-col gap-1 border-t border-border pt-4 short:pt-3">
             <span className="type-meta text-muted-foreground">
@@ -161,7 +160,7 @@ export function GentleVoxFlow({ product, className }: { product: ReactNode; clas
             </span>
           </li>
         ))}
-      </ul>
+      </Region>
 
       <div className="flex flex-col gap-1 rounded-xl bg-muted px-6 py-4 short:py-3">
         <p className="m-0 type-meta text-muted-foreground">

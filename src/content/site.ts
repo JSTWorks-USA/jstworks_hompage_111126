@@ -1,4 +1,5 @@
-// 홈페이지 콘텐츠. [대괄호] 값은 확정 전 자리 표시입니다.
+// 홈페이지 콘텐츠: 연혁, 특허·상표, 구성원, 브랜드, 보도·소식, 사무실.
+// 여기 한국어 문구의 영어는 src/content/en.ts 사전에 있습니다(한국어를 고치면 사전의 열쇠도 같이 고칩니다).
 
 /* ──────────────────────────── 연혁 ──────────────────────────── */
 
@@ -121,12 +122,12 @@ export function dateKey(date: string): number | null {
 }
 
 /**
- * 최신 날짜가 먼저 오도록 정렬합니다. 날짜를 읽을 수 없거나 last(예: 내용 없는 자리 표시)에 해당하면 맨 뒤로 보냅니다.
+ * 최신 날짜가 먼저 오도록 정렬합니다. 날짜를 읽을 수 없는 항목은 맨 뒤로 보냅니다.
  * 맨 뒤로 간 항목끼리, 같은 날짜끼리는 원래 적힌 순서를 지킵니다.
  */
-function sortByDateDesc<T extends { date: string }>(items: T[], last?: (item: T) => boolean): T[] {
+function sortByDateDesc<T extends { date: string }>(items: T[]): T[] {
   return items
-    .map((item, order) => ({ item, order, key: last?.(item) ? null : dateKey(item.date) }))
+    .map((item, order) => ({ item, order, key: dateKey(item.date) }))
     .sort((a, b) => {
       if (a.key === null && b.key === null) return a.order - b.order;
       if (a.key === null) return 1;
@@ -171,13 +172,15 @@ const IP_ITEMS_RAW: IpItem[] = [
     title: "캐릭터 굿즈",
     date: "2026.08.06",
     document: "한국 특허 출원서 이미지 자리",
+    image: "/images/certificates/character-goods-patent-application.webp",
   },
   {
     status: "filed",
     badge: "USPTO 상표 출원",
     title: "K-GANADA™ 4건",
     date: "2026.06.08",
-    document: "상표 출원서 이미지 자리",
+    document: "USPTO 상표 출원 접수증 이미지 자리",
+    image: "/images/certificates/uspto-k-ganada-filing-receipt.webp",
     note: [""],
   },
   {
@@ -185,7 +188,8 @@ const IP_ITEMS_RAW: IpItem[] = [
     badge: "예정",
     title: "PCT 국제특허",
     date: "2027.01.08",
-    document: "국제특허 출원서 이미지 자리",
+    // 아직 출원 전이라 서류 사진 대신 "예정중"만 보여 줍니다(아이콘 없음)
+    document: "예정중",
   },
   {
     status: "certified",
@@ -202,7 +206,7 @@ export const IP_ITEMS: IpItem[] = sortByDateDesc(IP_ITEMS_RAW);
 
 /* ──────────────────────────── 구성원 ──────────────────────────── */
 
-/** People 줄 배경의 선 그림 주제 (src/app/people/person-doodles.tsx) */
+/** People 줄 배경의 선 그림 주제 (src/app/(site)/people/person-doodles.tsx) */
 export type DoodleTheme = "export" | "creative" | "global" | "product" | "research" | "patent" | "tech";
 
 export type Person = {
@@ -279,7 +283,7 @@ export const PEOPLE: Person[] = [
     background: "#F7F8F9",
     doodle: "product",
     alt: "김진욱 상품개발",
-    career: ["플랫코퍼레이션", "키세스"],
+    career: ["플랫코퍼레이션", "크리에이티브그룹폼"],
     quote: "좋은 제품은 결국\n디테일에서 차이가 납니다.",
   },
   {
@@ -312,7 +316,7 @@ export const PEOPLE: Person[] = [
     background: "#F7F8F9",
     doodle: "tech",
     alt: "이주황 CTO",
-    career: ["현대자동차 R&D", "서울대 기계항공 졸업"],
+    career: ["현대자동차 R&D", "서울대학교 기계항공공학부 졸업"],
     quote: "기술은 앞에 서지 않아도\n경험을 바꿀 수 있습니다.",
   },
 ];
@@ -336,8 +340,6 @@ export type Brand = {
   description?: string;
   /** 일정 등 상태 표시 */
   status?: string;
-  /** 제품 구성 이미지는 추후 교체합니다 */
-  images: { src: string; alt: string }[];
   /**
    * 브랜드 줄 배경 사진. 카피 상자가 놓이는 쪽(첫 줄은 왼쪽)이 비어 있는 사진을 씁니다.
    * width·height: 사진 크기(px)
@@ -355,7 +357,6 @@ export const BRANDS: Brand[] = [
     tagline: "매일 마시는 물, 제약사가 만듭니다",
     description: "삼익제약의 정수기 YORIEN을 미국 가정의 주방에 소개합니다.",
     status: "2026년 12월 미국 출시 예정",
-    images: [{ src: "/images/business/yorien.webp", alt: "YORIEN 정수기" }],
     // 제품이 가운데 오른쪽에 있고 왼쪽 빈 벽에 카피 상자를 둡니다(로고 글자는 제 방향으로 고쳤습니다).
     background: {
       src: "/images/business/yorien-pitcher.jpg",
@@ -373,7 +374,6 @@ export const BRANDS: Brand[] = [
     category: "에이글로벌 뷰티 디바이스",
     tagline: "일본 프리미엄 홈에스테틱의 정점",
     description: "24K 금도금 소자 13개와 6가지 모드로 얼굴부터 바디까지 하루 5분 케어합니다.",
-    images: [],
     // 기기가 오른쪽 대리석 받침 위에 있고, 왼쪽 금색 구 쪽에 카피 상자를 둡니다.
     background: {
       src: "/images/business/zeus-3-stage.webp",
@@ -390,7 +390,6 @@ export const BRANDS: Brand[] = [
     category: "에이글로벌 뷰티 디바이스",
     tagline: "제우스 III의 프리미엄 케어를, 매일 10분",
     description: "5가지 기능을 동시에 출력하는 128g 무선 디바이스로 일본 A.GLOBAL의 홈에스테틱을 일상에서 만나보세요.",
-    images: [],
     // 모델이 왼쪽에 있고, 오른쪽 빈 벽에 카피 상자를 둡니다(두 번째 줄이라 상자가 오른쪽).
     background: {
       src: "/images/business/zeonis-model.webp",
@@ -419,7 +418,7 @@ export type NewsItem = {
   /** 본문 단락 */
   body: string[];
   /**
-   * 대표 이미지 (없으면 자리 표시).
+   * 대표 이미지 (없으면 사진 없이 글만 보여 줍니다).
    * fit: "contain" 은 로고처럼 잘리면 안 되는 이미지, focus: "right" 는 칸이 좁을 때 오른쪽을 남기고 왼쪽부터 자릅니다.
    */
   cover?: {
@@ -435,8 +434,6 @@ export type NewsItem = {
   };
   /** 원문 링크 (보도) */
   href?: string;
-  /** 확정 전 자리 표시 항목 */
-  placeholder?: boolean;
 };
 
 /** 작성 순서는 상관없습니다. 화면에는 아래 NEWS(날짜순)를 씁니다. */
@@ -539,10 +536,13 @@ const NEWS_ITEMS: NewsItem[] = [
   },
 ];
 
-/** 최신 날짜 → 과거 날짜 순서로 정렬합니다. 내용이 없는 글(자리 표시)과 날짜가 없는 글만 맨 뒤로 보냅니다. */
-export const NEWS: NewsItem[] = sortByDateDesc(NEWS_ITEMS, (item) => item.placeholder === true);
+/** 최신 날짜 → 과거 날짜 순서로 정렬합니다. 날짜가 없는 글만 맨 뒤로 보냅니다. */
+export const NEWS: NewsItem[] = sortByDateDesc(NEWS_ITEMS);
 
-/* ──────────────────────────── 오시는 길 ──────────────────────────── */
+/* ──────────────────────────── 오시는 길 · 연락처 ──────────────────────────── */
+
+/** 문의 메일 주소 (Contact, 바닥글, 문의 폼 안내, 검색엔진용 회사 정보가 함께 씁니다) */
+export const CONTACT_EMAIL = "info@jstworks.com";
 
 export const OFFICE_LOCATIONS: {
   eyebrow: string;

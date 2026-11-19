@@ -13,7 +13,6 @@ export const EN: Record<string, string> = {
   "메뉴 열기": "Open menu",
   "메뉴 닫기": "Close menu",
   "메뉴": "Menu",
-  "언어": "Language",
   "주 메뉴": "Main menu",
   "Joshua Tree WORKS 홈": "Joshua Tree WORKS home",
   "영어로 보기 (EN)": "View in English (EN)",
@@ -71,18 +70,19 @@ export const EN: Record<string, string> = {
   "K-GANADA™ 4건": "K-GANADA™ (4 marks)",
   "PCT 국제특허": "PCT International Patent",
   "벤처기업협회": "Korea Venture Business Association",
+  // 서류 사진 설명(alt): 사진이 들어간 칸은 site.ts 의 document 에서 " 이미지 자리"를 뗀 문구가 사진 설명이 됩니다
   "한국 특허증": "Korean patent certificate",
   "벤처기업협회 회원증": "Korea Venture Business Association membership certificate",
-  "한국 특허 출원서 이미지 자리": "Korean patent application (image coming soon)",
-  "상표 출원서 이미지 자리": "Trademark application (image coming soon)",
-  "국제특허 출원서 이미지 자리": "International patent application (image coming soon)",
+  "USPTO 상표 출원 접수증": "USPTO trademark filing receipt",
+  "한국 특허 출원서": "Korean patent application",
+  "예정중": "Scheduled",
 
   /* ───────── People ───────── */
   "구성원": "Our people",
   "경력": "Career",
   // 이름: 영문은 이름-성 순서 (사진 파일 이름의 로마자 표기를 따름) — 확인
   "이우용": "Scott Lee",
-  "길용준": "Yongjun Gil",
+  "길용준": "Steven Ghill",
   "박재모": "Jamssi Park",
   "이주황": "Juhwang Lee",
   "윤정원": "Jeongwon Yoon",
@@ -96,7 +96,7 @@ export const EN: Record<string, string> = {
   "상품개발": "Head of Product Development",
   // 사진 설명
   "이우용 대표이사": "Scott Lee, CEO",
-  "길용준 CIPO": "Yongjun Gil, CIPO",
+  "길용준 CIPO": "Steven Ghill, CIPO",
   "박재모 Co-founder & Creative Director": "Jamssi Park, Co-founder & Creative Director",
   "이주황 CTO": "Juhwang Lee, CTO",
   "윤정원 책임연구원": "Jeongwon Yoon, Principal Researcher",
@@ -201,6 +201,10 @@ export const EN: Record<string, string> = {
   "삼익제약, 프리미엄 정수기 '요리엔 샤블리' 미국 첫 수출":
     "Samik Pharmaceutical Ships Premium Water Purifier 'YORIEN Chablis' to the US for the First Time",
   "K-GANADA™ 미국 상표 출원": "K-GANADA™ US Trademark Filed",
+  // 대표 사진 설명(alt)
+  "K-GANADA™ 로고": "K-GANADA™ logo",
+  "특허증 제10-3012294호": "Patent Certificate No. 10-3012294",
+  "밤하늘을 배경으로 횃불을 든 자유의 여신상과 옛 미국 문서": "The Statue of Liberty holding her torch against a night sky, with an old American document",
 
   /* ───────── Contact ───────── */
   "오시는 길": "Locations",
@@ -219,7 +223,6 @@ export const EN: Record<string, string> = {
   "이메일": "Email",
   "연락처": "Phone",
   "문의 내용": "Message",
-  "(필수)": "(required)",
   "선택을 해주세요": "Please choose an inquiry type.",
   "성명을 입력하세요": "Please enter your name.",
   "회사명을 기입하세요": "Please enter your company name.",

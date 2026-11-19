@@ -1,29 +1,19 @@
-import Image from "next/image";
 import { ArrowUpRightIcon } from "@/components/icons";
+import { LocalizedImage } from "@/components/localized";
 import { Badge } from "@/components/ui/badge";
 import type { NewsItem } from "@/content/site";
 import { NEWS_SUMMARY_EN } from "@/content/en";
 import { T, keepWords } from "@/lib/i18n";
-import { cn } from "@/lib/utils";
 import { ArticleBody, readArticleMarkdown } from "./article-body";
 import { NewsCover } from "./news-cover";
 import { ShareButton } from "./share-button";
 
 /**
- * 글 한 편의 내용: 제목, 출처·종류·날짜, 대표 이미지, 본문, 원문 링크, 공유하기.
- * 전체 페이지(/media/글주소)와 목록 위에 뜨는 창(모달)이 같이 씁니다.
+ * 글 한 편의 내용: 출처, 종류·날짜·공유하기, 제목, 대표 이미지, 본문, 원문 링크.
+ * 전체 페이지(/media/번호)와 목록 위에 뜨는 창(모달)이 같이 씁니다.
  * heading: 전체 페이지에서는 h1, 창 안에서는 h2
  */
-export function ArticleContent({
-  item,
-  heading = "h1",
-  share = true,
-}: {
-  item: NewsItem;
-  heading?: "h1" | "h2";
-  /** 창(모달)에서는 위 막대에 공유하기가 있으므로 끕니다 */
-  share?: boolean;
-}) {
+export function ArticleContent({ item, heading = "h1" }: { item: NewsItem; heading?: "h1" | "h2" }) {
   const Title = heading;
   // 본문 마크다운(src/content/news/<slug>.md)이 있으면 블로그 본문으로, 없으면 body 단락으로 보여 줍니다.
   const markdown = readArticleMarkdown(item.slug);
@@ -41,14 +31,9 @@ export function ArticleContent({
             </Badge>
             <span className="tabular-nums">{item.date}</span>
           </div>
-          {share && <ShareButton id={item.id} className="-mr-3" />}
+          <ShareButton id={item.id} className="-mr-3" />
         </div>
-        <Title
-          className={cn(
-            "m-0 text-[1.375rem] leading-snug font-bold tracking-[-0.01em] break-keep",
-            item.placeholder && "text-muted-foreground",
-          )}
-        >
+        <Title className="m-0 text-[1.375rem] leading-snug font-bold tracking-[-0.01em] break-keep">
           <T>{item.title}</T>
         </Title>
       </header>
@@ -65,7 +50,7 @@ export function ArticleContent({
             style={{ aspectRatio: `${item.cover.width} / ${item.cover.height}` }}
           />
         ) : (
-          <Image
+          <LocalizedImage
             src={item.cover.src}
             alt={item.cover.alt}
             width={item.cover.width}

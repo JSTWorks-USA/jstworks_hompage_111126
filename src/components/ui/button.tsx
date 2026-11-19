@@ -71,6 +71,8 @@ const buttonVariants = cva(
         sm:      "h-8 px-4 text-xs rounded-lg",
         default: "h-[2.375rem] px-4",
         lg:      "h-[2.75rem] px-4 text-base",
+        // lg 와 같은 높이에 좌우 여백만 넓힌 크기: 글자가 짧은 버튼(확인 등)이 너무 좁아 보이지 않게 합니다
+        lgWide:  "h-[2.75rem] px-6 text-base",
         xl:      "h-14 px-10 text-base",
         icon:    "h-[2.375rem] w-[2.375rem] rounded-xl",
         // 알약 모양 탭 버튼 (Media 글 종류 탭 등), 44px 높이
@@ -82,6 +84,8 @@ const buttonVariants = cva(
         switch:  "-mx-2 h-11 px-2",
         // 카드형 선택 버튼: 아이콘 위, 이름 아래 (세로로 쌓고 가운데 정렬)
         tile:    "h-auto w-full flex-col gap-3 px-2 py-4 text-sm md:px-3 md:py-6 md:text-base",
+        // 문장 안에 놓이는 글자 링크(variant="link" 와 함께): 글줄에 맞춰 두고, 위아래로만 누르는 영역을 넓힙니다(약 44px)
+        inline:  "h-auto p-0 -my-[0.6875rem] py-[0.6875rem] align-baseline text-[0.9375rem] font-medium",
       },
     },
     defaultVariants: {

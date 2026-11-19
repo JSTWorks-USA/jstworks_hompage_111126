@@ -1,10 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CONTACT_EMAIL } from "@/content/site";
 import { Bi } from "@/lib/i18n";
 import { StableLocalizedText } from "./localized-text";
 import { Container } from "./site-ui";
-
-const CONTACT_EMAIL = "info@jstworks.com";
 
 /** 주소 줄. en 이 있으면 영문(EN) 화면에서 그 문구로 바뀝니다(두 문구 중 긴 쪽 높이로 자리를 잡아 푸터 크기는 그대로). */
 type Line = {
@@ -92,9 +91,8 @@ export function SiteFooter() {
         </div>
 
         <div className="flex justify-start border-t border-footer-line pt-6 text-sm text-footer-muted md:justify-end">
-          <p className="m-0">
-            © 2026 <Bi ko="Joshua Tree Works CO., Ltd." en="Joshua Tree Works CO., Ltd." />
-          </p>
+          {/* 저작권 표시는 언어와 관계없이 영문 회사명으로 둡니다 */}
+          <p className="m-0">© 2026 Joshua Tree Works CO., Ltd.</p>
         </div>
       </Container>
     </footer>

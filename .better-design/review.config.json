@@ -1,0 +1,10 @@
+{
+  "rules": {
+    "elementExemptions": [
+      {
+        "path": "src/components/ui/**",
+        "reason": "디자인 시스템 부품 자체입니다. Input, Textarea, Checkbox 가 감싸는 기본 요소(input, textarea)는 이 폴더에서만 씁니다."
+      }
+    ]
+  }
+}

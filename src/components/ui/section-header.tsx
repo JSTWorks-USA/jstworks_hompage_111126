@@ -2,11 +2,10 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { T } from "@/lib/i18n"
 
-// Luxe SectionHeader: page section title — refined typography, optional badge/action
-// Eyebrow text (small caps tracking-widest) + title + description pattern
+// Luxe SectionHeader: page section title — refined typography, optional action
+// Title + description pattern (제목 위 작은 대문자 라벨은 디자인 규칙에 맞지 않아 두지 않습니다)
 
 export interface SectionHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  eyebrow?: string
   title: string
   description?: string
   action?: React.ReactNode
@@ -14,7 +13,6 @@ export interface SectionHeaderProps extends React.HTMLAttributes<HTMLDivElement>
 }
 
 function SectionHeader({
-  eyebrow,
   title,
   description,
   action,
@@ -33,11 +31,6 @@ function SectionHeader({
       {...props}
     >
       <div className={cn("flex flex-col gap-1.5", align === "center" && "items-center")}>
-        {eyebrow && (
-          <p className="text-[0.6875rem] font-semibold uppercase tracking-widest text-muted-foreground/70">
-            {eyebrow}
-          </p>
-        )}
         <h2 className="text-2xl font-semibold text-foreground tracking-tight leading-none">
           <T>{title}</T>
         </h2>

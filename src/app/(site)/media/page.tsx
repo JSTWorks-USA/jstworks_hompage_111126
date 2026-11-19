@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
+import { Region } from "@/components/localized";
 import { Container, PageHeader } from "@/components/site-ui";
 import { NEWS } from "@/content/site";
 import { articlePreview } from "./article-body";
@@ -23,11 +24,11 @@ export default async function MediaPage() {
   return (
     <>
       <PageHeader title="Media" />
-      <section aria-label="뉴스 목록" className="bg-neutral-cool">
+      <Region label="뉴스 목록" className="bg-neutral-cool">
         <Container className="py-(--section-pad)">
           <NewsList items={items} articles={articles} />
         </Container>
-      </section>
+      </Region>
     </>
   );
 }
