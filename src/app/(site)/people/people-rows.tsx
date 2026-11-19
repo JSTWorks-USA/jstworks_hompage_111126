@@ -40,7 +40,7 @@ function rowTheme(person: Person, active: boolean) {
 /** 사진이 아직 없는 사람 자리. 사진과 같은 크기로 줄 아래 끝에 붙는 상반신 실루엣입니다. */
 /**
  * 헤드라인 한 줄의 대략적인 폭(글자 크기의 몇 배인지). 실제 글꼴로 잰 값보다 조금 넉넉하게 잡았습니다
- * (한글 0.94, 띄어쓰기 0.21, 쉼표·마침표 0.25 → 0.95, 0.22, 0.3). quoteKeepLines 인 줄의 글자 크기를 정할 때 씁니다.
+ * (한글 0.94, 띄어쓰기 0.21, 쉼표·마침표 0.25 → 0.95, 0.22, 0.3). 헤드라인 글자 크기를 칸에 맞출 때 씁니다.
  */
 function lineEm(line: string) {
   let em = 0;
@@ -48,7 +48,7 @@ function lineEm(line: string) {
   return Number(em.toFixed(2));
 }
 
-/** quoteKeepLines: 가장 긴 줄과 마지막 줄(닫는 따옴표가 붙음)의 폭. globals.css 의 .quote-fit 이 이 값으로 글자 크기를 맞춥니다 */
+/** 헤드라인의 가장 긴 줄과 마지막 줄(닫는 따옴표가 붙음)의 폭. globals.css 의 .quote-fit 이 이 값으로 글자 크기를 맞춥니다 */
 function quoteFitStyle(quote: string) {
   const lines = quote.split("\n").map(lineEm);
   return { "--fit-longest": Math.max(...lines), "--fit-last": lines[lines.length - 1] } as CSSProperties;
@@ -209,9 +209,9 @@ function PersonRow({ person, index, active }: { person: Person; index: number; a
             "order-first m-0 flex max-w-md items-start gap-3 self-center md:max-w-2xl lg:order-0 fold:order-0 lg:justify-self-center fold:justify-self-center lg:pb-16 fold:pb-16",
             flip && "lg:order-1 fold:order-1",
             // 줄 고정: 문구 칸 폭(100cqi)을 재려고 칸 전체 폭을 차지하게 하고, 넓은 화면에서는 내용을 가운데에 둡니다(globals.css .quote-fit)
-            person.quoteKeepLines && "quote-fit md:w-full md:@container lg:justify-center fold:justify-center",
+            "quote-fit md:w-full md:@container lg:justify-center fold:justify-center",
           )}
-          style={person.quoteKeepLines ? quoteFitStyle(person.quote) : undefined}
+          style={quoteFitStyle(person.quote)}
         >
           <span
             aria-hidden="true"
