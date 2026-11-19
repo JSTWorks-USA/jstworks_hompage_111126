@@ -20,6 +20,16 @@
    People 줄을 넓은 화면(lg)처럼 좌우로 나눠 한 사람이 한 화면 안에 들어오게 할 때 씁니다 */
 @custom-variant fold (@media (min-width: 768px) and (max-width: 1023.98px) and (orientation: landscape));
 
+/* 휴대폰·태블릿(1023px 이하, 또는 손가락으로 쓰는 화면): 연혁 장면처럼 큰 그림 위에서 무거운 효과(배경 흐림 등)를 덜어 낼 때 씁니다 */
+@custom-variant touchy {
+  @media (max-width: 1023.98px) {
+    @slot;
+  }
+  @media (pointer: coarse) {
+    @slot;
+  }
+}
+
 /* 영어(EN) 화면: KO/EN 버튼이 <html data-lang="EN"> 을 붙입니다. 영어일 때만 다른 모양을 줄 때 en: 을 씁니다 */
 @custom-variant en (&:where(html[data-lang="EN"], html[data-lang="EN"] *));
 
@@ -391,6 +401,7 @@ html[data-lang="EN"] [data-l="ko"] {
   .shooting-star {
     animation: shooting-star var(--meteor-dur, 11s) linear var(--meteor-delay, 0s) infinite;
   }
+  }
   /* People 선 그림: 줄이 화면에 들어오면 아이콘들이 사진 뒤(--pop-x, --pop-y 만큼 떨어진 곳)에서
      한두 개씩 슝 튀어나와 제자리에 섭니다. 몇 개씩, 언제 나올지는 person-doodles.tsx 가 매번 무작위로 정하고(--pop-delay),
      모든 아이콘이 2초 안에 다 나옵니다. 움직임을 줄인 사용자에게는 처음부터 제자리에 멈춘 그림이 보입니다. */
@@ -408,6 +419,20 @@ html[data-lang="EN"] [data-l="ko"] {
     transform-box: fill-box;
     transform-origin: center;
   }
+  /* (아래 규칙이 위의 반짝임·박동 규칙을 덮어쓰도록 이 묶음의 맨 끝에 둡니다) */
+  /* 휴대폰·태블릿: 연혁 장면은 화면 높이의 약 3배인 큰 그림 한 장이라, 그 안의 별이 하나만 반짝여도
+     스크롤하는 동안 그림 전체를 매 프레임 다시 그려 화면이 깜빡입니다. 이 화면에서는 별 반짝임·별똥별을 멈춥니다
+     (별·뿌리 점은 그대로 보이고 박동만 멈춥니다. 양분 알갱이는 history-roots.tsx 에서 지금 연혁 자리에서만 흐르게 합니다). */
+  @media (max-width: 1023.98px), (pointer: coarse) {
+    .star-twinkle,
+    .star-flare,
+    .root-pulse {
+      animation: none;
+    }
+    .shooting-star {
+      animation: none;
+      opacity: 0;
+    }
 }
 
 /* People 선 그림 튀어나오기 (SVG 안에서는 1px = 그림 좌표 1칸) */

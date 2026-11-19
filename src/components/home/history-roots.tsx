@@ -350,6 +350,14 @@ function Particles({
   /** 굵기 배율 (휴대폰에서 크게) */
   size?: number;
 }) {
+  // 안 보일 때(투명도 0)는 알갱이를 아예 그리지 않습니다. 보이지 않아도 흐르는 알갱이가
+  // 큰 장면 그림을 매 프레임 다시 그리게 만들기 때문입니다.
+  const [shown, setShown] = useState(() => opacity.get() > 0.01);
+  useMotionValueEvent(opacity, "change", (v) => {
+    const next = v > 0.01;
+    setShown((current) => (current === next ? current : next));
+  });
+  if (!shown) return null;
   return (
     <motion.g style={{ opacity }}>
       {begins.map((begin) => (
@@ -412,6 +420,14 @@ function LineSpot({
   lineSize?: number;
 }) {
   const { flow, node, particles } = useSpotTiming(progress, STARTS[spot.i]);
+  // 휴대폰·태블릿: 양분 알갱이는 지금 연혁과 바로 앞 연혁 자리에서만 흐르고, 지나간 자리는 선·점만 남깁니다
+  const start = STARTS[spot.i];
+  const recentParticles = useTransform(
+    progress,
+    [start + ROOT_STEP * 0.4, start + ROOT_STEP, start + ROOT_STEP * 2.2, start + ROOT_STEP * 2.8],
+    [0, 1, 1, 0],
+  );
+  const touchy = useTouchy();
   const color = laneColor(spot.lane);
   const id = `history-spot-${spot.i}`;
   return (
@@ -434,7 +450,14 @@ function LineSpot({
         strokeLinecap="round"
         style={{ pathLength: flow }}
       />
-      <Particles opacity={particles} pathId={id} color={color} begins={[0, 0.8, 1.6]} size={size} />
+      <Particles
+        key={touchy ? "recent" : "all"}
+        opacity={touchy ? recentParticles : particles}
+        pathId={id}
+        color={color}
+        begins={[0, 0.8, 1.6]}
+        size={size}
+      />
       <SpotNode x={spot.x} y={spot.y} color={color} opacity={node} size={size} />
     </g>
   );
@@ -521,6 +544,25 @@ function useNarrow() {
   return useSyncExternalStore(
     subscribeNarrow,
     () => window.matchMedia(NARROW_QUERY).matches,
+    () => false,
+  );
+}
+
+/** 휴대폰·태블릿(1023px 이하, 또는 손가락으로 쓰는 화면). globals.css 의 touchy 와 같은 조건 */
+const TOUCHY_QUERY = "(max-width: 1023.98px), (pointer: coarse)";
+function subscribeTouchy(onChange: () => void) {
+  const mq = window.matchMedia(TOUCHY_QUERY);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+/**
+ * 휴대폰·태블릿인지. 이 화면에서는 연혁 장면(화면 높이의 약 3배인 큰 그림 한 장) 안에서 쉬지 않고 도는 움직임을
+ * 줄여, 그림 전체를 매 프레임 다시 그리느라 생기는 깜빡임을 막습니다. 서버에서는 넓은 화면으로 봅니다.
+ */
+function useTouchy() {
+  return useSyncExternalStore(
+    subscribeTouchy,
+    () => window.matchMedia(TOUCHY_QUERY).matches,
     () => false,
   );
 }
@@ -688,7 +730,9 @@ function Scene({
   return (
     <motion.div
       style={{ x: centerShift, y: camera, scale: zoom, originY: focusY }}
-      className="absolute top-0 left-1/2 aspect-[600/2000] h-[285.714%] -translate-x-1/2"
+      // will-change: 장면을 따로 된 층으로 올려, 스크롤로 카메라가 움직일 때 그림을 다시 그리지 않고 옮기기만 합니다
+      // (휴대폰·태블릿에서 스크롤 중 깜빡임을 막습니다)
+      className="absolute top-0 left-1/2 aspect-[600/2000] h-[285.714%] -translate-x-1/2 will-change-transform"
     >
       <svg
         aria-hidden="true"
@@ -1050,6 +1094,7 @@ export function HistoryRoots() {
   const stageRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const narrow = useNarrow();
+  const touchy = useTouchy();
 
   // 가지 이름표가 모두 카탈로그 자리에 나타난 뒤에만 말풍선을 열 수 있습니다.
   const [labelsLive, setLabelsLive] = useState(false);
@@ -1323,6 +1368,9 @@ export function HistoryRoots() {
                 className={cn(
                   // 넓은 화면에서는 이 카드에 비전만 나오므로, 퍼진 카탈로그 이름표와 겹치지 않게 조금 더 아래에 둡니다
                   "relative w-full rounded-xl bg-night/75 p-6 backdrop-blur-md md:mb-[18vh] md:w-104 lg:mb-[8vh]",
+                  // 휴대폰·태블릿: 움직이는 장면 위의 배경 흐림(backdrop-blur)은 매 프레임 다시 흐려야 해 깜빡임을 일으키므로,
+                  // 흐림 대신 조금 더 진한 바탕으로 글자를 읽기 쉽게 둡니다
+                  "touchy:bg-night/90 touchy:backdrop-blur-none",
                   // 영어 비전 문구는 한국어보다 길어 카드를 조금 넓혀 두 줄 안에 넣습니다(K-Beauty 이름표와 겹치지 않게)
                   "md:en:w-120",
                   // 휴대폰 가로: 작게 줄여 왼쪽 아래에 붙입니다
@@ -1351,7 +1399,9 @@ export function HistoryRoots() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
-                    transition={{ duration: 0.2, ease: [0.19, 1, 0.22, 1] }}
+                    // 휴대폰·태블릿: 손가락으로 빠르게 넘기면 연혁이 연달아 바뀌어, 사라졌다 나타나는 효과가
+                    // 깜빡임처럼 보입니다. 이 화면에서는 글자를 바로 바꿉니다
+                    transition={{ duration: touchy ? 0 : 0.2, ease: [0.19, 1, 0.22, 1] }}
                   >
                     <StepPanel step={STEPS[active]} />
                   </motion.div>
