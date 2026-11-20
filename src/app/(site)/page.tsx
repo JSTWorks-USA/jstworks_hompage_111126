@@ -19,7 +19,8 @@ import { PAGE_SEO } from "@/lib/seo";
 // 첫 화면: 탭 제목은 레이아웃의 "Joshua Tree Works" 를 그대로 씁니다.
 export const metadata: Metadata = {
   description: PAGE_SEO.about.description,
-  alternates: { canonical: "/" },
+  // RSS(보도·소식)도 알려 둡니다. 네이버 서치어드바이저 등이 /rss.xml 을 찾습니다
+  alternates: { canonical: "/", types: { "application/rss+xml": "/rss.xml" } },
 };
 
 const ipBadgeVariant: Record<IpStatus, "primary" | "outline" | "default"> = {

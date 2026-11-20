@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   creator: COMPANY_NAME_KO,
   publisher: COMPANY_NAME_KO,
   category: "business",
-  alternates: { canonical: "/" },
+  alternates: { canonical: "/", types: { "application/rss+xml": "/rss.xml" } },
   // 링크 공유 대표 사진은 app/opengraph-image.jpg · twitter-image.jpg (히어로 밤하늘 사진, 1200×630)
   openGraph: {
     ...BASE_OPEN_GRAPH,
