@@ -225,7 +225,9 @@ export function HeroNightSky() {
       aria-labelledby="hero-title"
       // 투명 헤더 밑으로 헤더 높이만큼 끌어올려 화면 높이를 정확히 채웁니다. 첫 화면에는 히어로만 보입니다.
       // 가로로 눕힌 휴대폰처럼 아주 낮은 화면에서는 문구가 잘리지 않게 최소 높이를 둡니다.
-      className="relative isolate -mt-[var(--header-height)] h-svh min-h-80 overflow-hidden bg-night text-night-foreground"
+      // 브라우저의 스크롤 고정(scroll anchoring) 기준에서 히어로를 뺍니다. 새로 고침할 때 히어로 안 요소가
+      // 조금만 움직여도 브라우저가 화면을 따라 내려(1px 이상) 머리글이 흰색으로 바뀌던 문제를 막습니다.
+      className="relative isolate -mt-[var(--header-height)] h-svh min-h-80 overflow-hidden bg-night text-night-foreground [overflow-anchor:none]"
     >
       <Image
         src="/images/hero/joshua-tree-night-silhouette.jpg"
