@@ -4,15 +4,11 @@ import { CONTACT_EMAIL, OFFICE_LOCATIONS, PEOPLE, dateKey, type NewsItem } from 
 /**
  * 검색엔진(SEO)·AI 검색(GEO)용 사이트 정보.
  *
- * 사이트 주소: NEXT_PUBLIC_SITE_URL 이 있으면 그 값, 없으면 Vercel 이 배포 때 넣어 주는 운영 도메인
- * (VERCEL_PROJECT_PRODUCTION_URL — 자체 도메인을 연결하면 자동으로 그 도메인), 둘 다 없으면 로컬 주소입니다.
+ * 사이트 대표 주소는 https://www.jstworks.com 하나로 고정합니다(끝에 / 없음).
+ * 환경변수(VERCEL_URL 등)로 만들지 않아, vercel.app 주소나 미리보기 배포로 들어와도
+ * 대표 주소(canonical)·링크 공유 주소(og:url)·사이트맵·robots 가 항상 이 주소를 가리킵니다.
  */
-export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : "http://localhost:3000")
-).replace(/\/$/, "");
+export const SITE_URL = "https://www.jstworks.com";
 
 export const SITE_NAME = "Joshua Tree WORKS";
 /** 브라우저 탭 제목. 어느 페이지에서나 이 이름 하나만 보입니다(페이지 이름을 앞에 붙이지 않음) */

@@ -6,6 +6,7 @@ import { inter, nanumGothic } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  // 대표 주소 고정: https://www.jstworks.com (src/lib/seo.ts 의 SITE_URL)
   metadataBase: new URL(SITE_URL),
   // 브라우저 탭 제목: 모든 페이지가 "Joshua Tree Works" 하나만 씁니다(하위 페이지는 title 을 넣지 않아 이 값을 물려받음)
   title: TAB_TITLE,
