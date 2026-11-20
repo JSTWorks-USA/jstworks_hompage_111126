@@ -19,8 +19,8 @@ export default function robots(): MetadataRoute.Robots {
     "Google-Extended",
     "Applebot-Extended",
   ];
-  // 국내 검색 로봇: 네이버(Yeti)·다음(Daum)도 명시적으로 허용합니다
-  const searchBots = ["Yeti", "Daum"];
+  // 검색 로봇: 네이버(Yeti)·다음(Daum)·빙(Bingbot, ChatGPT 검색도 참고)도 명시적으로 허용합니다
+  const searchBots = ["Yeti", "Daum", "Bingbot"];
   return {
     rules: [{ userAgent: "*", allow: "/" }, ...[...searchBots, ...aiBots].map((userAgent) => ({ userAgent, allow: "/" }))],
     sitemap: `${SITE_URL}/sitemap.xml`,

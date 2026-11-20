@@ -1,10 +1,11 @@
-import { CONTACT_EMAIL, HISTORY, IP_ITEMS, NEWS, OFFICE_LOCATIONS, PEOPLE } from "@/content/site";
+import { FAQ } from "@/content/faq";
+import { BRANDS, CONTACT_EMAIL, HISTORY, IP_ITEMS, NEWS, OFFICE_LOCATIONS, PEOPLE, VISION, VISION_DETAILS } from "@/content/site";
 import {
+  BRAND_NAME,
   COMPANY_NAME_EN,
   COMPANY_NAME_KO,
   PAGE_SEO,
   SITE_DESCRIPTION,
-  SITE_NAME,
   SITE_URL,
   articlePath,
 } from "@/lib/seo";
@@ -16,7 +17,7 @@ import {
 export function GET() {
   const pages = (
     [
-      ["About", "/", PAGE_SEO.about.description],
+      ["홈 (About)", "/", PAGE_SEO.about.description],
       ["Business", "/business", PAGE_SEO.business.description],
       ["People", "/people", PAGE_SEO.people.description],
       ["Media", "/media", PAGE_SEO.media.description],
@@ -33,15 +34,26 @@ export function GET() {
   const status = { registered: "등록", filed: "출원", planned: "출원 예정", certified: "인증" } as const;
   const ip = IP_ITEMS.map((item) => `- ${item.date} ${item.title} (${status[item.status]})`);
   const people = PEOPLE.map((person) => `- ${person.name} — ${person.role}`);
+  // 사업 요약: 연혁 장면의 카테고리별 소개(VISION_DETAILS)와 Business 페이지 브랜드 소개(BRANDS) 문구 그대로
+  const business = [
+    `- ${VISION.lead} ${VISION.title}`,
+    ...Object.entries(VISION_DETAILS).map(([category, detail]) => `- ${category} · ${detail.title}: ${detail.body}`),
+    ...BRANDS.map((brand) => `- ${brand.name} (${brand.category})${brand.tagline ? `: ${brand.tagline}.` : ""} ${brand.description}`),
+  ];
   const offices = OFFICE_LOCATIONS.map((office) => `- ${office.eyebrow}: ${office.name}, ${office.address}`);
 
   const body = [
-    `# ${SITE_NAME} (${COMPANY_NAME_KO})`,
+    `# ${BRAND_NAME}(JSTWorks, Joshua Tree Works) — ${COMPANY_NAME_KO}`,
     "",
     `> ${SITE_DESCRIPTION}`,
     "",
     `영문 회사명: ${COMPANY_NAME_EN} / 문의: ${CONTACT_EMAIL}`,
     "",
+    "## 사업 요약",
+    ...business,
+    "",
+    "## 자주 묻는 질문",
+    ...FAQ.flatMap((item) => [`### ${item.question}`, item.answer, ""]),
     "## 페이지",
     ...pages,
     "",
