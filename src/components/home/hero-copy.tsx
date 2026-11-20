@@ -8,7 +8,7 @@ import { T } from "@/lib/i18n";
  * 로고 가로는 PC 500px(31.25rem). 화면이 좁으면 화면 폭의 78%까지 줄어듭니다(휴대폰 390px → 약 304px).
  * 아래 글씨와 사이 간격은 로고 폭에 비례하므로(컨테이너 단위 cqw) 로고와 같은 비율로 함께 작아집니다.
  *   글씨 = 로고 폭의 6.4% (500px 일 때 32px), 간격 = 로고 폭의 4% (500px 일 때 20px)
- *   영문 부제는 한글보다 길어 한 줄에 들어가도록 6% (500px 일 때 30px)
+ *   영문 부제는 한글보다 길어 4.75% (500px 일 때 약 24px). 로고의 "Joshua" o 가운데 ~ "WORKS" K 가운데 폭에 맞춘 크기입니다.
  */
 export function HeroCopy() {
   return (
@@ -25,7 +25,7 @@ export function HeroCopy() {
         sizes="(min-width: 641px) 500px, 78vw"
         className="block h-auto w-full"
       />
-      <span className="mt-[4cqw] text-[6.4cqw] leading-tight font-medium en:text-[6cqw] en:whitespace-nowrap">
+      <span className="mt-[4cqw] text-[6.4cqw] leading-tight font-medium en:text-[4.75cqw] en:whitespace-nowrap">
         <T>미국향 커머스 플랫폼</T>
       </span>
     </h1>
