@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { BASE_OPEN_GRAPH, COMPANY_NAME_KO, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_NAME, SITE_URL, TAB_TITLE, jsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
+import { BASE_OPEN_GRAPH, BRAND_NAME, COMPANY_NAME_KO, HOME_TITLE, SITE_DESCRIPTION, SITE_KEYWORDS, SITE_URL, TITLE_TEMPLATE, jsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { T } from "@/lib/i18n";
 import { LANG_INIT_SCRIPT } from "@/lib/language-init";
 import { inter, nanumGothic } from "./fonts";
@@ -8,10 +8,10 @@ import "./globals.css";
 export const metadata: Metadata = {
   // 대표 주소 고정: https://www.jstworks.com (src/lib/seo.ts 의 SITE_URL)
   metadataBase: new URL(SITE_URL),
-  // 브라우저 탭 제목: 모든 페이지가 "Joshua Tree Works" 하나만 씁니다(하위 페이지는 title 을 넣지 않아 이 값을 물려받음)
-  title: TAB_TITLE,
+  // 제목(검색 결과·브라우저 탭): 홈은 HOME_TITLE, 하위 페이지는 "페이지명 | 조슈아트리웍스"
+  title: { default: HOME_TITLE, template: TITLE_TEMPLATE },
   description: SITE_DESCRIPTION,
-  applicationName: SITE_NAME,
+  applicationName: BRAND_NAME,
   keywords: SITE_KEYWORDS,
   authors: [{ name: COMPANY_NAME_KO, url: SITE_URL }],
   creator: COMPANY_NAME_KO,
@@ -22,10 +22,10 @@ export const metadata: Metadata = {
   openGraph: {
     ...BASE_OPEN_GRAPH,
     url: "/",
-    title: `${SITE_NAME} — 미국향 커머스 플랫폼`,
+    title: HOME_TITLE,
     description: SITE_DESCRIPTION,
   },
-  twitter: { card: "summary_large_image", title: `${SITE_NAME} — 미국향 커머스 플랫폼`, description: SITE_DESCRIPTION },
+  twitter: { card: "summary_large_image", title: HOME_TITLE, description: SITE_DESCRIPTION },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large" } },
   formatDetection: { telephone: false, address: false, email: false },
 };
@@ -46,10 +46,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         {/* 고른 언어(KO/EN)를 첫 화면 전에 표시합니다. 새로고침해도 한국어가 잠깐 보이지 않습니다 */}
         <script dangerouslySetInnerHTML={{ __html: LANG_INIT_SCRIPT }} />
+        {/* 검색엔진·AI 검색용 회사(Organization)·웹사이트(WebSite) 정보(JSON-LD). 사이트 카드(로고·이름)에 쓰입니다 */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd([organizationJsonLd(), websiteJsonLd()]) }} />
       </head>
       <body>
-        {/* 검색엔진·AI 검색용 회사·웹사이트 정보(JSON-LD) */}
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd([organizationJsonLd(), websiteJsonLd()]) }} />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2.5 focus:text-sm focus:text-primary-foreground"

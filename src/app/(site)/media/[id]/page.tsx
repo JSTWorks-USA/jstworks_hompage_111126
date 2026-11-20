@@ -5,7 +5,7 @@ import { ArrowLeftIcon } from "@/components/icons";
 import { Region } from "@/components/localized";
 import { Container } from "@/components/site-ui";
 import { NEWS } from "@/content/site";
-import { BASE_OPEN_GRAPH, SITE_NAME, articleJsonLd, articlePath, isoDate, jsonLd } from "@/lib/seo";
+import { BASE_OPEN_GRAPH, BRAND_NAME, articleJsonLd, articlePath, isoDate, jsonLd } from "@/lib/seo";
 import { articlePreview } from "../article-body";
 import { ArticleContent } from "../article-content";
 import { T } from "@/lib/i18n";
@@ -32,8 +32,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!item) return {};
   const description = summaryOf(item);
   const path = articlePath(item);
-  // 탭 제목은 레이아웃의 "Joshua Tree Works" 그대로. 기사 제목은 링크 공유 미리보기에만 씁니다
+  // 제목: "기사 제목 | 조슈아트리웍스" (레이아웃의 TITLE_TEMPLATE)
   return {
+    title: item.title,
     description,
     alternates: { canonical: path },
     openGraph: {
@@ -45,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       publishedTime: isoDate(item.date),
       ...(item.cover ? { images: [{ url: item.cover.src, width: item.cover.width, height: item.cover.height, alt: item.cover.alt }] } : {}),
     },
-    twitter: { card: "summary_large_image", title: `${item.title} | ${SITE_NAME}`, description },
+    twitter: { card: "summary_large_image", title: `${item.title} | ${BRAND_NAME}`, description },
   };
 }
 

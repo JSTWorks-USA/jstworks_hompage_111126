@@ -11,14 +11,21 @@ import { CONTACT_EMAIL, OFFICE_LOCATIONS, PEOPLE, dateKey, type NewsItem } from 
 export const SITE_URL = "https://www.jstworks.com";
 
 export const SITE_NAME = "Joshua Tree WORKS";
-/** 브라우저 탭 제목. 어느 페이지에서나 이 이름 하나만 보입니다(페이지 이름을 앞에 붙이지 않음) */
-export const TAB_TITLE = "Joshua Tree Works";
+/**
+ * 검색 결과·사이트 카드에 보일 한글 회사명. og:site_name, application-name, 구조화 데이터 이름에 씁니다.
+ * 네이버·구글에서 회사명으로 검색할 때 이 이름과 아래 다른 이름들로 같은 회사임을 알아봅니다.
+ */
+export const BRAND_NAME = "조슈아트리웍스";
+/** 홈 제목(검색 결과 제목·브라우저 탭) */
+export const HOME_TITLE = "조슈아트리웍스(JSTWorks) | Joshua Tree Works - 미국향 커머스 플랫폼";
+/** 하위 페이지 제목 형식: "People | 조슈아트리웍스" */
+export const TITLE_TEMPLATE = `%s | ${BRAND_NAME}`;
 export const COMPANY_NAME_KO = "조슈아트리웍스 주식회사";
 export const COMPANY_NAME_EN = "Joshua Tree Works CO., Ltd.";
 
 /** 사이트 전체 설명(검색 결과 아래 문구·링크 공유 미리보기·AI 요약에 쓰입니다) */
 export const SITE_DESCRIPTION =
-  "조슈아트리웍스(Joshua Tree WORKS)는 검증된 한국 브랜드의 미국 독점영업권과 자사 IP(K-GANADA™, 젠틀복스)를 결합한 미국향 커머스 플랫폼입니다. 서울 본사와 미국 캘리포니아 얼바인 법인(H&H USA LLC)이 함께 K-Play·K-Living·K-Beauty 제품을 미국 시장에 선보입니다.";
+  "조슈아트리웍스(JSTWorks, Joshua Tree Works)는 검증된 한국 브랜드의 미국 독점영업권과 자사 IP(K-GANADA™, 젠틀복스)를 결합한 미국향 커머스 플랫폼입니다. 서울 본사와 미국 캘리포니아 얼바인 법인(H&H USA LLC)이 함께 K-Play·K-Living·K-Beauty 제품을 미국 시장에 선보입니다.";
 
 export const SITE_KEYWORDS = [
   "조슈아트리웍스",
@@ -68,22 +75,23 @@ export const PAGE_SEO = {
 /** 링크 공유 미리보기 공통 값 (페이지의 openGraph 는 레이아웃 값과 합쳐지지 않고 통째로 바뀌므로 매번 함께 넣습니다) */
 export const BASE_OPEN_GRAPH = {
   type: "website",
-  siteName: SITE_NAME,
+  siteName: BRAND_NAME,
   locale: "ko_KR",
   alternateLocale: ["en_US"],
 } satisfies NonNullable<Metadata["openGraph"]>;
 
 /**
  * 페이지 메타데이터: 설명·대표 주소(canonical)·링크 공유 미리보기.
- * 탭 제목(title)은 넣지 않아 레이아웃의 TAB_TITLE 이 그대로 보입니다. 페이지 이름은 링크 공유 제목에만 씁니다.
+ * 제목은 "페이지명 | 조슈아트리웍스" (레이아웃의 TITLE_TEMPLATE 이 뒤를 붙입니다).
  */
 export function pageMetadata(key: keyof typeof PAGE_SEO, path: string): Metadata {
   const { title, description } = PAGE_SEO[key];
   return {
+    title,
     description,
     alternates: { canonical: path },
-    openGraph: { ...BASE_OPEN_GRAPH, url: path, title: `${title} | ${SITE_NAME}`, description },
-    twitter: { card: "summary_large_image", title: `${title} | ${SITE_NAME}`, description },
+    openGraph: { ...BASE_OPEN_GRAPH, url: path, title: `${title} | ${BRAND_NAME}`, description },
+    twitter: { card: "summary_large_image", title: `${title} | ${BRAND_NAME}`, description },
   };
 }
 
@@ -116,20 +124,22 @@ export function organizationJsonLd() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": `${SITE_URL}/#organization`,
-    name: COMPANY_NAME_KO,
-    alternateName: [SITE_NAME, COMPANY_NAME_EN, "JSTWorks", "조슈아트리웍스"],
+    name: BRAND_NAME,
+    alternateName: ["JSTWorks", "Joshua Tree Works", "JOSHUA TREE WORKS", COMPANY_NAME_KO],
     url: SITE_URL,
-    logo: `${SITE_URL}/apple-icon.png`,
+    // 정사각형 로고 512×512 (public/logo.png)
+    logo: `${SITE_URL}/logo.png`,
     image: `${SITE_URL}/opengraph-image.jpg`,
     description: SITE_DESCRIPTION,
     email: CONTACT_EMAIL,
     foundingDate: "2025-12-15",
     ...(ceo ? { founder: { "@type": "Person", name: ceo.name, jobTitle: ceo.role } } : {}),
+    // 3F Joshuatree Building, Yeoksam-ro 26-gil 5, Gangnam-Gu, Seoul, Republic of Korea
     address: {
       "@type": "PostalAddress",
-      streetAddress: "역삼로26길 5, 조슈아트리빌딩",
-      addressLocality: "강남구",
-      addressRegion: "서울",
+      streetAddress: "3F Joshuatree Building, Yeoksam-ro 26-gil 5",
+      addressLocality: "Gangnam-Gu",
+      addressRegion: "Seoul",
       addressCountry: "KR",
     },
     contactPoint: { "@type": "ContactPoint", contactType: "customer service", email: CONTACT_EMAIL, availableLanguage: ["Korean", "English"] },
@@ -159,8 +169,8 @@ export function websiteJsonLd() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "@id": `${SITE_URL}/#website`,
-    name: SITE_NAME,
-    alternateName: COMPANY_NAME_KO,
+    name: BRAND_NAME,
+    alternateName: ["JSTWorks", "Joshua Tree Works"],
     url: SITE_URL,
     inLanguage: ["ko-KR", "en-US"],
     publisher: { "@id": `${SITE_URL}/#organization` },
